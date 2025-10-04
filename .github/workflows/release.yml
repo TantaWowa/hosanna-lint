@@ -93,10 +93,12 @@ jobs:
       - name: Publish to npm
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_CONFIG_PROVENANCE: false
         run: |
           DIST_TAG="${{ inputs.npmTag }}"
           if [[ -z "$DIST_TAG" ]]; then DIST_TAG=latest; fi
-          npm publish --provenance --access public --tag "$DIST_TAG"
+          echo "Publishing version $(node -p 'require("./package.json").version') with tag $DIST_TAG"
+          npm publish --access public --tag "$DIST_TAG"
 
       - name: Extract changelog entry
         id: changelog
