@@ -1,0 +1,20 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+
+# TypeScript declaration files
+**/*.d.ts
+
+# JavaScript files
+**/*.js
+
+# Test files
+**/*.test.ts
+**/*.spec.ts
+src/__test__/**
+
+# Sample files (contain intentional errors)
+src/__test__/samples/**
+

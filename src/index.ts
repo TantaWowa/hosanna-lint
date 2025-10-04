@@ -15,6 +15,11 @@ import noNumberIsNaN from './rules/no-number-isnan';
 import noUnsupportedSpreadOperator from './rules/no-unsupported-spread-operator';
 import noArgumentBinding from './rules/no-argument-binding';
 import noNonNullOnCallExpression from './rules/no-non-null-on-call-expression';
+import noIsNaNUnreliable from './rules/no-isnan-unreliable';
+import noLargeNumericLiterals from './rules/no-large-numeric-literals';
+import noFunctionExpressionOnAnonymousObject from './rules/no-function-expression-on-anonymous-object';
+import noUnsupportedDeleteOperator from './rules/no-unsupported-delete-operator';
+import noRestOperator from './rules/no-rest-operator';
 
 const plugin = {
   rules: {
@@ -35,6 +40,11 @@ const plugin = {
     'no-unsupported-spread-operator': noUnsupportedSpreadOperator,
     'no-argument-binding': noArgumentBinding,
     'no-non-null-on-call-expression': noNonNullOnCallExpression,
+    'no-isnan-unreliable': noIsNaNUnreliable,
+    'no-large-numeric-literals': noLargeNumericLiterals,
+    'no-function-expression-on-anonymous-object': noFunctionExpressionOnAnonymousObject,
+    'no-unsupported-delete-operator': noUnsupportedDeleteOperator,
+    'no-rest-operator': noRestOperator,
   },
 };
 

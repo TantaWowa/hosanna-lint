@@ -5,5 +5,15 @@
   "vitest.enable": true,
   "vitest.include": [
     "src/**/*.test.ts"
+  ],
+  "eslint.experimental.useFlatConfig": true,
+  "eslint.options": {
+    "flags": ["unstable_flat_config"]
+  },
+  "eslint.workingDirectories": [
+    "."
+  ],
+  "eslint.validate": [
+    "typescript"
   ]
 }
