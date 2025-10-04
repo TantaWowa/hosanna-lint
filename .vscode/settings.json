@@ -15,5 +15,27 @@
   ],
   "eslint.validate": [
     "typescript"
-  ]
+  ],
+  "eslint.ignorePatterns": [
+    "**/__test__/**",
+    "**/*.test.ts",
+    "**/*.spec.ts",
+    "src/__test__/**"
+  ],
+  "eslint.codeActionOnSave": {
+    "enable": false
+  },
+  "eslint.runOnSave": {
+    "enable": true,
+    "errorOnType": false
+  },
+  "eslint.config": "eslint.config.mjs",
+  "eslint.enable": true,
+  "files.exclude": {
+    "**/__test__/samples/**": true
+  },
+  "search.exclude": {
+    "**/__test__/samples/**": true
+  },
+  "typescript.preferences.excludeLibrary": true
 }
