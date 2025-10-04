@@ -1,0 +1,4 @@
+// Test discovery and running
+- Use vitest for running tests
+- Test files are located in src/**/*.test.ts
+- Tests should be automatically discovered and runnable from the test explorer
