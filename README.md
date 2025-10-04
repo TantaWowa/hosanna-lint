@@ -70,22 +70,29 @@ import { Button } from '@hs-src/hosanna-ui/views/controls/Button';
 
 **Error level:** `error`
 
-Requires all imports from hosanna packages to use the `@hs-src/` prefix.
+Requires all imports from hosanna packages to use the `@hs-src/` prefix, including relative imports.
 
 **Why this matters:**
 - Ensures consistent import paths across the codebase
 - Provides clear separation between source and generated packages
 - Helps maintain proper architectural boundaries
+- Applies to both absolute and relative imports containing hosanna packages
 
 **Example violations:**
 ```typescript
 // ❌ Bad - missing @hs-src/ prefix
 import { Button } from 'hosanna-ui/views/controls/Button';
 import { Bridge } from 'hosanna-bridge';
+import { Key } from '../../../hosanna-bridge-lib/api';
 
 // ✅ Good - proper @hs-src/ prefix
 import { Button } from '@hs-src/hosanna-ui/views/controls/Button';
 import { Bridge } from '@hs-src/hosanna-bridge';
+import { Key } from '@hs-src/hosanna-bridge-lib/api';
+
+// ✅ Fine - imports not involving hosanna packages
+import { Component } from '../local/component';
+import { Util } from '../../other/utils';
 ```
 
 ## Development

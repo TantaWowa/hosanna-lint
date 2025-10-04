@@ -93,10 +93,10 @@ describe('hosanna-import-prefix', () => {
     });
   });
 
-  it('should handle relative path imports with hosanna packages', () => {
+  it('should fix relative path imports with hosanna package names', () => {
     ruleTester.run('hosanna-import-prefix', rule, {
       valid: [
-        // These should not trigger because they're relative paths, not package imports
+        // These should not trigger because they don't contain hosanna packages
         "import { Component } from '../../other/component';",
         "import { Util } from '../shared/utils';",
         "import { Helper } from './local/helper';",
@@ -111,7 +111,7 @@ describe('hosanna-import-prefix', () => {
               data: { source: '../../hosanna-ui/views/Button' },
             },
           ],
-          output: "import { Button } from '../../@hs-src/hosanna-ui/views/Button';",
+          output: "import { Button } from '@hs-src/hosanna-ui/views/Button';",
         },
         {
           code: "import { Bridge } from '../hosanna-bridge/lib/core';",
@@ -121,7 +121,7 @@ describe('hosanna-import-prefix', () => {
               data: { source: '../hosanna-bridge/lib/core' },
             },
           ],
-          output: "import { Bridge } from '../@hs-src/hosanna-bridge/lib/core';",
+          output: "import { Bridge } from '@hs-src/hosanna-bridge/lib/core';",
         },
         {
           code: "import { List } from '../../../hosanna-list/components/List';",
@@ -131,7 +131,7 @@ describe('hosanna-import-prefix', () => {
               data: { source: '../../../hosanna-list/components/List' },
             },
           ],
-          output: "import { List } from '../../../@hs-src/hosanna-list/components/List';",
+          output: "import { List } from '@hs-src/hosanna-list/components/List';",
         },
         {
           code: "import type { HttpClient } from '../../hosanna-bridge-http/client';",
@@ -141,7 +141,7 @@ describe('hosanna-import-prefix', () => {
               data: { source: '../../hosanna-bridge-http/client' },
             },
           ],
-          output: "import type { HttpClient } from '../../@hs-src/hosanna-bridge-http/client';",
+          output: "import type { HttpClient } from '@hs-src/hosanna-bridge-http/client';",
         },
         {
           code: "import { Targets } from '../hosanna-bridge-targets/src/index';",
@@ -151,7 +151,7 @@ describe('hosanna-import-prefix', () => {
               data: { source: '../hosanna-bridge-targets/src/index' },
             },
           ],
-          output: "import { Targets } from '../@hs-src/hosanna-bridge-targets/src/index';",
+          output: "import { Targets } from '@hs-src/hosanna-bridge-targets/src/index';",
         },
       ],
     });

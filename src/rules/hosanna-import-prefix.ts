@@ -43,16 +43,15 @@ const rule: Rule.RuleModule = {
                     const hosannaPackagesList = ['hosanna-ui', 'hosanna-bridge', 'hosanna-bridge-lib', 'hosanna-bridge-targets', 'hosanna-list', 'hosanna-bridge-http'];
 
                     for (const packageName of hosannaPackagesList) {
-                      // Find the first occurrence of /packageName or ^packageName
+                      // Find the first occurrence of packageName
                       const index = source.indexOf(packageName);
                       if (index !== -1) {
                         // Check if it's not already prefixed with @hs-src/
                         const beforePackage = source.substring(0, index);
                         if (!beforePackage.includes('@hs-src/')) {
-                          // Replace the package name with @hs-src/packageName
-                          const before = source.substring(0, index);
-                          const after = source.substring(index + packageName.length);
-                          const fixedSource = `${before}@hs-src/${packageName}${after}`;
+                          // Replace everything before the package name with @hs-src/
+                          const afterPackage = source.substring(index);
+                          const fixedSource = `@hs-src/${afterPackage}`;
                           return fixer.replaceText(node.source, `'${fixedSource}'`);
                         }
                       }
