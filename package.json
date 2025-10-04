@@ -20,8 +20,8 @@
     "lint-fix": "eslint --config eslint.config.mjs --ignore-pattern \"node_modules/**\" --ignore-pattern \"dist/**\" --ignore-pattern \"**/*.d.ts\" --ignore-pattern \"**/*.js\" --fix",
     "lint-ide": "eslint --config eslint.config.mjs --ignore-pattern \"node_modules/**\" --ignore-pattern \"dist/**\" --ignore-pattern \"**/*.d.ts\" --ignore-pattern \"**/*.js\" --format compact",
     "watch": "tsc --project tsconfig.build.json --watch",
-    "changelog": "ai-changelog-generator --write",
-    "changelog:dry": "ai-changelog-generator --dry-run"
+    "changelog": "npx ai-changelog-generator --write",
+    "changelog:dry": "npx ai-changelog-generator --dry-run"
   },
   "keywords": [
     "eslint",
