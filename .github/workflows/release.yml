@@ -1,0 +1,127 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "New semver version (e.g., 0.11.0, 0.11.0-rc.1)"
+        required: true
+        type: string
+      npmTag:
+        description: "Optional npm dist-tag (e.g., latest, next)"
+        required: false
+        default: latest
+        type: string
+
+permissions:
+  contents: write
+  packages: write
+
+jobs:
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+
+    env:
+      NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      XAI_API_KEY: ${{ secrets.XAI_API_KEY }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          registry-url: "https://registry.npmjs.org"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Build
+        run: npm run build
+
+      - name: Test
+        run: npm test
+
+      - name: Configure Git user
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Create release branch
+        run: |
+          BRANCH="release/v${{ inputs.version }}"
+          git checkout -b "$BRANCH"
+
+      - name: Bump version in package.json
+        run: |
+          NEW_VERSION="${{ inputs.version }}"
+          if [[ -z "$NEW_VERSION" ]]; then echo "version input required"; exit 1; fi
+          npm version "$NEW_VERSION" --no-git-tag-version
+
+      - name: Generate CHANGELOG.md entry
+        env:
+          XAI_API_KEY: ${{ secrets.XAI_API_KEY }}
+        run: |
+          npm run changelog
+
+      - name: Commit version and changelog
+        run: |
+          git add package.json package-lock.json CHANGELOG.md
+          git commit -m "chore(release): v${{ inputs.version }}"
+
+      - name: Create tag
+        run: |
+          git tag "v${{ inputs.version }}"
+
+      - name: Push branch and tag
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          BRANCH="release/v${{ inputs.version }}"
+          git push origin "$BRANCH"
+          git push origin "v${{ inputs.version }}"
+
+      - name: Publish to npm
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          DIST_TAG="${{ inputs.npmTag }}"
+          if [[ -z "$DIST_TAG" ]]; then DIST_TAG=latest; fi
+          npm publish --provenance --access public --tag "$DIST_TAG"
+
+      - name: Extract changelog entry
+        id: changelog
+        run: |
+          # Extract the latest version entry from CHANGELOG.md
+          # The new entry is added after "# Changelog" and before any existing entries
+          sed -n '/^## \[/, /^## \[/p' CHANGELOG.md | head -n -1 > changelog_entry.md
+
+          echo "content<<EOF" >> $GITHUB_OUTPUT
+          cat changelog_entry.md >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ inputs.version }}
+          name: v${{ inputs.version }}
+          body: ${{ steps.changelog.outputs.content }}
+
+      - name: Merge release branch to main
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          BRANCH="release/v${{ inputs.version }}"
+          git checkout main
+          git pull --ff-only origin main
+          git merge --no-ff "$BRANCH" -m "Merge release v${{ inputs.version }} into main"
+          git push origin main
