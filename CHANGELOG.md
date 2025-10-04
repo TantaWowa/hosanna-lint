@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.2.0] - 2025-10-04
+
+### Added
+- New ESLint rules to disallow IIFE usage, function references outside modules, closure variable modification, and TypeScript module declarations, with corresponding test cases.
+- ESLint rules to disallow function expressions on anonymous objects, `isNaN` usage, large numeric literals, rest operator, and delete operator, including test cases and updated ESLint configuration.
+- ESLint rules to disallow unsupported Hosanna features such as argument binding, `Number.EPSILON`, non-null assertions on call expressions, and unsupported array/string methods, with test cases.
+- Configuration files for Vitest and ESLint, including tests for new rules on await expressions, computed properties, console methods, date usage, inline classes, and JSON imports.
+
+### Changed
+- Updated VSCode ESLint settings to ignore test files and enhance code action on save configurations.
+- Enhanced README with detailed descriptions of new ESLint rules for import/export, function/expression, language features, API restrictions, and type/syntax rules, including violation examples and recommended configurations for Hosanna development.
+
 ## [1.1.2] - 2025-10-04
 
 ### Added
@@ -37,6 +49,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `hosanna-import-prefix` rule to enforce @hs-src/ prefix for hosanna package imports
 
 ## [Unreleased]
+
 
 
 
