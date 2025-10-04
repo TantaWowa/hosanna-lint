@@ -20,6 +20,10 @@ import noLargeNumericLiterals from './rules/no-large-numeric-literals';
 import noFunctionExpressionOnAnonymousObject from './rules/no-function-expression-on-anonymous-object';
 import noUnsupportedDeleteOperator from './rules/no-unsupported-delete-operator';
 import noRestOperator from './rules/no-rest-operator';
+import noIifeUsage from './rules/no-iife-usage';
+import noTsModuleDeclarations from './rules/no-ts-module-declarations';
+import noFunctionReferenceOutsideModule from './rules/no-function-reference-outside-module';
+import noClosureVariableModification from './rules/no-closure-variable-modification';
 
 const plugin = {
   rules: {
@@ -45,6 +49,10 @@ const plugin = {
     'no-function-expression-on-anonymous-object': noFunctionExpressionOnAnonymousObject,
     'no-unsupported-delete-operator': noUnsupportedDeleteOperator,
     'no-rest-operator': noRestOperator,
+    'no-iife-usage': noIifeUsage,
+    'no-ts-module-declarations': noTsModuleDeclarations,
+    'no-function-reference-outside-module': noFunctionReferenceOutsideModule,
+    'no-closure-variable-modification': noClosureVariableModification,
   },
 };
 
