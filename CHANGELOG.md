@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.1.2] - 2025-10-04
+
+### Added
+- Test file to demonstrate current rule behavior for hosanna import prefix.
+
+### Changed
+- Enhanced README and tests for hosanna import prefix rule to clarify handling of relative imports.
+- Updated examples and test cases to ensure consistent application of the `@hs-src/` prefix for both absolute and relative imports of hosanna packages.
+
 ## [1.1.0] - 2025-10-04
 
 ### Added
@@ -28,5 +37,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `hosanna-import-prefix` rule to enforce @hs-src/ prefix for hosanna package imports
 
 ## [Unreleased]
+
 
 
