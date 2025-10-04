@@ -1,0 +1,59 @@
+import { Rule } from 'eslint';
+
+const rule: Rule.RuleModule = {
+  meta: {
+    type: 'problem',
+    docs: {
+      description: 'Restrict spread operator usage as it is not supported in all contexts in Hosanna',
+      category: 'Best Practices',
+      recommended: true,
+    },
+    fixable: 'code',
+    schema: [],
+    messages: {
+      spreadInUnsupportedContext: 'Spread operator is not supported in this context in Hosanna/BrightScript.',
+    },
+  },
+  create: function (context) {
+    return {
+      // Check spread in function calls
+      CallExpression: function (node) {
+        // Check for spread in function arguments
+        for (const arg of node.arguments) {
+          if (arg.type === 'SpreadElement') {
+            context.report({
+              node: arg,
+              messageId: 'spreadInUnsupportedContext',
+            });
+          }
+        }
+      },
+
+      // Check spread in array literals
+      ArrayExpression: function (node) {
+        for (const element of node.elements) {
+          if (element && element.type === 'SpreadElement') {
+            context.report({
+              node: element,
+              messageId: 'spreadInUnsupportedContext',
+            });
+          }
+        }
+      },
+
+      // Check spread in object literals (computed properties are already handled elsewhere)
+      ObjectExpression: function (node) {
+        for (const property of node.properties) {
+          if (property.type === 'SpreadElement') {
+            context.report({
+              node: property,
+              messageId: 'spreadInUnsupportedContext',
+            });
+          }
+        }
+      },
+    };
+  },
+};
+
+export default rule;
