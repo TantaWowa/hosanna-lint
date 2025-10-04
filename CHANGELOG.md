@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.1.0] - 2025-10-04
+
+### Added
+- Added `NPM_CONFIG_PROVENANCE` to CI workflow for semantic-release to enhance package publishing security.
+
+### Removed
+- Removed `NPM_CONFIG_PROVENANCE` from npm publish command in CI workflow to streamline the process.
+
 All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
@@ -20,4 +28,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `hosanna-import-prefix` rule to enforce @hs-src/ prefix for hosanna package imports
 
 ## [Unreleased]
+
 
