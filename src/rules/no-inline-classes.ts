@@ -15,41 +15,26 @@ const rule: Rule.RuleModule = {
     },
   },
   create: function (context) {
-    let inFunction = false;
-    let inMethod = false;
-
     return {
-      FunctionDeclaration: function () {
-        inFunction = true;
-      },
-      'FunctionDeclaration:exit': function () {
-        inFunction = false;
-      },
-
-      FunctionExpression: function () {
-        inFunction = true;
-      },
-      'FunctionExpression:exit': function () {
-        inFunction = false;
-      },
-
-      ArrowFunctionExpression: function () {
-        inFunction = true;
-      },
-      'ArrowFunctionExpression:exit': function () {
-        inFunction = false;
-      },
-
-      MethodDefinition: function () {
-        inMethod = true;
-      },
-      'MethodDefinition:exit': function () {
-        inMethod = false;
-      },
-
       ClassDeclaration: function (node) {
         // Check if we're inside a function or method
-        if (inFunction || inMethod) {
+        let current = node.parent;
+        const ancestors = [];
+        while (current) {
+          ancestors.push(current);
+          current = current.parent;
+        }
+
+        const isInsideFunction = ancestors.some((ancestor: any) =>
+          ancestor.type === 'FunctionDeclaration' ||
+          ancestor.type === 'FunctionExpression' ||
+          ancestor.type === 'ArrowFunctionExpression'
+        );
+        const isInsideMethod = ancestors.some((ancestor: any) =>
+          ancestor.type === 'MethodDefinition'
+        );
+
+        if (isInsideFunction || isInsideMethod) {
           context.report({
             node,
             messageId: 'inlineClassNotAllowed',
@@ -59,7 +44,23 @@ const rule: Rule.RuleModule = {
 
       ClassExpression: function (node) {
         // Class expressions are also not allowed in functions/methods
-        if (inFunction || inMethod) {
+        let current = node.parent;
+        const ancestors = [];
+        while (current) {
+          ancestors.push(current);
+          current = current.parent;
+        }
+
+        const isInsideFunction = ancestors.some((ancestor: any) =>
+          ancestor.type === 'FunctionDeclaration' ||
+          ancestor.type === 'FunctionExpression' ||
+          ancestor.type === 'ArrowFunctionExpression'
+        );
+        const isInsideMethod = ancestors.some((ancestor: any) =>
+          ancestor.type === 'MethodDefinition'
+        );
+
+        if (isInsideFunction || isInsideMethod) {
           context.report({
             node,
             messageId: 'inlineClassNotAllowed',

@@ -5,7 +5,6 @@ import noAwaitExpression from './rules/no-await-expression';
 import noNestedFunctions from './rules/no-nested-functions';
 import noInlineClasses from './rules/no-inline-classes';
 import noComputedPropertiesInObjects from './rules/no-computed-properties-in-objects';
-import noConsoleMethods from './rules/no-console-methods';
 import noDateUsage from './rules/no-date-usage';
 import noReservedWords from './rules/no-reserved-words';
 import noUnsupportedArrayMethods from './rules/no-unsupported-array-methods';
@@ -34,7 +33,6 @@ const plugin = {
     'no-nested-functions': noNestedFunctions,
     'no-inline-classes': noInlineClasses,
     'no-computed-properties-in-objects': noComputedPropertiesInObjects,
-    'no-console-methods': noConsoleMethods,
     'no-date-usage': noDateUsage,
     'no-reserved-words': noReservedWords,
     'no-unsupported-array-methods': noUnsupportedArrayMethods,

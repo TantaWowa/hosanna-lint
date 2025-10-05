@@ -15,20 +15,23 @@ const rule: Rule.RuleModule = {
     },
   },
   create: function (context) {
-    let functionDepth = 0;
-
     return {
-      // Track function depth
-      'FunctionDeclaration, FunctionExpression, ArrowFunctionExpression': function () {
-        functionDepth++;
-      },
-      'FunctionDeclaration:exit, FunctionExpression:exit, ArrowFunctionExpression:exit': function () {
-        functionDepth--;
-      },
-
       // Check for assignments in nested functions
       AssignmentExpression: function (node) {
-        if (functionDepth > 1) {
+        let current = node.parent;
+        const ancestors = [];
+        while (current) {
+          ancestors.push(current);
+          current = current.parent;
+        }
+
+        const functionLikeAncestors = ancestors.filter((ancestor: any) =>
+          ancestor.type === 'FunctionDeclaration' ||
+          ancestor.type === 'FunctionExpression' ||
+          ancestor.type === 'ArrowFunctionExpression'
+        );
+
+        if (functionLikeAncestors.length > 1) {
           // We're in a nested function - any assignment could potentially be problematic
           if (node.left.type === 'Identifier') {
             context.report({
@@ -41,7 +44,20 @@ const rule: Rule.RuleModule = {
 
       // Also check update expressions (++, --) in nested functions
       UpdateExpression: function (node) {
-        if (functionDepth > 1) {
+        let current = node.parent;
+        const ancestors = [];
+        while (current) {
+          ancestors.push(current);
+          current = current.parent;
+        }
+
+        const functionLikeAncestors = ancestors.filter((ancestor: any) =>
+          ancestor.type === 'FunctionDeclaration' ||
+          ancestor.type === 'FunctionExpression' ||
+          ancestor.type === 'ArrowFunctionExpression'
+        );
+
+        if (functionLikeAncestors.length > 1) {
           if (node.argument.type === 'Identifier') {
             context.report({
               node,

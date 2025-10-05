@@ -15,51 +15,53 @@ const rule: Rule.RuleModule = {
     },
   },
   create: function (context) {
-    const functionStack: string[] = [];
-
     return {
       FunctionDeclaration: function (node) {
-        // Track function declarations (but not at module level)
-        if (functionStack.length > 0) {
+        // Check if we're inside another function-like construct
+        let current = node.parent;
+        const ancestors = [];
+        while (current) {
+          ancestors.push(current);
+          current = current.parent;
+        }
+
+        const functionLikeAncestors = ancestors.filter((ancestor: any) =>
+          ancestor.type === 'FunctionDeclaration' ||
+          ancestor.type === 'FunctionExpression' ||
+          ancestor.type === 'ArrowFunctionExpression' ||
+          ancestor.type === 'MethodDefinition'
+        );
+
+        if (functionLikeAncestors.length > 0) {
           context.report({
             node,
             messageId: 'nestedFunctionNotSupported',
           });
         }
-        functionStack.push('function');
-      },
-      'FunctionDeclaration:exit': function () {
-        functionStack.pop();
       },
 
-      FunctionExpression: function (_node) {
-        // Track function expressions
-        if (functionStack.length > 0) {
+      FunctionExpression: function (node) {
+        // Check if we're inside another function-like construct
+        let current = node.parent;
+        const ancestors = [];
+        while (current) {
+          ancestors.push(current);
+          current = current.parent;
+        }
+
+        const functionLikeAncestors = ancestors.filter((ancestor: any) =>
+          ancestor.type === 'FunctionDeclaration' ||
+          ancestor.type === 'FunctionExpression' ||
+          ancestor.type === 'ArrowFunctionExpression' ||
+          ancestor.type === 'MethodDefinition'
+        );
+
+        if (functionLikeAncestors.length > 0) {
           context.report({
-            node: _node,
+            node,
             messageId: 'nestedFunctionNotSupported',
           });
         }
-        functionStack.push('function');
-      },
-      'FunctionExpression:exit': function () {
-        functionStack.pop();
-      },
-
-      ArrowFunctionExpression: function (_node) {
-        // Track arrow functions
-        functionStack.push('arrow');
-      },
-      'ArrowFunctionExpression:exit': function () {
-        functionStack.pop();
-      },
-
-      // MethodDefinition covers class methods
-      MethodDefinition: function (_node) {
-        functionStack.push('method');
-      },
-      'MethodDefinition:exit': function () {
-        functionStack.pop();
       },
     };
   },

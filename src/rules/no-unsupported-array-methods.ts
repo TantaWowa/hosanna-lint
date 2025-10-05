@@ -87,7 +87,7 @@ function isLikelyArray(node: any, context: any): boolean {
 
   // Check for variable references that are declared as arrays
   if (node.type === 'Identifier') {
-    const scope = context.getScope();
+    const scope = (context as any).sourceCode.getScope(node);
     const variable = scope.variables.find((v: any) => v.name === node.name);
     if (variable && variable.defs.length > 0) {
       const def = variable.defs[0];

@@ -15,51 +15,29 @@ const rule: Rule.RuleModule = {
     },
   },
   create: function (context) {
-    let inFunction = false;
-    let inClass = false;
-    const inModule = false;
-
     return {
-      // Track when we're inside various constructs
-      FunctionDeclaration: function () {
-        inFunction = true;
-      },
-      'FunctionDeclaration:exit': function () {
-        inFunction = false;
-      },
-
-      FunctionExpression: function () {
-        inFunction = true;
-      },
-      'FunctionExpression:exit': function () {
-        inFunction = false;
-      },
-
-      ArrowFunctionExpression: function () {
-        inFunction = true;
-      },
-      'ArrowFunctionExpression:exit': function () {
-        inFunction = false;
-      },
-
-      ClassDeclaration: function () {
-        inClass = true;
-      },
-      'ClassDeclaration:exit': function () {
-        inClass = false;
-      },
-
-      ClassExpression: function () {
-        inClass = true;
-      },
-      'ClassExpression:exit': function () {
-        inClass = false;
-      },
-
       // Check for top-level variable declarations with function references
       VariableDeclaration: function (node) {
-        // Only check if we're at the top level (not inside functions, classes, or modules)
-        if (!inFunction && !inClass && !inModule) {
+        // Check if we're at the top level (not inside functions, classes, or modules)
+        // In ESLint 9, getAncestors is not available, so we traverse the AST manually
+        let current = node.parent;
+        const ancestors = [];
+        while (current) {
+          ancestors.push(current);
+          current = current.parent;
+        }
+
+        const isInsideFunction = ancestors.some((ancestor: any) =>
+          ancestor.type === 'FunctionDeclaration' ||
+          ancestor.type === 'FunctionExpression' ||
+          ancestor.type === 'ArrowFunctionExpression'
+        );
+        const isInsideClass = ancestors.some((ancestor: any) =>
+          ancestor.type === 'ClassDeclaration' ||
+          ancestor.type === 'ClassExpression'
+        );
+
+        if (!isInsideFunction && !isInsideClass) {
           for (const declarator of node.declarations) {
             if (
               declarator.init &&
@@ -77,8 +55,25 @@ const rule: Rule.RuleModule = {
 
       // Also check assignment expressions
       AssignmentExpression: function (node) {
-        // Only check if we're at the top level
-        if (!inFunction && !inClass && !inModule) {
+        // Check if we're at the top level
+        let current = node.parent;
+        const ancestors = [];
+        while (current) {
+          ancestors.push(current);
+          current = current.parent;
+        }
+
+        const isInsideFunction = ancestors.some((ancestor: any) =>
+          ancestor.type === 'FunctionDeclaration' ||
+          ancestor.type === 'FunctionExpression' ||
+          ancestor.type === 'ArrowFunctionExpression'
+        );
+        const isInsideClass = ancestors.some((ancestor: any) =>
+          ancestor.type === 'ClassDeclaration' ||
+          ancestor.type === 'ClassExpression'
+        );
+
+        if (!isInsideFunction && !isInsideClass) {
           if (
             node.right &&
             (node.right.type === 'FunctionExpression' ||

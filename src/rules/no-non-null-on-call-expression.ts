@@ -25,7 +25,7 @@ const rule: Rule.RuleModule = {
             fix: (fixer) => {
               // Replace func()! with func()?.
               // This is a simplistic fix - in reality, you'd need to handle the return value properly
-              const callText = context.getSourceCode().getText(node.expression);
+              const callText = (context as any).sourceCode.getText(node.expression);
               return fixer.replaceText(node, `${callText}?`);
             },
           });
