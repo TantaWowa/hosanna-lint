@@ -22,6 +22,7 @@ describe('no-nested-functions', () => {
           class MyClass {
             method() { return 42; }
             arrowMethod = () => { return 42; };
+            constructor() { this.value = 42; }
           }
         `,
         `
@@ -145,8 +146,64 @@ describe('no-nested-functions', () => {
             }
           }
         `,
+        `
+          // Class methods should not be flagged as nested functions
+          class MyClass {
+            method1() { return 42; }
+            method2(param: string) { return param; }
+            async method3() { return await Promise.resolve(42); }
+          }
+        `,
+        `
+          // Arrow function expressions in classes should be allowed
+          class MyClass {
+            arrowMethod = () => { return this.value; };
+            method() {
+              const func = function() { return 42; };
+              return func();
+            }
+          }
+        `,
       ],
-      invalid: [],
+      invalid: [
+        {
+          code: `
+            class MyClass {
+              method() {
+                function nested() {
+                  return 42;
+                }
+                return nested();
+              }
+            }
+          `,
+          errors: [
+            {
+              messageId: 'nestedFunctionNotSupported',
+            },
+          ],
+        },
+        {
+          code: `
+            function outer() {
+              class MyClass {
+                method() {
+                  function nested() {
+                    return 42;
+                  }
+                  return nested();
+                }
+              }
+              return MyClass;
+            }
+          `,
+          errors: [
+            {
+              messageId: 'nestedFunctionNotSupported',
+            },
+          ],
+        },
+      ],
     });
   });
 });

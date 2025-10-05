@@ -20,6 +20,7 @@
     "lint-fix": "eslint --config eslint.config.mjs --ignore-pattern \"node_modules/**\" --ignore-pattern \"dist/**\" --ignore-pattern \"**/*.d.ts\" --ignore-pattern \"**/*.js\" --fix",
     "lint-ide": "eslint --config eslint.config.mjs --ignore-pattern \"node_modules/**\" --ignore-pattern \"dist/**\" --ignore-pattern \"**/*.d.ts\" --ignore-pattern \"**/*.js\" --format compact",
     "watch": "tsc --project tsconfig.build.json --watch",
+    "dev:watch": "nodemon --watch src --watch scripts --exec \"npm run build\" --ext ts,js,json",
     "changelog": "npx ai-changelog-generator --write",
     "changelog:dry": "npx ai-changelog-generator --dry-run"
   },
@@ -40,6 +41,7 @@
     "eslint": "^9.17.0",
     "eslint-formatter-compact": "^8.40.0",
     "eslint-plugin-unused-imports": "^4.1.4",
+    "nodemon": "^3.1.10",
     "typescript": "5.2.2",
     "typescript-eslint": "^8.18.1",
     "vitest": "^2.1.3"

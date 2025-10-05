@@ -97,6 +97,19 @@ describe('no-closure-variable-modification', () => {
       valid: [
         "let value = 42; function read() { return value; }", // Reading is fine
         "const config = { enabled: true }; function check() { return config.enabled; }", // Reading object properties is fine
+        `
+          // Test setup patterns should be allowed
+          describe('TestSuite', () => {
+            let sharedVar;
+            beforeEach(() => {
+              sharedVar = 'test';
+            });
+            it('should work', () => {
+              sharedVar = 'modified';
+              expect(sharedVar).toBe('modified');
+            });
+          });
+        `,
       ],
       invalid: [],
     });

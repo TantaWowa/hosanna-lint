@@ -28,8 +28,7 @@ const rule: Rule.RuleModule = {
         const functionLikeAncestors = ancestors.filter((ancestor: any) =>
           ancestor.type === 'FunctionDeclaration' ||
           ancestor.type === 'FunctionExpression' ||
-          ancestor.type === 'ArrowFunctionExpression' ||
-          ancestor.type === 'MethodDefinition'
+          ancestor.type === 'ArrowFunctionExpression'
         );
 
         if (functionLikeAncestors.length > 0) {
@@ -41,6 +40,11 @@ const rule: Rule.RuleModule = {
       },
 
       FunctionExpression: function (node) {
+        // Skip function expressions that are method bodies (they have MethodDefinition as parent)
+        if (node.parent && (node.parent as any).type === 'MethodDefinition') {
+          return;
+        }
+
         // Check if we're inside another function-like construct
         let current = node.parent;
         const ancestors = [];
@@ -52,8 +56,7 @@ const rule: Rule.RuleModule = {
         const functionLikeAncestors = ancestors.filter((ancestor: any) =>
           ancestor.type === 'FunctionDeclaration' ||
           ancestor.type === 'FunctionExpression' ||
-          ancestor.type === 'ArrowFunctionExpression' ||
-          ancestor.type === 'MethodDefinition'
+          ancestor.type === 'ArrowFunctionExpression'
         );
 
         if (functionLikeAncestors.length > 0) {

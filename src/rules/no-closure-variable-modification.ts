@@ -1,5 +1,35 @@
 import { Rule } from 'eslint';
 
+// Helper function to check if a variable is a closure variable
+function isClosureVariable(variableName: string, context: any, node: any): boolean {
+  // Be more lenient in test files - allow common testing patterns
+  const filename = context.filename || '';
+  const isTestFile = filename.includes('.test.') || filename.includes('.spec.') || filename.includes('/__tests__/');
+
+  if (isTestFile) {
+    // In test files, allow modifications to variables declared in test suite scopes
+    // This accommodates common patterns like describe/it blocks modifying shared state
+    return false;
+  }
+
+  const currentScope = context.sourceCode.getScope(node);
+
+  // Check if the variable is declared in the current scope or any outer scope
+  let scope = currentScope;
+  while (scope) {
+    // Check if the variable is declared in this scope
+    const variable = scope.variables.find((v: any) => v.name === variableName);
+    if (variable) {
+      // If it's declared in the current scope, it's not a closure variable
+      return scope !== currentScope;
+    }
+    scope = scope.upper;
+  }
+
+  // Variable not found in any scope - this shouldn't happen for valid code
+  return false;
+}
+
 const rule: Rule.RuleModule = {
   meta: {
     type: 'problem',
@@ -32,12 +62,14 @@ const rule: Rule.RuleModule = {
         );
 
         if (functionLikeAncestors.length > 1) {
-          // We're in a nested function - any assignment could potentially be problematic
+          // We're in a nested function - check if this is modifying a closure variable
           if (node.left.type === 'Identifier') {
-            context.report({
-              node,
-              messageId: 'closureVariableModification',
-            });
+            if (isClosureVariable(node.left.name, context, node)) {
+              context.report({
+                node,
+                messageId: 'closureVariableModification',
+              });
+            }
           }
         }
       },
@@ -59,10 +91,12 @@ const rule: Rule.RuleModule = {
 
         if (functionLikeAncestors.length > 1) {
           if (node.argument.type === 'Identifier') {
-            context.report({
-              node,
-              messageId: 'closureVariableModification',
-            });
+            if (isClosureVariable(node.argument.name, context, node)) {
+              context.report({
+                node,
+                messageId: 'closureVariableModification',
+              });
+            }
           }
         }
       },
