@@ -12,26 +12,26 @@ const ruleTester = new RuleTester({
 });
 
 describe('no-computed-properties-in-objects', () => {
-  it('should pass all object literals as placeholder rule', () => {
+  it('should pass valid computed properties (literals and enum references)', () => {
     ruleTester.run('no-computed-properties-in-objects', rule, {
       valid: [
+        // Regular properties (not computed)
         "const obj = { key: 'value' };",
+
+        // Literal keys (allowed)
         "const obj = { ['literal']: 'value' };",
         "const obj = { [`template`]: 'value' };",
         "const obj = { [123]: 'value' };",
         "const obj = { ['string']: 'value' };",
+        "const obj = { [true]: 'value' };",
+        "const obj = { [null]: 'value' };",
+
+        // Enum references (allowed)
         "const obj = { [MyEnum.Value]: 'allowed' };",
         "const obj = { [SomeEnum.KEY]: 'allowed' };",
-        `
-          enum MyEnum {
-            VALUE = 'value'
-          }
-          const obj = { [MyEnum.VALUE]: 'allowed' };
-        `,
-        "const obj = { [variable]: 'value' };",
-        "const obj = { [someFunction()]: 'value' };",
-        "const obj = { [a + b]: 'value' };",
-        "const obj = { [this.property]: 'value' };",
+        "const obj = { [Status.ACTIVE]: 'allowed' };",
+
+        // Complex objects with allowed computed properties
         `
           const obj = {
             normal: 'prop',
@@ -42,15 +42,78 @@ describe('no-computed-properties-in-objects', () => {
             }
           };
         `,
-        `
-          const obj = {
-            normal: 'prop',
-            [computed]: 'not allowed',
-            ['literal']: 'allowed'
-          };
-        `,
       ],
       invalid: [],
+    });
+  });
+
+  it('should report errors for invalid computed properties (variables and expressions)', () => {
+    ruleTester.run('no-computed-properties-in-objects', rule, {
+      valid: [],
+      invalid: [
+        {
+          code: "const obj = { [variable]: 'value' };",
+          errors: [
+            {
+              messageId: 'computedPropertyInObjectLiteral',
+            },
+          ],
+        },
+        {
+          code: "const obj = { [someFunction()]: 'value' };",
+          errors: [
+            {
+              messageId: 'computedPropertyInObjectLiteral',
+            },
+          ],
+        },
+        {
+          code: "const obj = { [a + b]: 'value' };",
+          errors: [
+            {
+              messageId: 'computedPropertyInObjectLiteral',
+            },
+          ],
+        },
+        {
+          code: "const obj = { [this.property]: 'value' };",
+          errors: [
+            {
+              messageId: 'computedPropertyInObjectLiteral',
+            },
+          ],
+        },
+        {
+          code: `
+            const obj = {
+              normal: 'prop',
+              [computed]: 'not allowed',
+              ['literal']: 'allowed'
+            };
+          `,
+          errors: [
+            {
+              messageId: 'computedPropertyInObjectLiteral',
+            },
+          ],
+        },
+        {
+          code: "const obj = { [index]: 'value' };",
+          errors: [
+            {
+              messageId: 'computedPropertyInObjectLiteral',
+            },
+          ],
+        },
+        {
+          code: "const obj = { [obj.nested.prop]: 'value' };",
+          errors: [
+            {
+              messageId: 'computedPropertyInObjectLiteral',
+            },
+          ],
+        },
+      ],
     });
   });
 });

@@ -22,6 +22,10 @@ import noIifeUsage from './rules/no-iife-usage';
 import noTsModuleDeclarations from './rules/no-ts-module-declarations';
 import noFunctionReferenceOutsideModule from './rules/no-function-reference-outside-module';
 import noClosureVariableModification from './rules/no-closure-variable-modification';
+import noExportAliasing from './rules/no-export-aliasing';
+import noUnionExpressionInNonStatement from './rules/no-union-expression-in-non-statement';
+import noCallOnAnonymousFunction from './rules/no-call-on-anonymous-function';
+import noImportExtensions from './rules/no-import-extensions';
 
 const preprocess = (text: string, filename: string) => {
   // Check if file starts with the exclude comment for any platform
@@ -60,6 +64,10 @@ const plugin = {
     'no-ts-module-declarations': noTsModuleDeclarations,
     'no-function-reference-outside-module': noFunctionReferenceOutsideModule,
     'no-closure-variable-modification': noClosureVariableModification,
+    'no-export-aliasing': noExportAliasing,
+    'no-union-expression-in-non-statement': noUnionExpressionInNonStatement,
+    'no-call-on-anonymous-function': noCallOnAnonymousFunction,
+    'no-import-extensions': noImportExtensions,
   },
   configs: {
     recommended: {
@@ -88,6 +96,10 @@ const plugin = {
         '@hosanna-eslint/no-ts-module-declarations': 'error',
         '@hosanna-eslint/no-function-reference-outside-module': 'error',
         '@hosanna-eslint/no-closure-variable-modification': 'error',
+        '@hosanna-eslint/no-export-aliasing': 'error',
+        '@hosanna-eslint/no-union-expression-in-non-statement': 'error',
+        '@hosanna-eslint/no-call-on-anonymous-function': 'error',
+        '@hosanna-eslint/no-import-extensions': 'warn',
       },
     },
   },

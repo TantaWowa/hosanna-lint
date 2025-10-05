@@ -2,27 +2,46 @@ import { Rule } from 'eslint';
 
 // BrightScript reserved words that cannot be used as variable or function names
 const BRIGHTSCRIPT_RESERVED_WORDS = new Set([
-  // Control flow
-  'if', 'then', 'else', 'endif', 'elseif', 'endwhile', 'endfunction', 'endsub',
-  'for', 'to', 'step', 'endfor', 'while', 'function', 'sub', 'end',
-
-  // Data types and declarations
-  'dim', 'as', 'integer', 'float', 'string', 'boolean', 'object', 'dynamic',
-  'void', 'interface',
-
-  // Operators and logic
-  'and', 'or', 'not',
-
-  // Keywords
-  'return', 'exit', 'goto', 'gosub', 'print', 'stop', 'run',
-
-  // Constants and built-ins
-  'true', 'false', 'invalid', 'type', 'box', 'unbox', 'createobject',
-  'getglobalaa', 'getlastcompileerror', 'getlastcompileerrorline',
-  'getlastruncompileerror', 'getlastruncompileerrorline',
-
-  // Roku specific
-  'roku', 'brightscript', 'scenegraph'
+  'and',
+  'createobject',
+  'dim',
+  'each',
+  'else',
+  'elseif',
+  'endif',
+  'end',
+  'endfor',
+  'endfunction',
+  'endsub',
+  'endwhile',
+  'exit',
+  'exitwhile',
+  'false',
+  'for',
+  'function',
+  'goto',
+  'if',
+  'invalid',
+  'let',
+  'line_num',
+  'next',
+  'not',
+  'objfun',
+  'or',
+  'pos',
+  'print',
+  'rem',
+  'return',
+  'rnd',
+  'step',
+  'stop',
+  'sub',
+  'tab',
+  'then',
+  'to',
+  'true',
+  'type',
+  'while'
 ]);
 
 const rule: Rule.RuleModule = {
