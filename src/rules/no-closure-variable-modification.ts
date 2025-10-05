@@ -15,7 +15,7 @@ function isClosureVariable(variableName: string, context: Rule.RuleContext, node
   const currentScope = context.sourceCode.getScope(node);
 
   // Check if the variable is declared in the current scope or any outer scope
-  let scope = currentScope;
+  let scope: Scope.Scope | null = currentScope;
   while (scope) {
     // Check if the variable is declared in this scope
     const variable = scope.variables.find((v: Scope.Variable) => v.name === variableName);

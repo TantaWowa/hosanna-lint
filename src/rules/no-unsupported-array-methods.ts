@@ -1,4 +1,4 @@
-import { Rule } from 'eslint';
+import { Rule, Scope } from 'eslint';
 
 // Array methods that are not supported in Hosanna/BrightScript
 const UNSUPPORTED_ARRAY_METHODS = new Set([
@@ -79,7 +79,7 @@ const rule: Rule.RuleModule = {
 };
 
 // Helper function to determine if an expression is likely an array
-function isLikelyArray(node: Rule.Node, context: Rule.RuleContext): boolean {
+function isLikelyArray(node: any, context: Rule.RuleContext): boolean {
   // Check for array literals
   if (node.type === 'ArrayExpression') {
     return true;
@@ -88,7 +88,7 @@ function isLikelyArray(node: Rule.Node, context: Rule.RuleContext): boolean {
   // Check for variable references that are declared as arrays
   if (node.type === 'Identifier') {
     const scope = context.sourceCode.getScope(node);
-    const variable = scope.variables.find((v: Rule.Node) => v.name === (node as Rule.Node & { name: string }).name);
+    const variable = scope.variables.find((v: Scope.Variable) => v.name === node.name);
     if (variable && variable.defs.length > 0) {
       const def = variable.defs[0];
       // Check if it's declared with array type annotation
@@ -114,7 +114,7 @@ function isLikelyArray(node: Rule.Node, context: Rule.RuleContext): boolean {
 }
 
 // Helper function to check if a type annotation represents an array
-function isArrayTypeAnnotation(typeAnnotation: Rule.Node): boolean {
+function isArrayTypeAnnotation(typeAnnotation: any): boolean {
   if (!typeAnnotation || !typeAnnotation.typeAnnotation) {
     return false;
   }

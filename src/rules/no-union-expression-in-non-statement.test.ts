@@ -28,6 +28,11 @@ describe('no-union-expression-in-non-statement', () => {
         "data.length--;",
         "this.items[index]++;", // This should be allowed as it's on a property access
 
+        // In for statement update clauses
+        "for (let i = 0; i < 10; i++) {}",
+        "for (let j = 0; j < arr.length; j--) {}",
+        "for (let k = 0; k < 5; k++) { console.log(k); }",
+
         // Other expressions that don't use ++ or --
         "let a = b + c;",
         "func();",
