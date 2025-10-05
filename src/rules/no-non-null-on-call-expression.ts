@@ -18,15 +18,15 @@ const rule: Rule.RuleModule = {
     return {
       CallExpression: function (node) {
         // Check if the callee is a non-null expression (like foo.bar!())
-        if ((node.callee as any).type === 'TSNonNullExpression') {
-          const nonNullExpr = node.callee as any; // TypeScript doesn't know TSNonNullExpression has expression
+        if ((node.callee as Rule.Node).type === 'TSNonNullExpression') {
+          const nonNullExpr = node.callee as Rule.Node & { expression: Rule.Node }; // TypeScript doesn't know TSNonNullExpression has expression
           context.report({
             node: node.callee,
             messageId: 'nonNullOnCallNotSupported',
             fix: (fixer) => {
               // Replace expression!() with expression?.()
-              const exprText = (context as any).sourceCode.getText(nonNullExpr.expression);
-              const argsText = node.arguments.map(arg => (context as any).sourceCode.getText(arg)).join(', ');
+              const exprText = context.sourceCode.getText(nonNullExpr.expression);
+              const argsText = node.arguments.map(arg => context.sourceCode.getText(arg)).join(', ');
               return fixer.replaceText(node, `${exprText}?.(${argsText})`);
             },
           });

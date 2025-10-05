@@ -14,22 +14,22 @@ const rule: Rule.RuleModule = {
       spreadInUnsupportedContext: 'Spread operator is not supported in this context in Hosanna/BrightScript.',
     },
   },
-  create: function (context) {
+  create: function (_context) {
     return {
       // Check spread in function calls
-      CallExpression: function (node) {
+      CallExpression: function (_node) {
         // DISABLED: All current uses appear valid, placeholder rule
         return;
       },
 
       // Check spread in array literals
-      ArrayExpression: function (node) {
+      ArrayExpression: function (_node) {
         // DISABLED: All current uses appear valid, placeholder rule
         return;
       },
 
       // Check spread in object literals (computed properties are already handled elsewhere)
-      ObjectExpression: function (node) {
+      ObjectExpression: function (_node) {
         // DISABLED: All current uses appear valid, placeholder rule
         return;
       },

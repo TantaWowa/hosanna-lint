@@ -30,7 +30,7 @@ const rule: Rule.RuleModule = {
             context.report({
               node,
               messageId: 'incrementDecrementOnlyInStatements',
-              fix: (fixer) => {
+              fix: (_fixer) => {
                 // For now, we can't provide an automatic fix as it would require
                 // significant refactoring to move the expression to a statement
                 return null;

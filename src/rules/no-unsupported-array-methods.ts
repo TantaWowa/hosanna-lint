@@ -79,7 +79,7 @@ const rule: Rule.RuleModule = {
 };
 
 // Helper function to determine if an expression is likely an array
-function isLikelyArray(node: any, context: any): boolean {
+function isLikelyArray(node: Rule.Node, context: Rule.RuleContext): boolean {
   // Check for array literals
   if (node.type === 'ArrayExpression') {
     return true;
@@ -87,8 +87,8 @@ function isLikelyArray(node: any, context: any): boolean {
 
   // Check for variable references that are declared as arrays
   if (node.type === 'Identifier') {
-    const scope = (context as any).sourceCode.getScope(node);
-    const variable = scope.variables.find((v: any) => v.name === node.name);
+    const scope = context.sourceCode.getScope(node);
+    const variable = scope.variables.find((v: Rule.Node) => v.name === (node as Rule.Node & { name: string }).name);
     if (variable && variable.defs.length > 0) {
       const def = variable.defs[0];
       // Check if it's declared with array type annotation
@@ -114,7 +114,7 @@ function isLikelyArray(node: any, context: any): boolean {
 }
 
 // Helper function to check if a type annotation represents an array
-function isArrayTypeAnnotation(typeAnnotation: any): boolean {
+function isArrayTypeAnnotation(typeAnnotation: Rule.Node): boolean {
   if (!typeAnnotation || !typeAnnotation.typeAnnotation) {
     return false;
   }

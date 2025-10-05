@@ -32,7 +32,7 @@ const rule: Rule.RuleModule = {
               // Replace Number.isNaN(arg) with isNaN(arg)
               const args = node.arguments;
               if (args.length === 1) {
-                const argText = (context as any).sourceCode.getText(args[0]);
+                const argText = context.sourceCode.getText(args[0]);
                 return fixer.replaceText(node, `isNaN(${argText})`);
               }
               return null;

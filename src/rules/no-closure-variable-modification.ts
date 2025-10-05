@@ -1,7 +1,7 @@
-import { Rule } from 'eslint';
+import { Rule, Scope } from 'eslint';
 
 // Helper function to check if a variable is a closure variable
-function isClosureVariable(variableName: string, context: any, node: any): boolean {
+function isClosureVariable(variableName: string, context: Rule.RuleContext, node: Rule.Node): boolean {
   // Be more lenient in test files - allow common testing patterns
   const filename = context.filename || '';
   const isTestFile = filename.includes('.test.') || filename.includes('.spec.') || filename.includes('/__tests__/');
@@ -18,7 +18,7 @@ function isClosureVariable(variableName: string, context: any, node: any): boole
   let scope = currentScope;
   while (scope) {
     // Check if the variable is declared in this scope
-    const variable = scope.variables.find((v: any) => v.name === variableName);
+    const variable = scope.variables.find((v: Scope.Variable) => v.name === variableName);
     if (variable) {
       // If it's declared in the current scope, it's not a closure variable
       return scope !== currentScope;
@@ -55,7 +55,7 @@ const rule: Rule.RuleModule = {
           current = current.parent;
         }
 
-        const functionLikeAncestors = ancestors.filter((ancestor: any) =>
+        const functionLikeAncestors = ancestors.filter((ancestor: Rule.Node) =>
           ancestor.type === 'FunctionDeclaration' ||
           ancestor.type === 'FunctionExpression' ||
           ancestor.type === 'ArrowFunctionExpression'
@@ -83,7 +83,7 @@ const rule: Rule.RuleModule = {
           current = current.parent;
         }
 
-        const functionLikeAncestors = ancestors.filter((ancestor: any) =>
+        const functionLikeAncestors = ancestors.filter((ancestor: Rule.Node) =>
           ancestor.type === 'FunctionDeclaration' ||
           ancestor.type === 'FunctionExpression' ||
           ancestor.type === 'ArrowFunctionExpression'

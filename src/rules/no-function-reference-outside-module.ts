@@ -27,12 +27,12 @@ const rule: Rule.RuleModule = {
           current = current.parent;
         }
 
-        const isInsideFunction = ancestors.some((ancestor: any) =>
+        const isInsideFunction = ancestors.some((ancestor: Rule.Node) =>
           ancestor.type === 'FunctionDeclaration' ||
           ancestor.type === 'FunctionExpression' ||
           ancestor.type === 'ArrowFunctionExpression'
         );
-        const isInsideClass = ancestors.some((ancestor: any) =>
+        const isInsideClass = ancestors.some((ancestor: Rule.Node) =>
           ancestor.type === 'ClassDeclaration' ||
           ancestor.type === 'ClassExpression'
         );
@@ -63,12 +63,12 @@ const rule: Rule.RuleModule = {
           current = current.parent;
         }
 
-        const isInsideFunction = ancestors.some((ancestor: any) =>
+        const isInsideFunction = ancestors.some((ancestor: Rule.Node) =>
           ancestor.type === 'FunctionDeclaration' ||
           ancestor.type === 'FunctionExpression' ||
           ancestor.type === 'ArrowFunctionExpression'
         );
-        const isInsideClass = ancestors.some((ancestor: any) =>
+        const isInsideClass = ancestors.some((ancestor: Rule.Node) =>
           ancestor.type === 'ClassDeclaration' ||
           ancestor.type === 'ClassExpression'
         );

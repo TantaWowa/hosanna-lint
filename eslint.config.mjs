@@ -10,6 +10,7 @@ export default tseslint.config(
       '**/*.js',
       '**/*.test.ts',
       '**/*.spec.ts',
+      'test-*',
       'src/__test__/**'
     ],
   },

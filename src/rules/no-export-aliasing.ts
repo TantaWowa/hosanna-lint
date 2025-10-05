@@ -22,7 +22,7 @@ const rule: Rule.RuleModule = {
           context.report({
             node,
             messageId: 'exportAliasingNotSupported',
-            fix: (fixer) => {
+            fix: (_fixer) => {
               // For now, we can't provide an automatic fix as it would require
               // significant refactoring to convert export = to named exports
               // The user will need to manually convert to named exports

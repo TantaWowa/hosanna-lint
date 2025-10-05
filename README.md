@@ -60,9 +60,23 @@ export default [
 
 ## Rules
 
-This plugin provides **30 specialized ESLint rules** organized by category to ensure Hosanna UI code quality and platform compatibility.
+This plugin provides **28 specialized ESLint rules** organized by category to ensure Hosanna UI code quality and platform compatibility.
 
 ### 📦 Import/Export Rules
+
+#### `hosanna-import-prefix`
+**Error level:** `error`
+
+Requires all imports from hosanna packages to use the `@hs-src/` prefix, including relative imports.
+
+**Example violations:**
+```typescript
+// ❌ Bad - missing @hs-src/ prefix
+import { Button } from 'hosanna-ui/views/controls/Button';
+
+// ✅ Good - proper @hs-src/ prefix
+import { Button } from '@hs-src/hosanna-ui/views/controls/Button';
+```
 
 #### `hosanna-import-prefix`
 **Error level:** `error`
@@ -99,6 +113,40 @@ Disallows JSON imports as they are not supported in Hosanna/BrightScript and can
 
 **Auto-fix:** Suggests `JSON.parse(ReadAsciiFile(...))` pattern.
 
+#### `no-export-aliasing`
+**Error level:** `error`
+
+Disallows export aliasing (`export =`) as it is not supported in Hosanna.
+
+**Example violations:**
+```typescript
+// ❌ Bad - export aliasing
+export = myFunction;
+const myClass = class {}; export = myClass;
+
+// ✅ Good - use named exports
+export { myFunction };
+export default myFunction;
+```
+
+#### `no-import-extensions`
+**Error level:** `warn`
+
+Disallows `.js` and `.ts` extensions in import paths.
+
+**Auto-fix:** Removes the file extension.
+
+**Example violations:**
+```typescript
+// ❌ Bad - includes file extension
+import { foo } from './utils/helper.js';
+import config from '../config/config.ts';
+
+// ✅ Good - no file extensions
+import { foo } from './utils/helper';
+import config from '../config/config';
+```
+
 ### 🔧 Function/Expression Rules
 
 #### `no-await-expression`
@@ -106,16 +154,36 @@ Disallows JSON imports as they are not supported in Hosanna/BrightScript and can
 
 Disallows `await` expressions since async/await is not supported in Hosanna/BrightScript.
 
-#### `no-iife-usage`
-**Error level:** `warn`
+#### `no-call-on-anonymous-function`
+**Error level:** `error`
 
-Warns about Immediately Invoked Function Expressions that may not work as expected.
+Disallows calls on anonymous function expressions as they may lack type information.
 
 **Example violations:**
 ```typescript
-// ❌ Warning - IIFE may not work correctly
+// ❌ Bad - direct call on anonymous function
+(function() { return 42; })();
+(function(x) { return x * 2; })(5);
+
+// ✅ Good - assign to variable first or use arrow functions
+const myFunc = function() { return 42; };
+myFunc();
+```
+
+#### `no-iife-usage`
+**Error level:** `error`
+
+Disallows Immediately Invoked Function Expressions as they are not supported in Hosanna.
+
+**Example violations:**
+```typescript
+// ❌ Bad - IIFE not supported
 (function() { console.log('IIFE'); })();
 (() => { console.log('arrow IIFE'); })();
+
+// ✅ Good - assign to variable first
+const myFunc = () => { console.log('not IIFE'); };
+myFunc();
 ```
 
 #### `no-nested-functions`
@@ -218,16 +286,23 @@ const combined = [1, 2, ...arr];
 const merged = { ...obj1, ...obj2 };
 ```
 
-#### `no-argument-binding`
+#### `no-union-expression-in-non-statement`
 **Error level:** `error`
 
-Disallows `.bind()` method calls since argument binding is not supported.
+Restricts `++` and `--` operators to only be used as statements or on property access expressions.
 
 **Example violations:**
 ```typescript
-// ❌ Bad - using bind()
-const bound = func.bind(obj);
-setTimeout(callback.bind(this), 1000);
+// ❌ Bad - increment/decrement in expressions
+let x = y++;
+const result = count--;
+func(x++);
+
+// ✅ Good - use as statements or on properties
+x++;
+y--;
+this.value++;
+obj.counter--;
 ```
 
 #### `no-non-null-on-call-expression`
@@ -350,11 +425,6 @@ let function = 'test';
 
 Warns about numeric literals exceeding Roku's safe integer limit (2147483647).
 
-#### `no-unsupported-delete-operator`
-**Error level:** `error`
-
-Disallows `delete` operator usage since it's not supported in BrightScript.
-
 ### 📋 Recommended Configuration
 
 For optimal Hosanna development, we recommend this configuration:
@@ -367,48 +437,49 @@ export default [
   // ... other config
   {
     plugins: {
-      '@tantawowa/hosanna': hosannaPlugin,
+      '@hosanna-eslint': hosannaPlugin,
     },
     rules: {
-      // Import rules
-      '@tantawowa/hosanna/hosanna-import-prefix': 'error',
-      '@tantawowa/hosanna/no-hosanna-generated-imports': 'error',
-      '@tantawowa/hosanna/no-json-imports': 'error',
+      // Import/Export rules
+      '@hosanna-eslint/hosanna-import-prefix': 'error',
+      '@hosanna-eslint/no-hosanna-generated-imports': 'error',
+      '@hosanna-eslint/no-json-imports': 'error',
+      '@hosanna-eslint/no-export-aliasing': 'error',
+      '@hosanna-eslint/no-import-extensions': 'warn',
 
-      // Critical language features
-      '@tantawowa/hosanna/no-await-expression': 'error',
-      '@tantawowa/hosanna/no-rest-operator': 'error',
-      '@tantawowa/hosanna/no-unsupported-spread-operator': 'error',
-      '@tantawowa/hosanna/no-argument-binding': 'error',
+      // Function/Expression rules
+      '@hosanna-eslint/no-await-expression': 'error',
+      '@hosanna-eslint/no-call-on-anonymous-function': 'error',
+      '@hosanna-eslint/no-iife-usage': 'error',
+      '@hosanna-eslint/no-nested-functions': 'error',
+      '@hosanna-eslint/no-function-expression-on-anonymous-object': 'error',
+      '@hosanna-eslint/no-function-reference-outside-module': 'error',
+      '@hosanna-eslint/no-closure-variable-modification': 'error',
 
-      // Function and structure rules
-      '@tantawowa/hosanna/no-nested-functions': 'error',
-      '@tantawowa/hosanna/no-inline-classes': 'error',
-      '@tantawowa/hosanna/no-function-expression-on-anonymous-object': 'error',
-      '@tantawowa/hosanna/no-function-reference-outside-module': 'error',
-      '@tantawowa/hosanna/no-closure-variable-modification': 'error',
+      // Language Feature rules
+      '@hosanna-eslint/no-rest-operator': 'error',
+      '@hosanna-eslint/no-unsupported-spread-operator': 'error',
+      '@hosanna-eslint/no-union-expression-in-non-statement': 'error',
+      '@hosanna-eslint/no-non-null-on-call-expression': 'error',
 
-      // API and built-in restrictions
-      '@tantawowa/hosanna/no-console-methods': 'error',
-      '@tantawowa/hosanna/no-date-usage': 'error',
-      '@tantawowa/hosanna/no-unsupported-array-methods': 'error',
-      '@tantawowa/hosanna/no-unsupported-string-methods': 'error',
+      // API/Built-in rules
+      '@hosanna-eslint/no-console-methods': 'error',
+      '@hosanna-eslint/no-unsupported-array-methods': 'error',
+      '@hosanna-eslint/no-unsupported-string-methods': 'error',
+      '@hosanna-eslint/no-date-usage': 'error',
+      '@hosanna-eslint/no-epsilon-usage': 'warn',
+      '@hosanna-eslint/no-nan-usage': 'error',
+      '@hosanna-eslint/no-number-isnan': 'error',
+      '@hosanna-eslint/no-isnan-emulated': 'warn',
 
-      // Type and syntax rules
-      '@tantawowa/hosanna/no-ts-module-declarations': 'error',
-      '@tantawowa/hosanna/no-computed-properties-in-objects': 'error',
-      '@tantawowa/hosanna/no-reserved-words': 'error',
+      // Type/Syntax rules
+      '@hosanna-eslint/no-ts-module-declarations': 'error',
+      '@hosanna-eslint/no-inline-classes': 'error',
+      '@hosanna-eslint/no-computed-properties-in-objects': 'error',
+      '@hosanna-eslint/no-reserved-words': 'error',
 
-      // Data and safety rules
-      '@tantawowa/hosanna/no-large-numeric-literals': 'warn',
-      '@tantawowa/hosanna/no-unsupported-delete-operator': 'error',
-      '@tantawowa/hosanna/no-non-null-on-call-expression': 'error',
-
-      // Warnings for potential issues
-      '@tantawowa/hosanna/no-iife-usage': 'warn',
-      '@tantawowa/hosanna/no-isnan-unreliable': 'warn',
-      '@tantawowa/hosanna/no-number-isnan': 'error',
-      '@tantawowa/hosanna/no-epsilon-usage': 'error',
+      // Data/Safety rules
+      '@hosanna-eslint/no-large-numeric-literals': 'warn',
     },
   },
 ];

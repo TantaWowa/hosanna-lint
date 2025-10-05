@@ -27,7 +27,7 @@ import noUnionExpressionInNonStatement from './rules/no-union-expression-in-non-
 import noCallOnAnonymousFunction from './rules/no-call-on-anonymous-function';
 import noImportExtensions from './rules/no-import-extensions';
 
-const preprocess = (text: string, filename: string) => {
+const preprocess = (text: string, _filename: string) => {
   // Check if file starts with the exclude comment for any platform
   const trimmed = text.trimStart();
   if (trimmed.startsWith('// hs:exclude-from-platform')) {
