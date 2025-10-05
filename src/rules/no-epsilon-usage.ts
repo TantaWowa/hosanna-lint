@@ -11,7 +11,7 @@ const rule: Rule.RuleModule = {
     fixable: 'code',
     schema: [],
     messages: {
-      epsilonNotSupported: 'Number.EPSILON is not supported in Hosanna/BrightScript. Use 0.0000001 instead.',
+      epsilonNotSupported: 'Number.EPSILON is approximated as 0.0001 on BrightScript platform.',
     },
   },
   create: function (context) {
@@ -28,7 +28,7 @@ const rule: Rule.RuleModule = {
             node,
             messageId: 'epsilonNotSupported',
             fix: (fixer) => {
-              return fixer.replaceText(node, '0.0000001');
+              return fixer.replaceText(node, '0.0001');
             },
           });
         }

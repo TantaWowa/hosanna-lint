@@ -15,7 +15,7 @@ describe('no-epsilon-usage', () => {
   it('should pass valid number operations', () => {
     ruleTester.run('no-epsilon-usage', rule, {
       valid: [
-        "const epsilon = 0.0000001;",
+        "const epsilon = 0.0001;",
         "const small = 1e-7;",
         "Number.MAX_VALUE;",
         "Number.MIN_VALUE;",
@@ -39,7 +39,7 @@ describe('no-epsilon-usage', () => {
               messageId: 'epsilonNotSupported',
             },
           ],
-          output: "const epsilon = 0.0000001;",
+          output: "const epsilon = 0.0001;",
         },
         {
           code: "if (Math.abs(a - b) < Number.EPSILON) { return true; }",
@@ -48,7 +48,7 @@ describe('no-epsilon-usage', () => {
               messageId: 'epsilonNotSupported',
             },
           ],
-          output: "if (Math.abs(a - b) < 0.0000001) { return true; }",
+          output: "if (Math.abs(a - b) < 0.0001) { return true; }",
         },
         {
           code: "const threshold = Number.EPSILON * 2;",
@@ -57,7 +57,7 @@ describe('no-epsilon-usage', () => {
               messageId: 'epsilonNotSupported',
             },
           ],
-          output: "const threshold = 0.0000001 * 2;",
+          output: "const threshold = 0.0001 * 2;",
         },
       ],
     });
@@ -74,7 +74,7 @@ describe('no-epsilon-usage', () => {
               messageId: 'epsilonNotSupported',
             },
           ],
-          output: "const result = calculate(0.0000001);",
+          output: "const result = calculate(0.0001);",
         },
         {
           code: "const config = { epsilon: Number.EPSILON };",
@@ -83,7 +83,7 @@ describe('no-epsilon-usage', () => {
               messageId: 'epsilonNotSupported',
             },
           ],
-          output: "const config = { epsilon: 0.0000001 };",
+          output: "const config = { epsilon: 0.0001 };",
         },
       ],
     });
