@@ -16,17 +16,18 @@ const rule: Rule.RuleModule = {
   },
   create: function (context) {
     return {
-      TSNonNullExpression: function (node) {
-        // Check if the expression being made non-null is a call expression
-        if (node.expression.type === 'CallExpression') {
+      CallExpression: function (node) {
+        // Check if the callee is a non-null expression (like foo.bar!())
+        if ((node.callee as any).type === 'TSNonNullExpression') {
+          const nonNullExpr = node.callee as any; // TypeScript doesn't know TSNonNullExpression has expression
           context.report({
-            node,
+            node: node.callee,
             messageId: 'nonNullOnCallNotSupported',
             fix: (fixer) => {
-              // Replace func()! with func()?.
-              // This is a simplistic fix - in reality, you'd need to handle the return value properly
-              const callText = (context as any).sourceCode.getText(node.expression);
-              return fixer.replaceText(node, `${callText}?`);
+              // Replace expression!() with expression?.()
+              const exprText = (context as any).sourceCode.getText(nonNullExpr.expression);
+              const argsText = node.arguments.map(arg => (context as any).sourceCode.getText(arg)).join(', ');
+              return fixer.replaceText(node, `${exprText}?.(${argsText})`);
             },
           });
         }
