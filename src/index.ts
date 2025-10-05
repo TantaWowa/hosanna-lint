@@ -22,6 +22,17 @@ import noTsModuleDeclarations from './rules/no-ts-module-declarations';
 import noFunctionReferenceOutsideModule from './rules/no-function-reference-outside-module';
 import noClosureVariableModification from './rules/no-closure-variable-modification';
 
+const preprocess = (text: string, filename: string) => {
+  // Check if file starts with the exclude comment
+  const trimmed = text.trimStart();
+  if (trimmed.startsWith('// hs:exclude-from-platform roku')) {
+    // Return empty array to skip processing this file
+    return [''];
+  }
+  // Return the original text for normal processing
+  return [text];
+};
+
 const plugin = {
   rules: {
     'no-hosanna-generated-imports': noHosannaGeneratedImports,
@@ -47,6 +58,12 @@ const plugin = {
     'no-ts-module-declarations': noTsModuleDeclarations,
     'no-function-reference-outside-module': noFunctionReferenceOutsideModule,
     'no-closure-variable-modification': noClosureVariableModification,
+  },
+  processors: {
+    'ts': { preprocess },
+    'tsx': { preprocess },
+    'js': { preprocess },
+    'jsx': { preprocess },
   },
 };
 
