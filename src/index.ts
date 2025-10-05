@@ -12,7 +12,6 @@ import noUnsupportedStringMethods from './rules/no-unsupported-string-methods';
 import noEpsilonUsage from './rules/no-epsilon-usage';
 import noNumberIsNaN from './rules/no-number-isnan';
 import noUnsupportedSpreadOperator from './rules/no-unsupported-spread-operator';
-import noArgumentBinding from './rules/no-argument-binding';
 import noNonNullOnCallExpression from './rules/no-non-null-on-call-expression';
 import noIsNaNUnreliable from './rules/no-isnan-unreliable';
 import noLargeNumericLiterals from './rules/no-large-numeric-literals';
@@ -39,7 +38,6 @@ const plugin = {
     'no-epsilon-usage': noEpsilonUsage,
     'no-number-isnan': noNumberIsNaN,
     'no-unsupported-spread-operator': noUnsupportedSpreadOperator,
-    'no-argument-binding': noArgumentBinding,
     'no-non-null-on-call-expression': noNonNullOnCallExpression,
     'no-isnan-unreliable': noIsNaNUnreliable,
     'no-large-numeric-literals': noLargeNumericLiterals,
