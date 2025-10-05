@@ -22,7 +22,7 @@ const BRIGHTSCRIPT_RESERVED_WORDS = new Set([
   'getlastruncompileerror', 'getlastruncompileerrorline',
 
   // Roku specific
-  'roku', 'brightscript', 'scenegraph', 'component'
+  'roku', 'brightscript', 'scenegraph'
 ]);
 
 const rule: Rule.RuleModule = {

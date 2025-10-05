@@ -5,7 +5,7 @@ const MAX_ROKU_SAFE_INT = 2147483647;
 
 const rule: Rule.RuleModule = {
   meta: {
-    type: 'problem',
+    type: 'suggestion',
     docs: {
       description: 'Warn about numeric literals that exceed Roku\'s maximum safe integer',
       category: 'Best Practices',
@@ -14,7 +14,7 @@ const rule: Rule.RuleModule = {
     fixable: 'code',
     schema: [],
     messages: {
-      numericLiteralExceedsMaxRokuSafeInt: 'Numeric literal {{value}} exceeds Roku\'s maximum safe integer (2147483647). This may cause unexpected behavior.',
+      numericLiteralExceedsMaxRokuSafeInt: 'Numeric literal {{value}} will be cast as roLongInteger.',
     },
   },
   create: function (context) {
