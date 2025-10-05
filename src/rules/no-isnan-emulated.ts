@@ -4,14 +4,13 @@ const rule: Rule.RuleModule = {
   meta: {
     type: 'problem',
     docs: {
-      description: 'Warn about isNaN() usage as it is unreliable in BrightScript',
+      description: 'Warn about isNaN() usage as it is emulated on BrightScript and may be unreliable',
       category: 'Best Practices',
       recommended: true,
     },
-    fixable: 'code',
     schema: [],
     messages: {
-      isNaNUnreliable: 'isNaN() is unreliable in BrightScript. Consider using Number.isNaN() instead.',
+      isNaNEmulated: 'isNaN() is emulated on BrightScript and may be unreliable.',
     },
   },
   create: function (context) {
@@ -24,7 +23,7 @@ const rule: Rule.RuleModule = {
         ) {
           context.report({
             node: node.callee,
-            messageId: 'isNaNUnreliable',
+            messageId: 'isNaNEmulated',
           });
         }
       },

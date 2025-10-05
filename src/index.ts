@@ -14,7 +14,7 @@ import noNaNUsage from './rules/no-nan-usage';
 import noNumberIsNaN from './rules/no-number-isnan';
 import noUnsupportedSpreadOperator from './rules/no-unsupported-spread-operator';
 import noNonNullOnCallExpression from './rules/no-non-null-on-call-expression';
-import noIsNaNUnreliable from './rules/no-isnan-unreliable';
+import noIsNaNEmulated from './rules/no-isnan-emulated';
 import noLargeNumericLiterals from './rules/no-large-numeric-literals';
 import noFunctionExpressionOnAnonymousObject from './rules/no-function-expression-on-anonymous-object';
 import noRestOperator from './rules/no-rest-operator';
@@ -52,7 +52,7 @@ const plugin = {
     'no-number-isnan': noNumberIsNaN,
     'no-unsupported-spread-operator': noUnsupportedSpreadOperator,
     'no-non-null-on-call-expression': noNonNullOnCallExpression,
-    'no-isnan-unreliable': noIsNaNUnreliable,
+    'no-isnan-emulated': noIsNaNEmulated,
     'no-large-numeric-literals': noLargeNumericLiterals,
     'no-function-expression-on-anonymous-object': noFunctionExpressionOnAnonymousObject,
     'no-rest-operator': noRestOperator,
@@ -60,6 +60,36 @@ const plugin = {
     'no-ts-module-declarations': noTsModuleDeclarations,
     'no-function-reference-outside-module': noFunctionReferenceOutsideModule,
     'no-closure-variable-modification': noClosureVariableModification,
+  },
+  configs: {
+    recommended: {
+      rules: {
+        '@hosanna-eslint/no-hosanna-generated-imports': 'error',
+        '@hosanna-eslint/hosanna-import-prefix': 'error',
+        '@hosanna-eslint/no-json-imports': 'error',
+        '@hosanna-eslint/no-await-expression': 'error',
+        '@hosanna-eslint/no-nested-functions': 'error',
+        '@hosanna-eslint/no-inline-classes': 'error',
+        '@hosanna-eslint/no-computed-properties-in-objects': 'error',
+        '@hosanna-eslint/no-date-usage': 'error',
+        '@hosanna-eslint/no-reserved-words': 'error',
+        '@hosanna-eslint/no-unsupported-array-methods': 'error',
+        '@hosanna-eslint/no-unsupported-string-methods': 'error',
+        '@hosanna-eslint/no-epsilon-usage': 'warn',
+        '@hosanna-eslint/no-nan-usage': 'error',
+        '@hosanna-eslint/no-number-isnan': 'error',
+        '@hosanna-eslint/no-unsupported-spread-operator': 'error',
+        '@hosanna-eslint/no-non-null-on-call-expression': 'error',
+        '@hosanna-eslint/no-isnan-emulated': 'warn',
+        '@hosanna-eslint/no-large-numeric-literals': 'warn',
+        '@hosanna-eslint/no-function-expression-on-anonymous-object': 'error',
+        '@hosanna-eslint/no-rest-operator': 'error',
+        '@hosanna-eslint/no-iife-usage': 'error',
+        '@hosanna-eslint/no-ts-module-declarations': 'error',
+        '@hosanna-eslint/no-function-reference-outside-module': 'error',
+        '@hosanna-eslint/no-closure-variable-modification': 'error',
+      },
+    },
   },
   processors: {
     'ts': { preprocess },

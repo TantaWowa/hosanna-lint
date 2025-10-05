@@ -1,7 +1,7 @@
 import { describe, it } from 'vitest';
 import { RuleTester } from 'eslint';
 import parser from '@typescript-eslint/parser';
-import rule from './no-isnan-unreliable';
+import rule from './no-isnan-emulated';
 
 const ruleTester = new RuleTester({
   languageOptions: {
@@ -11,9 +11,9 @@ const ruleTester = new RuleTester({
   },
 });
 
-describe('no-isnan-unreliable', () => {
-  it('should pass valid number operations', () => {
-    ruleTester.run('no-isnan-unreliable', rule, {
+describe('no-isnan-emulated', () => {
+  it('should pass valid operations', () => {
+    ruleTester.run('no-isnan-emulated', rule, {
       valid: [
         "const result = Number.isNaN(value);",
         "const max = Number.MAX_VALUE;",
@@ -25,15 +25,15 @@ describe('no-isnan-unreliable', () => {
     });
   });
 
-  it('should report errors for isNaN() usage', () => {
-    ruleTester.run('no-isnan-unreliable', rule, {
+  it('should report warnings for isNaN() usage', () => {
+    ruleTester.run('no-isnan-emulated', rule, {
       valid: [],
       invalid: [
         {
           code: "const result = isNaN(value);",
           errors: [
             {
-              messageId: 'isNaNUnreliable',
+              messageId: 'isNaNEmulated',
             },
           ],
         },
@@ -41,7 +41,7 @@ describe('no-isnan-unreliable', () => {
           code: "if (isNaN(input)) { return false; }",
           errors: [
             {
-              messageId: 'isNaNUnreliable',
+              messageId: 'isNaNEmulated',
             },
           ],
         },
@@ -49,7 +49,7 @@ describe('no-isnan-unreliable', () => {
           code: "const valid = !isNaN(num);",
           errors: [
             {
-              messageId: 'isNaNUnreliable',
+              messageId: 'isNaNEmulated',
             },
           ],
         },
@@ -57,7 +57,7 @@ describe('no-isnan-unreliable', () => {
           code: "const check = someArray.some(item => isNaN(item));",
           errors: [
             {
-              messageId: 'isNaNUnreliable',
+              messageId: 'isNaNEmulated',
             },
           ],
         },

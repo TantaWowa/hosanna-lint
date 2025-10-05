@@ -19,7 +19,23 @@ npm install @tantawowa/hosanna-eslint-plugin --save-dev
 
 ## Usage
 
-Add the plugin to your ESLint configuration:
+### Recommended Configuration
+
+For the best experience, use the recommended configuration which enables all rules with appropriate severity levels:
+
+```javascript
+// eslint.config.mjs
+import hosannaPlugin from '@tantawowa/hosanna-eslint-plugin';
+
+export default [
+  // ... other config
+  hosannaPlugin.configs.recommended,
+];
+```
+
+### Manual Configuration
+
+Alternatively, you can manually configure individual rules:
 
 ```javascript
 // eslint.config.mjs
@@ -29,15 +45,18 @@ export default [
   // ... other config
   {
     plugins: {
-      '@tantawowa/hosanna': hosannaPlugin,
+      '@hosanna-eslint': hosannaPlugin,
     },
     rules: {
-      '@tantawowa/hosanna/no-hosanna-generated-imports': 'error',
-      '@tantawowa/hosanna/hosanna-import-prefix': 'error',
+      '@hosanna-eslint/no-hosanna-generated-imports': 'error',
+      '@hosanna-eslint/hosanna-import-prefix': 'error',
+      // ... add other rules as needed
     },
   },
 ];
 ```
+
+**Note:** New rules are automatically included in the recommended configuration, so you only need to update your ESLint config when you want to change severity levels or disable specific rules.
 
 ## Rules
 
@@ -282,10 +301,10 @@ Disallows `Number.isNaN()` usage.
 
 **Auto-fix:** Replaces with global `isNaN()`.
 
-#### `no-isnan-unreliable`
+#### `no-isnan-emulated`
 **Error level:** `warn`
 
-Warns about `isNaN()` usage since it's unreliable in BrightScript.
+Warns about `isNaN()` usage since it's emulated on BrightScript and may be unreliable.
 
 ### 📝 Type/Syntax Rules
 

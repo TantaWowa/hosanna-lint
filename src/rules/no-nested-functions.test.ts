@@ -91,25 +91,24 @@ describe('no-nested-functions', () => {
     });
   });
 
-  it('should report errors for nested function expressions', () => {
+  it('should report errors for nested named function expressions', () => {
     ruleTester.run('no-nested-functions', rule, {
-      valid: [],
+      valid: [
+        `
+          function outer() {
+            const inner = function() {
+              return 42;
+            };
+            return inner();
+          }
+        `,
+        `
+          export function commandCategory(categoryName: string) {
+            return function (target: any) { };
+          }
+        `,
+      ],
       invalid: [
-        {
-          code: `
-            function outer() {
-              const inner = function() {
-                return 42;
-              };
-              return inner();
-            }
-          `,
-          errors: [
-            {
-              messageId: 'nestedFunctionNotSupported',
-            },
-          ],
-        },
         {
           code: `
             const outer = () => {

@@ -35,6 +35,7 @@ describe('no-nan-usage', () => {
           errors: [
             {
               messageId: 'nanApproximation',
+              message: 'Number.NaN is not supported on Roku devices.',
             },
           ],
         },
@@ -43,6 +44,7 @@ describe('no-nan-usage', () => {
           errors: [
             {
               messageId: 'nanApproximation',
+              message: 'Number.NaN is not supported on Roku devices.',
             },
           ],
         },
@@ -51,6 +53,7 @@ describe('no-nan-usage', () => {
           errors: [
             {
               messageId: 'nanApproximation',
+              message: 'Number.NaN is not supported on Roku devices.',
             },
           ],
         },
@@ -59,6 +62,7 @@ describe('no-nan-usage', () => {
           errors: [
             {
               messageId: 'nanApproximation',
+              message: 'Number.NaN is not supported on Roku devices.',
             },
           ],
         },
@@ -67,6 +71,7 @@ describe('no-nan-usage', () => {
           errors: [
             {
               messageId: 'nanApproximation',
+              message: 'Number.NaN is not supported on Roku devices.',
             },
           ],
         },

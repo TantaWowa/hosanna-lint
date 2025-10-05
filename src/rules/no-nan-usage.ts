@@ -10,7 +10,7 @@ const rule: Rule.RuleModule = {
     },
     schema: [],
     messages: {
-      nanApproximation: 'Number.NaN is an approximation on Roku devices. Avoid assigning NaN directly and be cautious with equality checks as behavior may vary.',
+      nanApproximation: 'Number.NaN is not supported on Roku devices.',
     },
   },
   create: function (context) {

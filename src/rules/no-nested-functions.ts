@@ -45,6 +45,11 @@ const rule: Rule.RuleModule = {
           return;
         }
 
+        // Only flag named function expressions, not anonymous ones
+        if (!node.id) {
+          return;
+        }
+
         // Check if we're inside another function-like construct
         let current = node.parent;
         const ancestors = [];
