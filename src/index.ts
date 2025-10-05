@@ -10,6 +10,7 @@ import noReservedWords from './rules/no-reserved-words';
 import noUnsupportedArrayMethods from './rules/no-unsupported-array-methods';
 import noUnsupportedStringMethods from './rules/no-unsupported-string-methods';
 import noEpsilonUsage from './rules/no-epsilon-usage';
+import noNaNUsage from './rules/no-nan-usage';
 import noNumberIsNaN from './rules/no-number-isnan';
 import noUnsupportedSpreadOperator from './rules/no-unsupported-spread-operator';
 import noNonNullOnCallExpression from './rules/no-non-null-on-call-expression';
@@ -23,9 +24,9 @@ import noFunctionReferenceOutsideModule from './rules/no-function-reference-outs
 import noClosureVariableModification from './rules/no-closure-variable-modification';
 
 const preprocess = (text: string, filename: string) => {
-  // Check if file starts with the exclude comment
+  // Check if file starts with the exclude comment for any platform
   const trimmed = text.trimStart();
-  if (trimmed.startsWith('// hs:exclude-from-platform roku')) {
+  if (trimmed.startsWith('// hs:exclude-from-platform')) {
     // Return empty array to skip processing this file
     return [''];
   }
@@ -47,6 +48,7 @@ const plugin = {
     'no-unsupported-array-methods': noUnsupportedArrayMethods,
     'no-unsupported-string-methods': noUnsupportedStringMethods,
     'no-epsilon-usage': noEpsilonUsage,
+    'no-nan-usage': noNaNUsage,
     'no-number-isnan': noNumberIsNaN,
     'no-unsupported-spread-operator': noUnsupportedSpreadOperator,
     'no-non-null-on-call-expression': noNonNullOnCallExpression,

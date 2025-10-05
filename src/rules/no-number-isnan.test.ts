@@ -16,7 +16,6 @@ describe('no-number-isnan', () => {
     ruleTester.run('no-number-isnan', rule, {
       valid: [
         "const result = isNaN(value);",
-        "const check = Number.NaN;",
         "const max = Number.MAX_VALUE;",
         "const min = Number.MIN_VALUE;",
         "Number.parseInt('123');",

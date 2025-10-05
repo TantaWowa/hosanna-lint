@@ -19,7 +19,6 @@ describe('no-epsilon-usage', () => {
         "const small = 1e-7;",
         "Number.MAX_VALUE;",
         "Number.MIN_VALUE;",
-        "Number.NaN;",
         "Number.POSITIVE_INFINITY;",
         "Number.NEGATIVE_INFINITY;",
         "Math.E;",
