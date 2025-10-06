@@ -20,6 +20,13 @@ describe('no-reserved-words', () => {
         "function calculateTotal() { return 42; }",
         "const isValid = true;",
         "class MyComponent { method() {} }",
+        `
+          class MyClass {
+            if = 42;
+            then() { return 42; }
+            end = 'finished';
+          }
+        `,
       ],
       invalid: [],
     });
@@ -130,37 +137,27 @@ describe('no-reserved-words', () => {
     });
   });
 
-  it('should report errors for reserved words as class members', () => {
+  it('should allow reserved words as class members', () => {
     ruleTester.run('no-reserved-words', rule, {
-      valid: [],
-      invalid: [
-        {
-          code: `
-            class MyClass {
-              if = 42;
-            }
-          `,
-          errors: [
-            {
-              messageId: 'reservedWordUsed',
-              data: { word: 'if' },
-            },
-          ],
-        },
-        {
-          code: `
-            class MyClass {
-              then() { return 42; }
-            }
-          `,
-          errors: [
-            {
-              messageId: 'reservedWordUsed',
-              data: { word: 'then' },
-            },
-          ],
-        },
+      valid: [
+        `
+          class MyClass {
+            if = 42;
+          }
+        `,
+        `
+          class MyClass {
+            then() { return 42; }
+          }
+        `,
+        `
+          class MyClass {
+            end = 'finished';
+            sub() { return 'sub'; }
+          }
+        `,
       ],
+      invalid: [],
     });
   });
 

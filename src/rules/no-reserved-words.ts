@@ -85,27 +85,6 @@ const rule: Rule.RuleModule = {
         }
       },
 
-      // Check class method definitions
-      MethodDefinition: function (node) {
-        if (node.key.type === 'Identifier' && BRIGHTSCRIPT_RESERVED_WORDS.has(node.key.name.toLowerCase())) {
-          context.report({
-            node: node.key,
-            messageId: 'reservedWordUsed',
-            data: { word: node.key.name },
-          });
-        }
-      },
-
-      // Check property definitions
-      PropertyDefinition: function (node) {
-        if (node.key.type === 'Identifier' && BRIGHTSCRIPT_RESERVED_WORDS.has(node.key.name.toLowerCase())) {
-          context.report({
-            node: node.key,
-            messageId: 'reservedWordUsed',
-            data: { word: node.key.name },
-          });
-        }
-      },
 
       // Check parameter names
       Identifier: function (node) {
