@@ -14,14 +14,41 @@ function isClosureVariable(variableName: string, context: Rule.RuleContext, node
 
   const currentScope = context.sourceCode.getScope(node);
 
-  // Check if the variable is declared in the current scope or any outer scope
+  // Find the function scope that contains this node
+  let containingFunctionScope: Scope.Scope | null = null;
   let scope: Scope.Scope | null = currentScope;
   while (scope) {
-    // Check if the variable is declared in this scope
+    if (scope.type === 'function') {
+      containingFunctionScope = scope;
+      break;
+    }
+    scope = scope.upper;
+  }
+
+  // If we're not in any function scope, allow modifications (global/module scope)
+  if (!containingFunctionScope) {
+    return false;
+  }
+
+  // Check if the variable is declared in any scope within or at the containing function scope
+  scope = currentScope;
+  while (scope) {
     const variable = scope.variables.find((v: Scope.Variable) => v.name === variableName);
     if (variable) {
-      // If it's declared in the current scope, it's not a closure variable
-      return scope !== currentScope;
+      console.log(`Variable ${variableName} found in scope:`, scope.type, 'containing function scope:', containingFunctionScope?.type);
+      // If the variable is declared in the containing function scope or any descendant scope,
+      // it's not a closure variable
+      let checkScope: Scope.Scope | null = scope;
+      let isInFunctionScope = false;
+      while (checkScope) {
+        if (checkScope === containingFunctionScope) {
+          isInFunctionScope = true;
+          break;
+        }
+        checkScope = checkScope.upper;
+      }
+      console.log(`Variable ${variableName} is in function scope:`, isInFunctionScope);
+      return !isInFunctionScope;
     }
     scope = scope.upper;
   }

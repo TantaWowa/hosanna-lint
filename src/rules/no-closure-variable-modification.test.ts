@@ -151,8 +151,62 @@ describe('no-closure-variable-modification', () => {
             }
           }
         `,
+        `
+          setTimeout(() => {
+            const lastVisitedScreens = this.getLastOpenedScreen();
+            if (lastVisitedScreens) {
+              let lastLoadedButton;
+              let sectionIdx = 0;
+              let foundSectionIdx = 0;
+              for (const section of this.viewData) {
+                for (const button of section.buttons) {
+                  if (button.label === lastVisitedScreens) {
+                    lastLoadedButton = button;
+                    foundSectionIdx = sectionIdx;
+                    break;
+                  }
+                }
+                if (lastLoadedButton) break;
+                sectionIdx++;
+              }
+              if (lastLoadedButton) {
+                this.selectedSectionIndex = foundSectionIdx;
+                this.present(lastLoadedButton.view());
+              }
+            }
+          }, 500);
+        `,
       ],
-      invalid: [],
+      invalid: [
+        {
+          code: `
+            let outerVar = 1;
+            function someFunction() {
+              setTimeout(() => {
+                outerVar = 2; // This SHOULD be flagged - modifying a closure variable
+              }, 500);
+            }
+          `,
+          errors: [
+            {
+              messageId: 'closureVariableModification',
+            },
+          ],
+        },
+        {
+          code: `
+            let outerVar = 1;
+            setTimeout(() => {
+              outerVar = 2; // This SHOULD be flagged - modifying a closure variable
+            }, 500);
+          `,
+          errors: [
+            {
+              messageId: 'closureVariableModification',
+            },
+          ],
+        },
+      ],
     });
   });
 });

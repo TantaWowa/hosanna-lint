@@ -21,6 +21,17 @@ describe('no-large-numeric-literals', () => {
         "const zero = 0;",
         "const float = 3.14;", // Floats are allowed
         "const scientific = 1e6;", // Scientific notation is allowed
+        // Large literals are allowed when explicitly typed as roLongInteger
+        "const timestamp: roLongInteger = 1577923200000;",
+        "const largeNumber = 1577923200000 as roLongInteger;",
+        "const qualifiedType: roku.roLongInteger = 9999999999;",
+        "const castWithQualified = 9999999999 as roku.roLongInteger;",
+        `
+          class MyClass {
+            timestamp: roLongInteger = 1577923200000;
+          }
+        `,
+        "function test(param: roLongInteger = 1577923200000) { }",
       ],
       invalid: [],
     });
@@ -66,6 +77,9 @@ describe('no-large-numeric-literals', () => {
       valid: [
         "const hex = 0x7FFFFFFF;", // Max safe int in hex
         "const binary = 0b1111111111111111111111111111111;", // Max safe int in binary
+        // Large literals in hex/binary are allowed when properly typed
+        "const largeHex: roLongInteger = 0x100000000;",
+        "const largeBinary = 0b100000000000000000000000000000000 as roLongInteger;",
       ],
       invalid: [
         {
@@ -74,6 +88,15 @@ describe('no-large-numeric-literals', () => {
             {
               messageId: 'numericLiteralExceedsMaxRokuSafeInt',
               data: { value: 2147483648 },
+            },
+          ],
+        },
+        {
+          code: "const largeUntyped = 1577923200000;", // Large literal without roLongInteger type
+          errors: [
+            {
+              messageId: 'numericLiteralExceedsMaxRokuSafeInt',
+              data: { value: 1577923200000 },
             },
           ],
         },
