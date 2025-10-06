@@ -1,5 +1,8 @@
 import tseslint from 'typescript-eslint';
 import unusedImports from 'eslint-plugin-unused-imports';
+import { createRequire } from 'module';
+const require = createRequire(import.meta.url);
+const hosannaPlugin = require('./dist/index.js');
 
 export default tseslint.config(
   {
@@ -10,10 +13,25 @@ export default tseslint.config(
       '**/*.js',
       '**/*.test.ts',
       '**/*.spec.ts',
-      'test-*',
       'src/__test__/**'
     ],
   },
+  // Configuration for Hosanna user code files
+  {
+    files: ['test-user-code.ts', 'test-user-code-no-exclude.ts', 'test-user-example.ts'],
+    plugins: {
+      '@hosanna-eslint': hosannaPlugin,
+    },
+    processor: '@hosanna-eslint/ts',
+    languageOptions: {
+      ecmaVersion: 2020,
+      sourceType: 'module',
+    },
+    rules: {
+      ...hosannaPlugin.configs.recommended.rules,
+    },
+  },
+  // Configuration for plugin development
   {
     extends: [
       ...tseslint.configs.recommended,

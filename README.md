@@ -256,36 +256,6 @@ function increment() {
 
 ### 🛠️ Language Feature Rules
 
-#### `no-rest-operator`
-**Error level:** `error`
-
-Disallows rest operator (`...`) in parameters and destructuring since it's not supported.
-
-**Example violations:**
-```typescript
-// ❌ Bad - rest parameters
-function test(...args) { }
-
-// ❌ Bad - rest in destructuring
-const [a, b, ...rest] = arr;
-const { x, y, ...others } = obj;
-```
-
-#### `no-unsupported-spread-operator`
-**Error level:** `error`
-
-Restricts spread operator usage to supported contexts only.
-
-**Example violations:**
-```typescript
-// ❌ Bad - spread in function calls
-Math.max(...numbers);
-
-// ❌ Bad - spread in arrays/objects
-const combined = [1, 2, ...arr];
-const merged = { ...obj1, ...obj2 };
-```
-
 #### `no-union-expression-in-non-statement`
 **Error level:** `error`
 
@@ -457,8 +427,6 @@ export default [
       '@hosanna-eslint/no-closure-variable-modification': 'error',
 
       // Language Feature rules
-      '@hosanna-eslint/no-rest-operator': 'error',
-      '@hosanna-eslint/no-unsupported-spread-operator': 'error',
       '@hosanna-eslint/no-union-expression-in-non-statement': 'error',
       '@hosanna-eslint/no-non-null-on-call-expression': 'error',
 

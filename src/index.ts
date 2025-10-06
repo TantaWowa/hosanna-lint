@@ -12,12 +12,10 @@ import noUnsupportedStringMethods from './rules/no-unsupported-string-methods';
 import noEpsilonUsage from './rules/no-epsilon-usage';
 import noNaNUsage from './rules/no-nan-usage';
 import noNumberIsNaN from './rules/no-number-isnan';
-import noUnsupportedSpreadOperator from './rules/no-unsupported-spread-operator';
 import noNonNullOnCallExpression from './rules/no-non-null-on-call-expression';
 import noIsNaNEmulated from './rules/no-isnan-emulated';
 import noLargeNumericLiterals from './rules/no-large-numeric-literals';
 import noFunctionExpressionOnAnonymousObject from './rules/no-function-expression-on-anonymous-object';
-import noRestOperator from './rules/no-rest-operator';
 import noIifeUsage from './rules/no-iife-usage';
 import noTsModuleDeclarations from './rules/no-ts-module-declarations';
 import noFunctionReferenceOutsideModule from './rules/no-function-reference-outside-module';
@@ -54,12 +52,10 @@ const plugin = {
     'no-epsilon-usage': noEpsilonUsage,
     'no-nan-usage': noNaNUsage,
     'no-number-isnan': noNumberIsNaN,
-    'no-unsupported-spread-operator': noUnsupportedSpreadOperator,
     'no-non-null-on-call-expression': noNonNullOnCallExpression,
     'no-isnan-emulated': noIsNaNEmulated,
     'no-large-numeric-literals': noLargeNumericLiterals,
     'no-function-expression-on-anonymous-object': noFunctionExpressionOnAnonymousObject,
-    'no-rest-operator': noRestOperator,
     'no-iife-usage': noIifeUsage,
     'no-ts-module-declarations': noTsModuleDeclarations,
     'no-function-reference-outside-module': noFunctionReferenceOutsideModule,
@@ -86,12 +82,10 @@ const plugin = {
         '@hosanna-eslint/no-epsilon-usage': 'warn',
         '@hosanna-eslint/no-nan-usage': 'error',
         '@hosanna-eslint/no-number-isnan': 'error',
-        '@hosanna-eslint/no-unsupported-spread-operator': 'error',
         '@hosanna-eslint/no-non-null-on-call-expression': 'error',
         '@hosanna-eslint/no-isnan-emulated': 'warn',
         '@hosanna-eslint/no-large-numeric-literals': 'warn',
         '@hosanna-eslint/no-function-expression-on-anonymous-object': 'error',
-        '@hosanna-eslint/no-rest-operator': 'error',
         '@hosanna-eslint/no-iife-usage': 'error',
         '@hosanna-eslint/no-ts-module-declarations': 'error',
         '@hosanna-eslint/no-function-reference-outside-module': 'error',
