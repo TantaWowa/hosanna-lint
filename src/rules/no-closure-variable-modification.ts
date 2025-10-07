@@ -14,46 +14,43 @@ function isClosureVariable(variableName: string, context: Rule.RuleContext, node
 
   const currentScope = context.sourceCode.getScope(node);
 
-  // Find the function scope that contains this node
-  let containingFunctionScope: Scope.Scope | null = null;
+  // Find the innermost function scope that contains this node
+  let innermostFunctionScope: Scope.Scope | null = null;
   let scope: Scope.Scope | null = currentScope;
   while (scope) {
     if (scope.type === 'function') {
-      containingFunctionScope = scope;
+      innermostFunctionScope = scope;
       break;
     }
     scope = scope.upper;
   }
 
-  // If we're not in any function scope, allow modifications (global/module scope)
-  if (!containingFunctionScope) {
+  // If we're not in any function scope, allow modifications
+  if (!innermostFunctionScope) {
     return false;
   }
 
-  // Check if the variable is declared in any scope within or at the containing function scope
+  // Check if the variable is declared within the innermost function scope
   scope = currentScope;
   while (scope) {
     const variable = scope.variables.find((v: Scope.Variable) => v.name === variableName);
     if (variable) {
-      console.log(`Variable ${variableName} found in scope:`, scope.type, 'containing function scope:', containingFunctionScope?.type);
-      // If the variable is declared in the containing function scope or any descendant scope,
-      // it's not a closure variable
+      // Walk up from the declaration scope to see if we encounter the innermost function scope
       let checkScope: Scope.Scope | null = scope;
-      let isInFunctionScope = false;
       while (checkScope) {
-        if (checkScope === containingFunctionScope) {
-          isInFunctionScope = true;
-          break;
+        if (checkScope === innermostFunctionScope) {
+          // Variable is declared within the innermost function scope (or in it)
+          return false;
         }
         checkScope = checkScope.upper;
       }
-      console.log(`Variable ${variableName} is in function scope:`, isInFunctionScope);
-      return !isInFunctionScope;
+      // Variable is declared outside the innermost function scope
+      return true;
     }
     scope = scope.upper;
   }
 
-  // Variable not found in any scope - this shouldn't happen for valid code
+  // Variable not found
   return false;
 }
 
