@@ -15,6 +15,16 @@ const rule: Rule.RuleModule = {
     },
   },
   create: function (context) {
+    // Check if this file is marked as a module (does NOT have // hs:no-module)
+    const sourceCode = context.sourceCode.text;
+    const trimmed = sourceCode.trimStart();
+    const isModule = !trimmed.startsWith('// hs:no-module');
+
+    // If this is a module file, skip the rule entirely
+    if (isModule) {
+      return {};
+    }
+
     return {
       // Check for top-level variable declarations with function references
       VariableDeclaration: function (node) {

@@ -12,7 +12,7 @@ const ruleTester = new RuleTester({
 });
 
 describe('no-unsupported-array-methods', () => {
-  it('should pass supported array methods', () => {
+  it('should pass all array methods since they are now supported', () => {
     ruleTester.run('no-unsupported-array-methods', rule, {
       valid: [
         "const arr = [1, 2, 3];",
@@ -32,149 +32,28 @@ describe('no-unsupported-array-methods', () => {
         "arr.map(item => item * 2);",
         "arr.filter(item => item > 2);",
         "arr.reduce((sum, item) => sum + item, 0);",
+        "Array.from([1, 2, 3]);",
+        "Array.of(1, 2, 3);",
+        "Array.isArray(arr);",
+        "const arr2 = [1, 2, 3]; arr2.find(item => item > 2);",
+        "const arr3 = [1, 2, 3]; arr3.findIndex(item => item > 2);",
+        "const arr4 = [1, 2, 3]; arr4.includes(2);",
+        "const arr5 = [1, 2, 3]; arr5.flat();",
+        "const arr6 = [1, 2, 3]; arr6.flatMap(item => [item]);",
+        "const arr7 = [1, 2, 3]; arr7.some(item => item > 2);",
+        "const arr8 = [1, 2, 3]; arr8.every(item => item > 0);",
+        `
+          const arr: number[] = [1, 2, 3];
+          arr.find(item => item > 2);
+        `,
+        `
+          const arr: Array<string> = ['a', 'b', 'c'];
+          arr.some(item => item === 'a');
+        `,
+        "[1, 2, 3].find(item => item > 2);",
+        "[1, 2, 3].every(item => item > 0);",
       ],
       invalid: [],
-    });
-  });
-
-  it('should report errors for unsupported Array static methods', () => {
-    ruleTester.run('no-unsupported-array-methods', rule, {
-      valid: [],
-      invalid: [
-        {
-          code: "Array.from([1, 2, 3]);",
-          errors: [
-            {
-              messageId: 'unsupportedArrayMethod',
-              data: { method: 'from' },
-            },
-          ],
-        },
-        {
-          code: "Array.of(1, 2, 3);",
-          errors: [
-            {
-              messageId: 'unsupportedArrayMethod',
-              data: { method: 'of' },
-            },
-          ],
-        },
-        {
-          code: "Array.isArray(arr);", // This is actually supported, but let's test the detection
-          errors: [], // Should not trigger since isArray is not in our unsupported list
-        },
-      ],
-    });
-  });
-
-  it('should report errors for unsupported array instance methods', () => {
-    ruleTester.run('no-unsupported-array-methods', rule, {
-      valid: [],
-      invalid: [
-        {
-          code: "const arr = [1, 2, 3]; arr.find(item => item > 2);",
-          errors: [
-            {
-              messageId: 'unsupportedArrayMethod',
-              data: { method: 'find' },
-            },
-          ],
-        },
-        {
-          code: "const arr = [1, 2, 3]; arr.findIndex(item => item > 2);",
-          errors: [
-            {
-              messageId: 'unsupportedArrayMethod',
-              data: { method: 'findIndex' },
-            },
-          ],
-        },
-        {
-          code: "const arr = [1, 2, 3]; arr.includes(2);",
-          errors: [
-            {
-              messageId: 'unsupportedArrayMethod',
-              data: { method: 'includes' },
-            },
-          ],
-        },
-        {
-          code: "const arr = [1, 2, 3]; arr.flat();",
-          errors: [
-            {
-              messageId: 'unsupportedArrayMethod',
-              data: { method: 'flat' },
-            },
-          ],
-        },
-        {
-          code: "const arr = [1, 2, 3]; arr.flatMap(item => [item]);",
-          errors: [
-            {
-              messageId: 'unsupportedArrayMethod',
-              data: { method: 'flatMap' },
-            },
-          ],
-        },
-      ],
-    });
-  });
-
-  it('should handle typed arrays', () => {
-    ruleTester.run('no-unsupported-array-methods', rule, {
-      valid: [],
-      invalid: [
-        {
-          code: `
-            const arr: number[] = [1, 2, 3];
-            arr.find(item => item > 2);
-          `,
-          errors: [
-            {
-              messageId: 'unsupportedArrayMethod',
-              data: { method: 'find' },
-            },
-          ],
-        },
-        {
-          code: `
-            const arr: Array<string> = ['a', 'b', 'c'];
-            arr.some(item => item === 'a');
-          `,
-          errors: [
-            {
-              messageId: 'unsupportedArrayMethod',
-              data: { method: 'some' },
-            },
-          ],
-        },
-      ],
-    });
-  });
-
-  it('should handle array literals directly', () => {
-    ruleTester.run('no-unsupported-array-methods', rule, {
-      valid: [],
-      invalid: [
-        {
-          code: "[1, 2, 3].find(item => item > 2);",
-          errors: [
-            {
-              messageId: 'unsupportedArrayMethod',
-              data: { method: 'find' },
-            },
-          ],
-        },
-        {
-          code: "[1, 2, 3].every(item => item > 0);",
-          errors: [
-            {
-              messageId: 'unsupportedArrayMethod',
-              data: { method: 'every' },
-            },
-          ],
-        },
-      ],
     });
   });
 });

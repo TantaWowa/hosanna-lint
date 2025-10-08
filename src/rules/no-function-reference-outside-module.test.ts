@@ -27,12 +27,12 @@ describe('no-function-reference-outside-module', () => {
     });
   });
 
-  it('should report errors for top-level function references', () => {
+  it('should report errors for top-level function references in non-module files', () => {
     ruleTester.run('no-function-reference-outside-module', rule, {
       valid: [],
       invalid: [
         {
-          code: "const myFunc = function() { return 42; };",
+          code: "// hs:no-module\nconst myFunc = function() { return 42; };",
           errors: [
             {
               messageId: 'functionReferenceOutsideModule',
@@ -40,7 +40,7 @@ describe('no-function-reference-outside-module', () => {
           ],
         },
         {
-          code: "const arrowFunc = () => { console.log('hello'); };",
+          code: "// hs:no-module\nconst arrowFunc = () => { console.log('hello'); };",
           errors: [
             {
               messageId: 'functionReferenceOutsideModule',
@@ -48,7 +48,7 @@ describe('no-function-reference-outside-module', () => {
           ],
         },
         {
-          code: "let funcVar; funcVar = function(x) { return x * 2; };",
+          code: "// hs:no-module\nlet funcVar; funcVar = function(x) { return x * 2; };",
           errors: [
             {
               messageId: 'functionReferenceOutsideModule',
@@ -81,12 +81,39 @@ describe('no-function-reference-outside-module', () => {
     });
   });
 
-  it('should handle complex expressions', () => {
+  it('should allow top-level function references in module files', () => {
+    ruleTester.run('no-function-reference-outside-module', rule, {
+      valid: [
+        "const myFunc = function() { return 42; };",
+        "const arrowFunc = () => { console.log('hello'); };",
+        "let funcVar; funcVar = function(x) { return x * 2; };",
+        "export const exportedFunc = function() {};",
+        {
+          code: `
+            const asyncFunc = async function() {
+              return await Promise.resolve(42);
+            };
+          `,
+        },
+        {
+          code: `
+            const generatorFunc = function* () {
+              yield 1;
+              yield 2;
+            };
+          `,
+        },
+      ],
+      invalid: [],
+    });
+  });
+
+  it('should handle complex expressions in non-module files', () => {
     ruleTester.run('no-function-reference-outside-module', rule, {
       valid: [],
       invalid: [
         {
-          code: `
+          code: `// hs:no-module
             const asyncFunc = async function() {
               return await Promise.resolve(42);
             };
@@ -98,7 +125,7 @@ describe('no-function-reference-outside-module', () => {
           ],
         },
         {
-          code: `
+          code: `// hs:no-module
             const generatorFunc = function* () {
               yield 1;
               yield 2;

@@ -88,4 +88,9 @@ export function state(target: unknown, propertyKey: string) {
       } else {
         return this.state[propertyKey];
       }
+    },
+    set(value: any) {
+      this.state[propertyKey] = value;
     }
+  });
+}

@@ -2,23 +2,7 @@ import { Rule, Scope } from 'eslint';
 
 // Array methods that are not supported in Hosanna/BrightScript
 const UNSUPPORTED_ARRAY_METHODS = new Set([
-  'find',
-  'findIndex',
-  'findLast',
-  'findLastIndex',
-  'flat',
-  'flatMap',
-  'includes',
-  'some',
-  'every',
-  'reduceRight',
-  'from',
-  'of',
-  'copyWithin',
-  'fill',
-  'entries',
-  'keys',
-  'values'
+  //There are none right now
 ]);
 
 const rule: Rule.RuleModule = {
