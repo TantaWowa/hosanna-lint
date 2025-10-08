@@ -108,6 +108,17 @@ describe('no-function-reference-outside-module', () => {
     });
   });
 
+  it('should skip rule for files excluded from roku platform', () => {
+    ruleTester.run('no-function-reference-outside-module', rule, {
+      valid: [
+        "// hs:exclude-from-platform roku\nconst myFunc = function() { return 42; };",
+        "// hs:exclude-from-platform roku\nconst arrowFunc = () => { console.log('hello'); };",
+        "// hs:exclude-from-platform roku\nlet funcVar; funcVar = function(x) { return x * 2; };",
+      ],
+      invalid: [],
+    });
+  });
+
   it('should handle complex expressions in non-module files', () => {
     ruleTester.run('no-function-reference-outside-module', rule, {
       valid: [],

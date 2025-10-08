@@ -3,6 +3,7 @@ import { Rule, Scope } from 'eslint';
 // Array methods that are not supported in Hosanna/BrightScript
 const UNSUPPORTED_ARRAY_METHODS = new Set([
   //There are none right now
+  'none'
 ]);
 
 const rule: Rule.RuleModule = {

@@ -15,9 +15,16 @@ const rule: Rule.RuleModule = {
     },
   },
   create: function (context) {
-    // Check if this file is marked as a module (does NOT have // hs:no-module)
+    // Check if this file should be excluded from the rule
     const sourceCode = context.sourceCode.text;
     const trimmed = sourceCode.trimStart();
+
+    // Skip rule if file is excluded from platform roku
+    if (trimmed.startsWith('// hs:exclude-from-platform roku')) {
+      return {};
+    }
+
+    // Check if this file is marked as a module (does NOT have // hs:no-module)
     const isModule = !trimmed.startsWith('// hs:no-module');
 
     // If this is a module file, skip the rule entirely

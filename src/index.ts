@@ -24,6 +24,7 @@ import noExportAliasing from './rules/no-export-aliasing';
 import noUnionExpressionInNonStatement from './rules/no-union-expression-in-non-statement';
 import noCallOnAnonymousFunction from './rules/no-call-on-anonymous-function';
 import noImportExtensions from './rules/no-import-extensions';
+import noEnumDereferencing from './rules/no-enum-dereferencing';
 
 const preprocess = (text: string, _filename: string) => {
   // Check if file starts with the exclude comment for any platform
@@ -64,6 +65,7 @@ const plugin = {
     'no-union-expression-in-non-statement': noUnionExpressionInNonStatement,
     'no-call-on-anonymous-function': noCallOnAnonymousFunction,
     'no-import-extensions': noImportExtensions,
+    'no-enum-dereferencing': noEnumDereferencing,
   },
   configs: {
     recommended: {
@@ -94,6 +96,7 @@ const plugin = {
         '@hosanna-eslint/no-union-expression-in-non-statement': 'error',
         '@hosanna-eslint/no-call-on-anonymous-function': 'error',
         '@hosanna-eslint/no-import-extensions': 'warn',
+        '@hosanna-eslint/no-enum-dereferencing': 'error',
       },
     },
   },
