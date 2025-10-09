@@ -18,7 +18,7 @@ export default tseslint.config(
   },
   // Configuration for Hosanna user code files
   {
-    files: ['test-user-code.ts', 'test-user-code-no-exclude.ts', 'test-user-example.ts'],
+    files: ['src/__test__/test-user-code.ts', 'src/__test__/test-user-code-no-exclude.ts', 'src/__test__/test-user-example.ts'],
     plugins: {
       '@hosanna-eslint': hosannaPlugin,
     },
