@@ -2,7 +2,6 @@ import tseslint from 'typescript-eslint';
 import unusedImports from 'eslint-plugin-unused-imports';
 import { createRequire } from 'module';
 const require = createRequire(import.meta.url);
-const hosannaPlugin = require('./dist/index.js');
 
 export default tseslint.config(
   {
@@ -19,17 +18,28 @@ export default tseslint.config(
   // Configuration for Hosanna user code files
   {
     files: ['src/__test__/test-user-code.ts', 'src/__test__/test-user-code-no-exclude.ts', 'src/__test__/test-user-example.ts'],
-    plugins: {
-      '@hosanna-eslint': hosannaPlugin,
-    },
-    processor: '@hosanna-eslint/ts',
-    languageOptions: {
-      ecmaVersion: 2020,
-      sourceType: 'module',
-    },
-    rules: {
-      ...hosannaPlugin.configs.recommended.rules,
-    },
+    ...(() => {
+      try {
+        const hosannaPlugin = require('./dist/index.js');
+        return {
+          plugins: {
+            '@hosanna-eslint': hosannaPlugin,
+          },
+          processor: '@hosanna-eslint/ts',
+          languageOptions: {
+            ecmaVersion: 2020,
+            sourceType: 'module',
+          },
+          rules: {
+            ...hosannaPlugin.configs.recommended.rules,
+          },
+        };
+      } catch (_error) {
+        // If plugin can't be loaded (e.g., during development), skip this config
+        console.warn('Hosanna plugin not available, skipping user code configuration');
+        return {};
+      }
+    })(),
   },
   // Configuration for plugin development
   {
@@ -49,6 +59,7 @@ export default tseslint.config(
           varsIgnorePattern: '^_',
           args: 'after-used',
           argsIgnorePattern: '^_',
+          caughtErrorsIgnorePattern: '^_',
         },
       ],
       '@typescript-eslint/no-explicit-any': 'warn',
