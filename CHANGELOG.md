@@ -1,5 +1,32 @@
 # Changelog
 
+## [1.3.0] - 2025-10-09
+
+### Added
+- New feature to allow large numeric literals when explicitly typed as `roLongInteger`, preventing unnecessary warnings while maintaining safety for untyped large numbers.
+- Support for using reserved words as class members (e.g., `if`, `then`, `end`, `sub`), enabling more flexible class design.
+- New ESLint rules for export aliasing, import extensions, union expressions, `isNaN` usage, and `Number.NaN` warnings, with comprehensive test cases and documentation.
+- Test cases for large numeric literals, for loop increment/decrement, and closure variable modifications to enhance test coverage.
+- Recommended ESLint configuration and manual setup options in README for better IDE integration and user experience.
+- Nodemon for development watch mode to streamline rule development.
+
+### Changed
+- Refactored closure variable modification rule for improved scope handling and clarity.
+- Updated `no-large-numeric-literals` rule to suggest fixes instead of reporting problems.
+- Enhanced `no-epsilon-usage` rule to use `0.0001` instead of `0.0000001` for BrightScript compatibility, with updated error messages.
+- Improved ESLint configuration to include `test-*` files for linting and exclude `__test__` files from TypeScript diagnostics.
+- Refactored multiple ESLint rules (`no-computed-properties-in-objects`, `no-non-null-on-call-expression`, `no-nested-functions`, etc.) for better clarity, context detection, and compatibility.
+- Updated README to reflect the current number of specialized ESLint rules and added documentation for new rules (`hosanna-import-prefix`, `no-export-aliasing`, `no-import-extensions`).
+- Adjusted `no-reserved-words` rule to exclude `component` and modified `no-unsupported-spread-operator` to allow all spread usages as a disabled rule.
+
+### Removed
+- Removed unsupported rules: `no-rest-operator`, `no-unsupported-spread-operator`, `no-argument-binding`, and `no-delete-operator` to streamline the ESLint ruleset.
+- Eliminated deprecated `.eslintignore` file in favor of ESLint 9+ `ignores` configuration.
+
+### Fixed
+- Fixed CI issues with multiple commits to stabilize the build process.
+- Resolved linting issues and added more robust linting rules for better code quality.
+
 ## [1.2.0] - 2025-10-04
 
 ### Added
@@ -49,6 +76,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `hosanna-import-prefix` rule to enforce @hs-src/ prefix for hosanna package imports
 
 ## [Unreleased]
+
 
 
 
