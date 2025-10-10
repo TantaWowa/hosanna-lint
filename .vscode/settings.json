@@ -37,5 +37,8 @@
   "search.exclude": {
     "**/__test__/samples/**": true
   },
-  "typescript.preferences.excludeLibrary": true
+"typescript.preferences.excludeLibrary": true,
+"github-actions.workflows.pinned.workflows": [
+    ".github/workflows/release.yml"
+]
 }
