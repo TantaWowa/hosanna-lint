@@ -5,7 +5,8 @@ on:
     inputs:
       version:
         description: "Version bump type (major, minor, patch) or specific semver version (e.g., 1.2.3, 1.2.3-rc.1)"
-        required: true
+        required: false
+        default: minor
         type: string
       npmTag:
         description: "Optional npm dist-tag (e.g., latest, next)"
