@@ -1,4 +1,5 @@
 import { Rule } from 'eslint';
+import type { Node } from 'estree';
 
 // Maximum safe integer for Roku/BrightScript
 const MAX_ROKU_SAFE_INT = 2147483647;
@@ -6,7 +7,7 @@ const MAX_ROKU_SAFE_INT = 2147483647;
 /**
  * Check if a node represents a roLongInteger type reference
  */
-function isRoLongIntegerType(node: any): boolean {
+function isRoLongIntegerType(node: Node): boolean {
   if (!node) return false;
 
   // Check for TSTypeReference like 'roLongInteger'
@@ -29,7 +30,7 @@ function isRoLongIntegerType(node: any): boolean {
 /**
  * Check if a literal node is explicitly typed as roLongInteger
  */
-function isExplicitlyTypedAsRoLongInteger(node: any): boolean {
+function isExplicitlyTypedAsRoLongInteger(node: Node): boolean {
   if (!node || !node.parent) return false;
 
   // Check for 'as roLongInteger' expressions
