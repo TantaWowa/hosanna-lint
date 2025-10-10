@@ -1,5 +1,25 @@
 # Changelog
 
+## [1.5.0] - 2025-10-10
+
+### Added
+- New `no-unary-on-illegal-type` rule to detect unary operators on illegal types.
+- Support for version bump types ('major', 'minor', 'patch') and specific semver versions in the release workflow.
+- Automatic version calculation for bump types in the release workflow.
+- Cursor IDE command definitions in configuration.
+
+### Changed
+- Enhanced release workflow with improved input validation and clear error messages.
+- Updated workflow description to clarify supported version formats.
+- Refactored rules to disable any type warnings for AST nodes.
+- Improved type safety in rules with proper Node types.
+
+### Fixed
+- Fixed false negatives in `no-unary-on-illegal-type` rule where unary operations on `row.layout.prop` weren't flagged.
+- Enhanced `no-unary-on-illegal-type` rule to traverse MemberExpression chains and check root identifier types.
+- Added scope-based type detection and improved any type handling for both `TSAnyKeyword` and `TSTypeReference` in `no-unary-on-illegal-type` rule.
+- Added comprehensive test cases for MemberExpression scenarios in `no-unary-on-illegal-type` rule.
+
 ## [1.4.0] - 2025-10-09
 
 ### Removed
@@ -82,6 +102,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `hosanna-import-prefix` rule to enforce @hs-src/ prefix for hosanna package imports
 
 ## [Unreleased]
+
 
 
 
