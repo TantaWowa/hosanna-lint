@@ -1,10 +1,10 @@
 import { Rule } from 'eslint';
-import type { Node } from 'estree';
 
 /**
  * Check if a node represents a literal that cannot be meaningfully used with unary operators
  */
-function isIllegalUnaryOperand(node: Node): boolean {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function isIllegalUnaryOperand(node: any): boolean {
   if (!node) return false;
 
   // String literals

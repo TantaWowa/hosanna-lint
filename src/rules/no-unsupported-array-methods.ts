@@ -1,5 +1,4 @@
 import { Rule, Scope } from 'eslint';
-import type { Node } from 'estree';
 
 // Array methods that are not supported in Hosanna/BrightScript
 const UNSUPPORTED_ARRAY_METHODS = new Set([
@@ -65,7 +64,8 @@ const rule: Rule.RuleModule = {
 };
 
 // Helper function to determine if an expression is likely an array
-function isLikelyArray(node: Node, context: Rule.RuleContext): boolean {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function isLikelyArray(node: any, context: Rule.RuleContext): boolean {
   // Check for array literals
   if (node.type === 'ArrayExpression') {
     return true;
@@ -100,7 +100,8 @@ function isLikelyArray(node: Node, context: Rule.RuleContext): boolean {
 }
 
 // Helper function to check if a type annotation represents an array
-function isArrayTypeAnnotation(typeAnnotation: Node): boolean {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function isArrayTypeAnnotation(typeAnnotation: any): boolean {
   if (!typeAnnotation || !typeAnnotation.typeAnnotation) {
     return false;
   }

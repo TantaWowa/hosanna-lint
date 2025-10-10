@@ -104,6 +104,7 @@ describe('no-nested-functions', () => {
         `,
         `
           export function commandCategory(categoryName: string) {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             return function (target: any) { };
           }
         `,

@@ -1,5 +1,4 @@
 import { Rule } from 'eslint';
-import type { Node } from 'estree';
 
 const rule: Rule.RuleModule = {
   meta: {
@@ -19,8 +18,10 @@ const rule: Rule.RuleModule = {
     return {
       CallExpression: function (node) {
         // Check if the callee is a non-null expression (like foo.bar!())
-        if ((node.callee as Node & { type: string }).type === 'TSNonNullExpression') {
-          const nonNullExpr = node.callee as Node & { expression: Node };
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        if ((node.callee as any).type === 'TSNonNullExpression') {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const nonNullExpr = node.callee as any; // TypeScript doesn't know TSNonNullExpression has expression
           context.report({
             node: node.callee,
             messageId: 'nonNullOnCallNotSupported',
