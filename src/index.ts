@@ -21,6 +21,7 @@ import noTsModuleDeclarations from './rules/no-ts-module-declarations';
 import noFunctionReferenceOutsideModule from './rules/no-function-reference-outside-module';
 import noClosureVariableModification from './rules/no-closure-variable-modification';
 import noExportAliasing from './rules/no-export-aliasing';
+import noUnaryOnIllegalType from './rules/no-unary-on-illegal-type';
 import noUnionExpressionInNonStatement from './rules/no-union-expression-in-non-statement';
 import noCallOnAnonymousFunction from './rules/no-call-on-anonymous-function';
 import noImportExtensions from './rules/no-import-extensions';
@@ -61,6 +62,7 @@ const plugin = {
     'no-function-reference-outside-module': noFunctionReferenceOutsideModule,
     'no-closure-variable-modification': noClosureVariableModification,
     'no-export-aliasing': noExportAliasing,
+    'no-unary-on-illegal-type': noUnaryOnIllegalType,
     'no-union-expression-in-non-statement': noUnionExpressionInNonStatement,
     'no-call-on-anonymous-function': noCallOnAnonymousFunction,
     'no-import-extensions': noImportExtensions,
@@ -91,6 +93,7 @@ const plugin = {
         '@hosanna-eslint/no-function-reference-outside-module': 'error',
         '@hosanna-eslint/no-closure-variable-modification': 'error',
         '@hosanna-eslint/no-export-aliasing': 'error',
+        '@hosanna-eslint/no-unary-on-illegal-type': 'error',
         '@hosanna-eslint/no-union-expression-in-non-statement': 'error',
         '@hosanna-eslint/no-call-on-anonymous-function': 'error',
         '@hosanna-eslint/no-import-extensions': 'warn',
