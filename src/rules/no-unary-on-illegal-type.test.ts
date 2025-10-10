@@ -214,6 +214,85 @@ describe('no-unary-on-illegal-type', () => {
     });
   });
 
+  it('should report errors for unary operators on any typed variables', () => {
+    ruleTester.run('no-unary-on-illegal-type', rule, {
+      valid: [],
+      invalid: [
+        {
+          code: "const value: any = 'hello'; const num = +value;",
+          errors: [
+            {
+              messageId: 'unaryOnIllegalType',
+              data: { operator: '+', type: 'any type' },
+            },
+          ],
+        },
+        {
+          code: "const value: any = true; const num = -value;",
+          errors: [
+            {
+              messageId: 'unaryOnIllegalType',
+              data: { operator: '-', type: 'any type' },
+            },
+          ],
+        },
+        {
+          code: "function test(param: any) { return ~param; }",
+          errors: [
+            {
+              messageId: 'unaryOnIllegalType',
+              data: { operator: '~', type: 'any type' },
+            },
+          ],
+        },
+        {
+          code: "const obj = { prop: 'value' as any }; const result = +obj.prop;",
+          errors: [
+            {
+              messageId: 'unaryOnIllegalType',
+              data: { operator: '+', type: 'any type' },
+            },
+          ],
+        },
+      ],
+    });
+  });
+
+  it('should report errors for unary operators on MemberExpressions with any typed root objects', () => {
+    ruleTester.run('no-unary-on-illegal-type', rule, {
+      valid: [],
+      invalid: [
+        {
+          code: "const row = this.rows[0] as any; this.virtualY = -row.layout.screenYPosition;",
+          errors: [
+            {
+              messageId: 'unaryOnIllegalType',
+              data: { operator: '-', type: 'any type' },
+            },
+          ],
+        },
+        {
+          code: "const obj: any = {}; const result = +obj.prop.nested.value;",
+          errors: [
+            {
+              messageId: 'unaryOnIllegalType',
+              data: { operator: '+', type: 'any type' },
+            },
+          ],
+        },
+        {
+          code: "function getData(): any { return {}; } const data = getData(); const result = ~data.items[0].value;",
+          errors: [
+            {
+              messageId: 'unaryOnIllegalType',
+              data: { operator: '~', type: 'any type' },
+            },
+          ],
+        },
+      ],
+    });
+  });
+
   it('should not flag logical NOT, typeof, void, or delete operators', () => {
     ruleTester.run('no-unary-on-illegal-type', rule, {
       valid: [
