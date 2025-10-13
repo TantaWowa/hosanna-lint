@@ -1,5 +1,20 @@
 # Changelog
 
+## [1.6.0] - 2025-10-13
+
+### Added
+- Added exception for `@hs-generated-async` imports in the `no-hosanna-generated-imports` rule.
+- Added test case to verify `@hs-generated-async` imports are permitted.
+- Pinned release workflow in GitHub Actions extension for easier access in VSCode.
+
+### Changed
+- Set default version bump to `minor` in the release workflow, allowing runs without specifying a version.
+
+### Fixed
+- Fixed TypeScript linting warning by using the proper ESLint `Variable` type.
+- Suppressed expected TypeScript errors in test samples.
+- Excluded samples from test compilation to prevent build errors.
+
 ## [1.5.0] - 2025-10-10
 
 ### Added
@@ -102,6 +117,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `hosanna-import-prefix` rule to enforce @hs-src/ prefix for hosanna package imports
 
 ## [Unreleased]
+
 
 
 
