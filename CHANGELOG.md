@@ -1,5 +1,16 @@
 # Changelog
 
+## [1.9.0] - 2025-10-13
+
+### Added
+- Added `.cursor/commands/prepare-pr.md` for comprehensive PR validation.
+
+### Changed
+- Renamed rule `no-computed-properties-in-objects` to `computed-property-in-object-literal`.
+
+### Removed
+- Removed unused npm scripts: `start`, `testFast`, `lint-ide`, and `watch`.
+
 ## [1.8.0] - 2025-10-13
 
 ### Added
@@ -128,6 +139,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `hosanna-import-prefix` rule to enforce @hs-src/ prefix for hosanna package imports
 
 ## [Unreleased]
+
 
 
 
