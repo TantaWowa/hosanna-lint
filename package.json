@@ -13,13 +13,9 @@
   },
   "scripts": {
     "build": "rm -rf dist && tsc --project tsconfig.build.json && node scripts/generateBuildInfo.js",
-    "start": "node dist/index.js",
     "test": "vitest --run --maxWorkers=20",
-    "testFast": "vitest --run --maxWorkers=40",
     "lint": "eslint --config eslint.config.mjs --ignore-pattern \"node_modules/**\" --ignore-pattern \"dist/**\" --ignore-pattern \"**/*.d.ts\" --ignore-pattern \"**/*.js\"",
     "lint-fix": "eslint --config eslint.config.mjs --ignore-pattern \"node_modules/**\" --ignore-pattern \"dist/**\" --ignore-pattern \"**/*.d.ts\" --ignore-pattern \"**/*.js\" --fix",
-    "lint-ide": "eslint --config eslint.config.mjs --ignore-pattern \"node_modules/**\" --ignore-pattern \"dist/**\" --ignore-pattern \"**/*.d.ts\" --ignore-pattern \"**/*.js\" --format compact",
-    "watch": "tsc --project tsconfig.build.json --watch",
     "dev:watch": "nodemon --watch src --watch scripts --exec \"npm run build\" --ext ts,js,json",
     "changelog": "npx ai-changelog-generator --write",
     "changelog:dry": "npx ai-changelog-generator --dry-run"
