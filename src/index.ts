@@ -1,6 +1,7 @@
 import noHosannaGeneratedImports from './rules/no-hosanna-generated-imports';
 import hosannaImportPrefix from './rules/hosanna-import-prefix';
 import noJsonImports from './rules/no-json-imports';
+import noAsyncManagerCommandsImport from './rules/no-async-manager-commands-import';
 import noAwaitExpression from './rules/no-await-expression';
 import noNestedFunctions from './rules/no-nested-functions';
 import noInlineClasses from './rules/no-inline-classes';
@@ -39,6 +40,7 @@ const preprocess = (text: string, _filename: string) => {
 
 const plugin = {
   rules: {
+    'no-async-manager-commands-import': noAsyncManagerCommandsImport,
     'no-hosanna-generated-imports': noHosannaGeneratedImports,
     'hosanna-import-prefix': hosannaImportPrefix,
     'no-json-imports': noJsonImports,
@@ -70,6 +72,7 @@ const plugin = {
   configs: {
     recommended: {
       rules: {
+        '@hosanna-eslint/no-async-manager-commands-import': 'error',
         '@hosanna-eslint/no-hosanna-generated-imports': 'error',
         '@hosanna-eslint/hosanna-import-prefix': 'error',
         '@hosanna-eslint/no-json-imports': 'error',
