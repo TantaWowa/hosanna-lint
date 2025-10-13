@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.7.0] - 2025-10-13
+
+### Fixed
+- Corrected import exception logic for `@hs-generated-async` to properly exclude the package and its sub-paths.
+- Updated test cases to verify that sub-path imports are allowed.
+
 ## [1.6.0] - 2025-10-13
 
 ### Added
@@ -117,6 +123,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `hosanna-import-prefix` rule to enforce @hs-src/ prefix for hosanna package imports
 
 ## [Unreleased]
+
 
 
 
