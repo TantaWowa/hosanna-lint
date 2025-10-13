@@ -1,7 +1,7 @@
 import { describe, it } from 'vitest';
 import { RuleTester } from 'eslint';
 import parser from '@typescript-eslint/parser';
-import rule from './no-computed-properties-in-objects';
+import rule from './computed-property-in-object-literal';
 
 const ruleTester = new RuleTester({
   languageOptions: {
@@ -11,9 +11,9 @@ const ruleTester = new RuleTester({
   },
 });
 
-describe('no-computed-properties-in-objects', () => {
+describe('computed-property-in-object-literal', () => {
   it('should pass valid computed properties (literals and enum references)', () => {
-    ruleTester.run('no-computed-properties-in-objects', rule, {
+    ruleTester.run('computed-property-in-object-literal', rule, {
       valid: [
         // Regular properties (not computed)
         "const obj = { key: 'value' };",
@@ -48,7 +48,7 @@ describe('no-computed-properties-in-objects', () => {
   });
 
   it('should report errors for invalid computed properties (variables and expressions)', () => {
-    ruleTester.run('no-computed-properties-in-objects', rule, {
+    ruleTester.run('computed-property-in-object-literal', rule, {
       valid: [],
       invalid: [
         {
@@ -107,6 +107,14 @@ describe('no-computed-properties-in-objects', () => {
         },
         {
           code: "const obj = { [obj.nested.prop]: 'value' };",
+          errors: [
+            {
+              messageId: 'computedPropertyInObjectLiteral',
+            },
+          ],
+        },
+        {
+          code: "const b = MyEnum.Value; const a = { [b]: 'c' };",
           errors: [
             {
               messageId: 'computedPropertyInObjectLiteral',

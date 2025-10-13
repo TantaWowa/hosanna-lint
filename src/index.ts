@@ -5,7 +5,7 @@ import noAsyncManagerCommandsImport from './rules/no-async-manager-commands-impo
 import noAwaitExpression from './rules/no-await-expression';
 import noNestedFunctions from './rules/no-nested-functions';
 import noInlineClasses from './rules/no-inline-classes';
-import noComputedPropertiesInObjects from './rules/no-computed-properties-in-objects';
+import computedPropertyInObjectLiteral from './rules/computed-property-in-object-literal';
 import noDateUsage from './rules/no-date-usage';
 import noReservedWords from './rules/no-reserved-words';
 import noUnsupportedArrayMethods from './rules/no-unsupported-array-methods';
@@ -47,7 +47,7 @@ const plugin = {
     'no-await-expression': noAwaitExpression,
     'no-nested-functions': noNestedFunctions,
     'no-inline-classes': noInlineClasses,
-    'no-computed-properties-in-objects': noComputedPropertiesInObjects,
+    'computed-property-in-object-literal': computedPropertyInObjectLiteral,
     'no-date-usage': noDateUsage,
     'no-reserved-words': noReservedWords,
     'no-unsupported-array-methods': noUnsupportedArrayMethods,
@@ -79,7 +79,7 @@ const plugin = {
         '@hosanna-eslint/no-await-expression': 'error',
         '@hosanna-eslint/no-nested-functions': 'error',
         '@hosanna-eslint/no-inline-classes': 'error',
-        '@hosanna-eslint/no-computed-properties-in-objects': 'error',
+        '@hosanna-eslint/computed-property-in-object-literal': 'error',
         '@hosanna-eslint/no-date-usage': 'error',
         '@hosanna-eslint/no-reserved-words': 'error',
         '@hosanna-eslint/no-unsupported-array-methods': 'error',

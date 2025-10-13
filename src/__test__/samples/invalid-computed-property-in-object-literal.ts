@@ -2,6 +2,7 @@
 const obj1 = { [variable]: 'value' };
 const obj2 = { [someFunction()]: 'value' };
 const obj3 = { [a + b]: 'value' };
+const b = MyEnum.Value; const a = { [b]: 'c' };
 
 // Valid cases (should not trigger)
 const validObj = {
