@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.8.0] - 2025-10-13
+
+### Added
+- New `no-async-manager-commands-import` rule to enforce imports of `AsyncManagerCommands` exclusively from `@hs-generated-async/AsyncManagerCommands`, with autofix support for invalid import paths and comprehensive test coverage for various import scenarios.
+
 ## [1.7.0] - 2025-10-13
 
 ### Fixed
@@ -123,6 +128,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `hosanna-import-prefix` rule to enforce @hs-src/ prefix for hosanna package imports
 
 ## [Unreleased]
+
 
 
 
