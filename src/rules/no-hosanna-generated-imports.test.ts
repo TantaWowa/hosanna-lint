@@ -20,6 +20,7 @@ describe('no-hosanna-generated-imports', () => {
         "import fs from 'fs';",
         "import { SomeUtil } from './utils/some-util';",
         "import type { ButtonProps } from '../types/button';",
+        "import { AsyncUtil } from '@hs-generated-async';",
       ],
       invalid: [],
     });

@@ -46,7 +46,7 @@ function isExplicitlyTypedAsAny(node: any, context: Rule.RuleContext): boolean {
   // If this is an identifier, check its declaration/definition
   if (node.type === 'Identifier') {
     const scope = context.sourceCode.getScope(node);
-    const variable = scope.variables.find((v: any) => v.name === node.name);
+    const variable = scope.variables.find((v: import('eslint').Scope.Variable) => v.name === node.name);
     if (variable && variable.defs.length > 0) {
       const def = variable.defs[0];
 

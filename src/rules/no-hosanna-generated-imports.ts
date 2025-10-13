@@ -17,7 +17,7 @@ const rule: Rule.RuleModule = {
         return {
           ImportDeclaration: function (node) {
             const source = node.source.value;
-            if (typeof source === 'string' && (source.startsWith('@hs-generated') || source.includes('-generated-struct'))) {
+            if (typeof source === 'string' && ((source.startsWith('@hs-generated') && source !== '@hs-generated-async') || source.includes('-generated-struct'))) {
               context.report({
                 node: node.source,
                 messageId: 'noGeneratedImports',
