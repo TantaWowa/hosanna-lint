@@ -60,7 +60,7 @@ export default [
 
 ## Rules
 
-This plugin provides **28 specialized ESLint rules** organized by category to ensure Hosanna UI code quality and platform compatibility.
+This plugin provides **29 specialized ESLint rules** organized by category to ensure Hosanna UI code quality and platform compatibility.
 
 ### 📦 Import/Export Rules
 
@@ -238,6 +238,47 @@ const myFunc = function() { return 42; };
 class MyClass {
   myFunc = () => 42;
 }
+```
+
+#### `no-async-function-pointer-invalid-reference`
+**Error level:** `error`
+
+Ensures `AsyncFunctionPointer` type only accepts exported function declarations. Disallows class methods, anonymous functions, arrow functions, and inline functions.
+
+**Example violations:**
+```typescript
+// ❌ Bad - arrow function
+const fn: AsyncFunctionPointer = () => {};
+
+// ❌ Bad - function expression
+const fn: AsyncFunctionPointer = function() {};
+
+// ❌ Bad - class method
+class MyClass {
+  method() {}
+}
+const instance = new MyClass();
+const fn: AsyncFunctionPointer = instance.method;
+
+// ❌ Bad - non-exported function
+function handler() {}
+const fn: AsyncFunctionPointer = handler;
+```
+
+**Example valid usage:**
+```typescript
+// ✅ Good - exported function declaration
+export function handler() {}
+const fn: AsyncFunctionPointer = handler;
+
+// ✅ Good - exported default function
+export default function handler() {}
+const fn: AsyncFunctionPointer = handler;
+
+// ✅ Good - named export
+function handler() {}
+export { handler };
+const fn: AsyncFunctionPointer = handler;
 ```
 
 #### `no-closure-variable-modification`
@@ -425,6 +466,7 @@ export default [
       '@hosanna-eslint/no-function-expression-on-anonymous-object': 'error',
       '@hosanna-eslint/no-function-reference-outside-module': 'error',
       '@hosanna-eslint/no-closure-variable-modification': 'error',
+      '@hosanna-eslint/no-async-function-pointer-invalid-reference': 'error',
 
       // Language Feature rules
       '@hosanna-eslint/no-union-expression-in-non-statement': 'error',
