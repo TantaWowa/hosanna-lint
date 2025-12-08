@@ -96,75 +96,72 @@ function isInvalidAsyncFunctionPointerValue(node: any, context: Rule.RuleContext
     return true;
   }
 
-  // Reject class methods (MemberExpression accessing a method)
+  // Reject class or object methods accessed via member expressions
   if (node.type === 'MemberExpression') {
-    // Check if this is accessing a class method
-    if (node.property && node.property.type === 'Identifier') {
-      // Check if the object is 'this' or a class instance
-      if (node.object.type === 'ThisExpression') {
-        return true; // Class method access
-      }
-      // Check if accessing a method on a class instance
-      if (node.object.type === 'Identifier') {
-        const objectScope = context.sourceCode.getScope(node.object);
-        const objectVar = objectScope.variables.find(
-          (v: import('eslint').Scope.Variable) => v.name === node.object.name
-        );
-        if (objectVar && objectVar.defs.some((d: any) =>
-          d.node.type === 'ClassDeclaration' || d.node.type === 'ClassExpression'
-        )) {
-          return true; // Class method access
-        }
-      }
-    }
-    // For other member expressions, check if it's a method reference
-    // We'll be conservative and reject if we can't verify it's an exported function
     return true;
   }
 
-  // For identifiers, check if they reference exported functions
+  // For identifiers, inspect what they reference
   if (node.type === 'Identifier') {
-    // If it references an exported function, it's valid
-    if (referencesExportedFunction(node, context)) {
-      return false;
-    }
-    // Otherwise, check what it references
     const scope = context.sourceCode.getScope(node);
-    const variable = scope.variables.find((v: import('eslint').Scope.Variable) => v.name === node.name);
+    const variable = scope.variables.find(
+      (v: import('eslint').Scope.Variable) => v.name === node.name
+    );
 
     if (variable && variable.defs.length > 0) {
       for (const def of variable.defs) {
+        // Allow imported bindings - we can't verify cross-module, so treat as valid
+        if (def.type === 'ImportBinding') {
+          return false;
+        }
+
+        const defNode = def.node as any;
+        if (!defNode) {
+          continue;
+        }
+
         // Reject if it's a class method
-        if (def.type === 'MethodDefinition') {
+        if (defNode.type === 'MethodDefinition') {
           return true;
         }
-        // Reject if it's a function expression or arrow function
-        if (def.node.type === 'FunctionExpression' ||
-            def.node.type === 'ArrowFunctionExpression') {
-          return true;
-        }
-        // Reject if it's a non-exported function declaration
-        if (def.node.type === 'FunctionDeclaration') {
-          if (!isExportedFunctionDeclaration(def.node)) {
-            return true;
-          }
-        }
-        // Reject if it's a variable initialized with a function expression or arrow function
-        if (def.node.type === 'VariableDeclarator') {
-          if (def.node.init) {
-            if (def.node.init.type === 'FunctionExpression' ||
-                def.node.init.type === 'ArrowFunctionExpression') {
+
+        // Reject if it's a variable whose initializer is a function expression or arrow function
+        if (defNode.type === 'VariableDeclarator') {
+          if (defNode.init) {
+            if (
+              defNode.init.type === 'FunctionExpression' ||
+              defNode.init.type === 'ArrowFunctionExpression'
+            ) {
               return true;
             }
           }
         }
+
+        // Reject direct function or arrow expressions
+        if (
+          defNode.type === 'FunctionExpression' ||
+          defNode.type === 'ArrowFunctionExpression'
+        ) {
+          return true;
+        }
+
+        // For function declarations, only allow if they are exported
+        if (defNode.type === 'FunctionDeclaration') {
+          if (!isExportedFunctionDeclaration(defNode)) {
+            return true;
+          }
+
+          // Exported function declaration is valid
+          return false;
+        }
       }
     }
+
     // If we can't determine, assume invalid to be safe
     return true;
   }
 
-  // Reject all other types
+  // Reject all other types by default
   return true;
 }
 
@@ -196,13 +193,27 @@ const rule: Rule.RuleModule = {
         }
       },
 
+      // Check class property initializers
+      PropertyDefinition: function (node) {
+        if (hasAsyncFunctionPointerType(node)) {
+          // For class fields, the value is stored in `value`
+          if (node.value && isInvalidAsyncFunctionPointerValue(node.value, context)) {
+            context.report({
+              node: node.value,
+              messageId: 'invalidAsyncFunctionPointer',
+            });
+          }
+        }
+      },
+
       // Check assignment expressions
       AssignmentExpression: function (node) {
         // Check if left side has AsyncFunctionPointer type
         if (node.left && node.left.type === 'Identifier') {
-          const scope = context.sourceCode.getScope(node.left);
+          const leftIdentifier = node.left;
+          const scope = context.sourceCode.getScope(leftIdentifier);
           const variable = scope.variables.find(
-            (v: import('eslint').Scope.Variable) => v.name === node.left.name
+            (v: import('eslint').Scope.Variable) => v.name === leftIdentifier.name
           );
 
           if (variable && variable.defs.length > 0) {
@@ -269,9 +280,10 @@ const rule: Rule.RuleModule = {
             const arg = node.arguments[i];
             // Check if the corresponding parameter has AsyncFunctionPointer type
             if (node.callee && node.callee.type === 'Identifier') {
-              const scope = context.sourceCode.getScope(node.callee);
+              const calleeIdentifier = node.callee;
+              const scope = context.sourceCode.getScope(calleeIdentifier);
               const variable = scope.variables.find(
-                (v: import('eslint').Scope.Variable) => v.name === node.callee.name
+                (v: import('eslint').Scope.Variable) => v.name === calleeIdentifier.name
               );
 
               if (variable && variable.defs.length > 0) {
