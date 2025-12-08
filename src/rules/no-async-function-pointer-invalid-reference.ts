@@ -106,11 +106,12 @@ function isInvalidAsyncFunctionPointerValue(node: any, context: Rule.RuleContext
       }
       // Check if accessing a method on a class instance
       if (node.object.type === 'Identifier') {
-        const objectScope = context.sourceCode.getScope(node.object);
+        const objectIdentifier = node.object;
+        const objectScope = context.sourceCode.getScope(objectIdentifier);
         const objectVar = objectScope.variables.find(
-          (v: import('eslint').Scope.Variable) => v.name === node.object.name
+          (v: import('eslint').Scope.Variable) => v.name === objectIdentifier.name
         );
-        if (objectVar && objectVar.defs.some((d: any) =>
+        if (objectVar && objectVar.defs.some((d) =>
           d.node.type === 'ClassDeclaration' || d.node.type === 'ClassExpression'
         )) {
           return true; // Class method access
@@ -135,7 +136,7 @@ function isInvalidAsyncFunctionPointerValue(node: any, context: Rule.RuleContext
     if (variable && variable.defs.length > 0) {
       for (const def of variable.defs) {
         // Reject if it's a class method
-        if (def.type === 'MethodDefinition') {
+        if (def.node.type === 'MethodDefinition') {
           return true;
         }
         // Reject if it's a function expression or arrow function
@@ -200,9 +201,10 @@ const rule: Rule.RuleModule = {
       AssignmentExpression: function (node) {
         // Check if left side has AsyncFunctionPointer type
         if (node.left && node.left.type === 'Identifier') {
-          const scope = context.sourceCode.getScope(node.left);
+          const leftIdentifier = node.left;
+          const scope = context.sourceCode.getScope(leftIdentifier);
           const variable = scope.variables.find(
-            (v: import('eslint').Scope.Variable) => v.name === node.left.name
+            (v: import('eslint').Scope.Variable) => v.name === leftIdentifier.name
           );
 
           if (variable && variable.defs.length > 0) {
@@ -269,9 +271,10 @@ const rule: Rule.RuleModule = {
             const arg = node.arguments[i];
             // Check if the corresponding parameter has AsyncFunctionPointer type
             if (node.callee && node.callee.type === 'Identifier') {
-              const scope = context.sourceCode.getScope(node.callee);
+              const calleeIdentifier = node.callee;
+              const scope = context.sourceCode.getScope(calleeIdentifier);
               const variable = scope.variables.find(
-                (v: import('eslint').Scope.Variable) => v.name === node.callee.name
+                (v: import('eslint').Scope.Variable) => v.name === calleeIdentifier.name
               );
 
               if (variable && variable.defs.length > 0) {
