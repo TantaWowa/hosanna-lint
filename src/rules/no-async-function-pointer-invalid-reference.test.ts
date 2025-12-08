@@ -333,6 +333,150 @@ describe('no-async-function-pointer-invalid-reference', () => {
     });
   });
 
+  it('should validate class properties with AsyncFunctionPointer type', () => {
+    ruleTester.run('no-async-function-pointer-invalid-reference', rule, {
+      valid: [
+        `
+          export function handler() {}
+          class MyClass {
+            public callback: AsyncFunctionPointer = handler;
+          }
+        `,
+        `
+          export function handler() {}
+          class MyClass {
+            callback: AsyncFunctionPointer = handler;
+          }
+        `,
+      ],
+      invalid: [
+        {
+          code: `
+            class MyClass {
+              public callback: AsyncFunctionPointer = () => {};
+            }
+          `,
+          errors: [
+            {
+              messageId: 'invalidAsyncFunctionPointer',
+            },
+          ],
+        },
+        {
+          code: `
+            class MyClass {
+              public callback: AsyncFunctionPointer = function () {};
+            }
+          `,
+          errors: [
+            {
+              messageId: 'invalidAsyncFunctionPointer',
+            },
+          ],
+        },
+        {
+          code: `
+            class MyClass {
+              method() {}
+              public callback: AsyncFunctionPointer = this.method;
+            }
+          `,
+          errors: [
+            {
+              messageId: 'invalidAsyncFunctionPointer',
+            },
+          ],
+        },
+      ],
+    });
+  });
+
+  it('should report errors when using bind with AsyncFunctionPointer targets', () => {
+    ruleTester.run('no-async-function-pointer-invalid-reference', rule, {
+      valid: [],
+      invalid: [
+        // Direct bind into AsyncFunctionPointer-typed variable
+        {
+          code: `
+            export function handler() {}
+            const fn: AsyncFunctionPointer = handler.bind(this);
+          `,
+          errors: [
+            {
+              messageId: 'invalidAsyncFunctionPointer',
+            },
+          ],
+        },
+        // Bind result stored in intermediate variable
+        {
+          code: `
+            export function handler() {}
+            const bound = handler.bind(this);
+            const fn: AsyncFunctionPointer = bound;
+          `,
+          errors: [
+            {
+              messageId: 'invalidAsyncFunctionPointer',
+            },
+          ],
+        },
+        // Bind result stored in array and then indexed
+        {
+          code: `
+            export function handler() {}
+            const handlers = [handler.bind(this)];
+            const fn: AsyncFunctionPointer = handlers[0];
+          `,
+          errors: [
+            {
+              messageId: 'invalidAsyncFunctionPointer',
+            },
+          ],
+        },
+        // Bind result stored in object property and then accessed
+        {
+          code: `
+            export function handler() {}
+            const obj = { callback: handler.bind(this) };
+            const fn: AsyncFunctionPointer = obj.callback;
+          `,
+          errors: [
+            {
+              messageId: 'invalidAsyncFunctionPointer',
+            },
+          ],
+        },
+        // Bind used directly as AsyncFunctionPointer parameter
+        {
+          code: `
+            export function handler() {}
+            function callHandler(fn: AsyncFunctionPointer) {}
+            callHandler(handler.bind(this));
+          `,
+          errors: [
+            {
+              messageId: 'invalidAsyncFunctionPointer',
+            },
+          ],
+        },
+        // Bound variable passed as AsyncFunctionPointer parameter
+        {
+          code: `
+            export function handler() {}
+            const bound = handler.bind(this);
+            function callHandler(fn: AsyncFunctionPointer) {}
+            callHandler(bound);
+          `,
+          errors: [
+            {
+              messageId: 'invalidAsyncFunctionPointer',
+            },
+          ],
+        },
+      ],
+    });
+  });
+
   it('should handle complex scenarios', () => {
     ruleTester.run('no-async-function-pointer-invalid-reference', rule, {
       valid: [
