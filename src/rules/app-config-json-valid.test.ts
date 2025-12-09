@@ -844,6 +844,289 @@ describe('app-config-json-valid', () => {
         invalid: [],
       });
     });
+
+    it('should report error for $extends with ~ prefix', () => {
+      ruleTester.run('app-config-json-valid', rule, {
+        valid: [],
+        invalid: [
+          {
+            code: JSON.stringify({
+              rows: {},
+              translations: { en: {} },
+              cells: {},
+              theme: { colors: {}, fonts: {} },
+              controls: {
+                Button: {
+                  default: {
+                    $extends: '~controls.Label.default',
+                  },
+                },
+                Label: {
+                  default: {
+                    color: '#FFFFFF',
+                  },
+                },
+              },
+            }, null, 2),
+            filename: 'src/meta/app.config.json',
+            errors: [
+              {
+                messageId: 'extendsWithTilde',
+              },
+            ],
+          },
+        ],
+      });
+    });
+
+    it('should report error for styleKey with ~ prefix', () => {
+      ruleTester.run('app-config-json-valid', rule, {
+        valid: [],
+        invalid: [
+          {
+            code: JSON.stringify({
+              rows: {},
+              translations: { en: {} },
+              cells: {},
+              theme: { colors: {}, fonts: {} },
+              controls: {
+                Label: {
+                  default: {
+                    styleKey: '~theme.styles.heading',
+                  },
+                },
+              },
+            }, null, 2),
+            filename: 'src/meta/app.config.json',
+            errors: [
+              {
+                messageId: 'keyWithTilde',
+              },
+            ],
+          },
+        ],
+      });
+    });
+
+    it('should report error for fontKey with ~ prefix when path is invalid', () => {
+      ruleTester.run('app-config-json-valid', rule, {
+        valid: [],
+        invalid: [
+          {
+            code: JSON.stringify({
+              rows: {},
+              translations: { en: {} },
+              cells: {},
+              theme: { colors: {}, fonts: {} },
+              controls: {
+                Label: {
+                  default: {
+                    fontKey: '~theme.fonts.nonexistent',
+                  },
+                },
+              },
+            }, null, 2),
+            filename: 'src/meta/app.config.json',
+            errors: [
+              {
+                messageId: 'invalidJsonReference',
+              },
+            ],
+          },
+        ],
+      });
+    });
+
+    it('should allow fontKey with ~ prefix when path is valid', () => {
+      ruleTester.run('app-config-json-valid', rule, {
+        valid: [
+          {
+            code: JSON.stringify({
+              rows: {},
+              translations: { en: {} },
+              cells: {},
+              theme: {
+                colors: {},
+                fonts: {
+                  heading: 'pkg:/assets/fonts/font.ttf, 24',
+                },
+              },
+              controls: {
+                Label: {
+                  default: {
+                    fontKey: '~theme.fonts.heading',
+                  },
+                },
+              },
+            }, null, 2),
+            filename: 'src/meta/app.config.json',
+          },
+        ],
+        invalid: [],
+      });
+    });
+
+    it('should validate fontKey format when value does not start with ~', () => {
+      ruleTester.run('app-config-json-valid', rule, {
+        valid: [
+          {
+            code: JSON.stringify({
+              rows: {},
+              translations: { en: {} },
+              cells: {},
+              theme: { colors: {}, fonts: {} },
+              controls: {
+                Label: {
+                  default: {
+                    fontKey: 'pkg:/assets/fonts/Montserrat-Black.ttf,34',
+                  },
+                },
+              },
+            }, null, 2),
+            filename: 'src/meta/app.config.json',
+          },
+          {
+            code: JSON.stringify({
+              rows: {},
+              translations: { en: {} },
+              cells: {},
+              theme: { colors: {}, fonts: {} },
+              controls: {
+                Label: {
+                  default: {
+                    fontKey: 'LargeBold,40',
+                  },
+                },
+              },
+            }, null, 2),
+            filename: 'src/meta/app.config.json',
+          },
+        ],
+        invalid: [
+          {
+            code: JSON.stringify({
+              rows: {},
+              translations: { en: {} },
+              cells: {},
+              theme: { colors: {}, fonts: {} },
+              controls: {
+                Label: {
+                  default: {
+                    fontKey: 'invalid-format',
+                  },
+                },
+              },
+            }, null, 2),
+            filename: 'src/meta/app.config.json',
+            errors: [
+              {
+                messageId: 'invalidFontKeyFormat',
+              },
+            ],
+          },
+          {
+            code: JSON.stringify({
+              rows: {},
+              translations: { en: {} },
+              cells: {},
+              theme: { colors: {}, fonts: {} },
+              controls: {
+                Label: {
+                  default: {
+                    fontKey: 'pkg:/assets/fonts/font.ttf',
+                  },
+                },
+              },
+            }, null, 2),
+            filename: 'src/meta/app.config.json',
+            errors: [
+              {
+                messageId: 'invalidFontKeyFormat',
+              },
+            ],
+          },
+          {
+            code: JSON.stringify({
+              rows: {},
+              translations: { en: {} },
+              cells: {},
+              theme: { colors: {}, fonts: {} },
+              controls: {
+                Label: {
+                  default: {
+                    fontKey: 'font.ttf,abc',
+                  },
+                },
+              },
+            }, null, 2),
+            filename: 'src/meta/app.config.json',
+            errors: [
+              {
+                messageId: 'invalidFontKeyFormat',
+              },
+            ],
+          },
+        ],
+      });
+    });
+
+    it('should validate color with ~ prefix and report error for invalid path', () => {
+      ruleTester.run('app-config-json-valid', rule, {
+        valid: [],
+        invalid: [
+          {
+            code: JSON.stringify({
+              rows: {},
+              translations: { en: {} },
+              cells: {},
+              theme: { colors: {}, fonts: {} },
+              controls: {
+                Label: {
+                  default: {
+                    color: '~theme.colors.nonexistent',
+                  },
+                },
+              },
+            }, null, 2),
+            filename: 'src/meta/app.config.json',
+            errors: [
+              {
+                messageId: 'invalidJsonReference',
+              },
+            ],
+          },
+        ],
+      });
+    });
+
+    it('should validate color with ~ prefix and pass for valid path', () => {
+      ruleTester.run('app-config-json-valid', rule, {
+        valid: [
+          {
+            code: JSON.stringify({
+              rows: {},
+              translations: { en: {} },
+              cells: {},
+              theme: {
+                colors: {
+                  white: '#FFFFFF',
+                },
+                fonts: {},
+              },
+              controls: {
+                Label: {
+                  default: {
+                    color: '~theme.colors.white',
+                  },
+                },
+              },
+            }, null, 2),
+            filename: 'src/meta/app.config.json',
+          },
+        ],
+        invalid: [],
+      });
+    });
   });
 });
 

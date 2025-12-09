@@ -92,17 +92,94 @@ function validatePkgPath(
 }
 
 /**
+ * Validate font key format (FILE,size or SystemFontName,size)
+ */
+function validateFontKeyFormat(value: string): { valid: boolean; error?: string } {
+  // Must contain exactly one comma
+  const commaCount = (value.match(/,/g) || []).length;
+  if (commaCount !== 1) {
+    return {
+      valid: false,
+      error: `Font key format must be "FILE,size" or "SystemFontName,size" (found ${commaCount} commas)`,
+    };
+  }
+
+  const [fontPart, sizePart] = value.split(',');
+
+  // Validate size is a positive integer
+  const size = parseInt(sizePart.trim(), 10);
+  if (isNaN(size) || size <= 0 || sizePart.trim() !== size.toString()) {
+    return {
+      valid: false,
+      error: `Font size must be a positive integer, got: ${sizePart.trim()}`,
+    };
+  }
+
+  // Validate font part: either pkg:/assets/fonts/... path OR system font name (alphanumeric, no spaces before comma)
+  if (fontPart.includes('pkg:/')) {
+    // If it's a pkg path, validate it starts with pkg:/assets/fonts/
+    if (!fontPart.trim().startsWith('pkg:/assets/fonts/')) {
+      return {
+        valid: false,
+        error: `Font file path must start with pkg:/assets/fonts/, got: ${fontPart.trim()}`,
+      };
+    }
+  } else {
+    // System font name: alphanumeric, no spaces before comma
+    if (!/^[a-zA-Z0-9]+$/.test(fontPart.trim())) {
+      return {
+        valid: false,
+        error: `System font name must be alphanumeric, got: ${fontPart.trim()}`,
+      };
+    }
+  }
+
+  return { valid: true };
+}
+
+/**
  * Validate JSON reference (~path.to.json)
  */
 function validateJsonReference(
   ref: string,
   jsonObj: any,
-  jsonPath: string
+  jsonPath: string,
+  key: string
 ): { valid: boolean; error?: string } {
   if (!ref.startsWith('~')) {
     return { valid: true }; // Not a reference, skip
   }
 
+  // Check if key is $extends - should not have ~ prefix
+  if (key === '$extends') {
+    return {
+      valid: false,
+      error: `$extends values should not start with ~`,
+    };
+  }
+
+  // Check if key ends with 'Key' (except fontKey) - should not have ~ prefix
+  if (key.endsWith('Key') && key !== 'fontKey') {
+    return {
+      valid: false,
+      error: `Keys ending in 'Key' (except fontKey) should not have values starting with ~`,
+    };
+  }
+
+  // Special handling for fontKey
+  if (key === 'fontKey') {
+    // If fontKey has ~ prefix, validate the path exists after removing ~
+    const pathStr = ref.substring(1); // Remove ~ prefix
+    if (!jsonPathExists(jsonObj, pathStr)) {
+      return {
+        valid: false,
+        error: `JSON reference not found: ~${pathStr} (at ${jsonPath})`,
+      };
+    }
+    return { valid: true };
+  }
+
+  // For other keys, validate the path exists after removing ~ prefix
   const pathStr = ref.substring(1); // Remove ~ prefix
   if (!jsonPathExists(jsonObj, pathStr)) {
     return {
@@ -137,8 +214,9 @@ function validateExtendsReference(
  */
 interface TraversalResult {
   pkgPaths: Array<{ path: string; jsonPath: string; value: string }>;
-  jsonRefs: Array<{ ref: string; jsonPath: string; value: string }>;
+  jsonRefs: Array<{ ref: string; jsonPath: string; value: string; key: string }>;
   extendsRefs: Array<{ path: string; jsonPath: string; value: string }>;
+  fontKeys: Array<{ value: string; jsonPath: string }>;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -147,6 +225,7 @@ function traverseJson(obj: any, currentPath: string = ''): TraversalResult {
     pkgPaths: [],
     jsonRefs: [],
     extendsRefs: [],
+    fontKeys: [],
   };
 
   if (obj === null || obj === undefined) {
@@ -160,6 +239,7 @@ function traverseJson(obj: any, currentPath: string = ''): TraversalResult {
       result.pkgPaths.push(...itemResult.pkgPaths);
       result.jsonRefs.push(...itemResult.jsonRefs);
       result.extendsRefs.push(...itemResult.extendsRefs);
+      result.fontKeys.push(...itemResult.fontKeys);
     });
     return result;
   }
@@ -198,6 +278,15 @@ function traverseJson(obj: any, currentPath: string = ''): TraversalResult {
             ref: value,
             jsonPath: newPath,
             value: value,
+            key: key,
+          });
+        }
+
+        // Check for fontKey values without ~ prefix
+        if (key === 'fontKey' && !value.startsWith('~')) {
+          result.fontKeys.push({
+            value: value,
+            jsonPath: newPath,
           });
         }
       } else {
@@ -206,6 +295,7 @@ function traverseJson(obj: any, currentPath: string = ''): TraversalResult {
         result.pkgPaths.push(...nestedResult.pkgPaths);
         result.jsonRefs.push(...nestedResult.jsonRefs);
         result.extendsRefs.push(...nestedResult.extendsRefs);
+        result.fontKeys.push(...nestedResult.fontKeys);
       }
     }
   }
@@ -232,6 +322,9 @@ const rule: Rule.RuleModule = {
       invalidJsonReference: '{{error}}',
       invalidExtendsReference: '{{error}}',
       jsonParseError: 'Failed to parse JSON: {{error}}',
+      extendsWithTilde: '$extends values should not start with ~',
+      keyWithTilde: "Keys ending in 'Key' (except fontKey) should not have values starting with ~",
+      invalidFontKeyFormat: '{{error}}',
     },
   },
   create: function (context) {
@@ -357,12 +450,51 @@ const rule: Rule.RuleModule = {
 
         // Validate ~ references
         for (const jsonRef of traversal.jsonRefs) {
-          const validation = validateJsonReference(jsonRef.ref, jsonObj, jsonRef.jsonPath);
+          const validation = validateJsonReference(jsonRef.ref, jsonObj, jsonRef.jsonPath, jsonRef.key);
           if (!validation.valid) {
             const lines = text.split('\n');
             let line = 1;
             let column = 1;
             const searchText = JSON.stringify(jsonRef.value);
+            for (let i = 0; i < lines.length; i++) {
+              const index = lines[i].indexOf(searchText);
+              if (index !== -1) {
+                line = i + 1;
+                column = index + 1;
+                break;
+              }
+            }
+
+            // Determine message ID based on error type
+            let messageId = 'invalidJsonReference';
+            if (validation.error?.includes("$extends values should not start with ~")) {
+              messageId = 'extendsWithTilde';
+            } else if (validation.error?.includes("Keys ending in 'Key'")) {
+              messageId = 'keyWithTilde';
+            }
+
+            context.report({
+              node,
+              loc: {
+                start: { line, column },
+                end: { line, column: column + searchText.length },
+              },
+              messageId: messageId,
+              data: {
+                error: validation.error || 'Invalid JSON reference',
+              },
+            });
+          }
+        }
+
+        // Validate fontKey values without ~ prefix
+        for (const fontKey of traversal.fontKeys) {
+          const validation = validateFontKeyFormat(fontKey.value);
+          if (!validation.valid) {
+            const lines = text.split('\n');
+            let line = 1;
+            let column = 1;
+            const searchText = JSON.stringify(fontKey.value);
             for (let i = 0; i < lines.length; i++) {
               const index = lines[i].indexOf(searchText);
               if (index !== -1) {
@@ -378,9 +510,9 @@ const rule: Rule.RuleModule = {
                 start: { line, column },
                 end: { line, column: column + searchText.length },
               },
-              messageId: 'invalidJsonReference',
+              messageId: 'invalidFontKeyFormat',
               data: {
-                error: validation.error || 'Invalid JSON reference',
+                error: validation.error || 'Invalid font key format',
               },
             });
           }
@@ -388,6 +520,32 @@ const rule: Rule.RuleModule = {
 
         // Validate $extends references
         for (const extendsRef of traversal.extendsRefs) {
+          // Check if $extends value starts with ~ (should not)
+          if (extendsRef.path.startsWith('~')) {
+            const lines = text.split('\n');
+            let line = 1;
+            let column = 1;
+            const searchText = `"$extends": "${extendsRef.value}"`;
+            for (let i = 0; i < lines.length; i++) {
+              const index = lines[i].indexOf(searchText);
+              if (index !== -1) {
+                line = i + 1;
+                column = index + 1;
+                break;
+              }
+            }
+
+            context.report({
+              node,
+              loc: {
+                start: { line, column },
+                end: { line, column: column + searchText.length },
+              },
+              messageId: 'extendsWithTilde',
+            });
+            continue;
+          }
+
           const validation = validateExtendsReference(extendsRef.path, jsonObj, extendsRef.jsonPath);
           if (!validation.valid) {
             const lines = text.split('\n');
