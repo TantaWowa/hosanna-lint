@@ -60,7 +60,7 @@ export default [
 
 ## Rules
 
-This plugin provides **29 specialized ESLint rules** organized by category to ensure Hosanna UI code quality and platform compatibility.
+This plugin provides **30 specialized ESLint rules** organized by category to ensure Hosanna UI code quality and platform compatibility.
 
 ### 📦 Import/Export Rules
 
@@ -281,6 +281,128 @@ export { handler };
 const fn: AsyncFunctionPointer = handler;
 ```
 
+### 📄 Configuration File Rules
+
+#### `app-config-json-valid`
+**Error level:** `error`
+
+Validates `app.config.json` files (located at `src/meta/app.config.json`) to ensure proper structure, file path validity, and JSON reference correctness.
+
+**Validations performed:**
+- Checks for required sections: `rows`, `translations`, `cells`, `theme`, `controls`
+- Ensures `translations` contains at least `"en"` key
+- Ensures `theme` contains `colors` and `fonts` objects
+- Validates all `pkg:/assets/...` paths exist in the project's `assets` folder
+- Validates all `~path.to.json` references exist in the JSON structure
+- Validates all `$extends` references point to valid JSON paths
+
+**Example violations:**
+```json
+{
+  // ❌ Bad - missing rows section
+  "translations": { "en": {} },
+  "cells": {},
+  "theme": { "colors": {}, "fonts": {} },
+  "controls": {}
+}
+```
+
+```json
+{
+  "rows": {},
+  // ❌ Bad - missing "en" in translations
+  "translations": { "es": {} },
+  "cells": {},
+  "theme": { "colors": {}, "fonts": {} },
+  "controls": {}
+}
+```
+
+```json
+{
+  "rows": {},
+  "translations": { "en": {} },
+  "cells": {},
+  "theme": {
+    "colors": {},
+    // ❌ Bad - missing fonts in theme
+  },
+  "controls": {}
+}
+```
+
+```json
+{
+  "theme": {
+    "fonts": {
+      // ❌ Bad - file doesn't exist
+      "heading": "pkg:/assets/fonts/nonexistent.ttf, 24"
+    }
+  }
+}
+```
+
+```json
+{
+  "controls": {
+    "Button": {
+      "default": {
+        // ❌ Bad - reference doesn't exist
+        "color": "~theme.colors.nonexistent"
+      }
+    }
+  }
+}
+```
+
+```json
+{
+  "controls": {
+    "Button": {
+      "default": {
+        // ❌ Bad - $extends path doesn't exist
+        "$extends": "controls.Label.nonexistent"
+      }
+    }
+  }
+}
+```
+
+**Example valid usage:**
+```json
+{
+  "rows": {},
+  "translations": {
+    "en": {
+      "home": { "title": "Welcome" }
+    }
+  },
+  "cells": {},
+  "theme": {
+    "colors": {
+      "white": "#FFFFFF"
+    },
+    "fonts": {
+      "heading": "pkg:/assets/fonts/Poppins-SemiBold.ttf, 24"
+    }
+  },
+  "controls": {
+    "Label": {
+      "default": {
+        "color": "~theme.colors.white",
+        "fontKey": "~theme.fonts.heading"
+      }
+    },
+    "Button": {
+      "default": {
+        "$extends": "controls.Label.default",
+        "backgroundColor": "#000000"
+      }
+    }
+  }
+}
+```
+
 #### `no-closure-variable-modification`
 **Error level:** `error`
 
@@ -467,6 +589,9 @@ export default [
       '@hosanna-eslint/no-function-reference-outside-module': 'error',
       '@hosanna-eslint/no-closure-variable-modification': 'error',
       '@hosanna-eslint/no-async-function-pointer-invalid-reference': 'error',
+
+      // Configuration File rules
+      '@hosanna-eslint/app-config-json-valid': 'error',
 
       // Language Feature rules
       '@hosanna-eslint/no-union-expression-in-non-statement': 'error',
