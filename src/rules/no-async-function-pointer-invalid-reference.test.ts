@@ -477,6 +477,52 @@ describe('no-async-function-pointer-invalid-reference', () => {
     });
   });
 
+  it('should allow exported functions referenced inside class methods', () => {
+    ruleTester.run('no-async-function-pointer-invalid-reference', rule, {
+      valid: [
+        // Exported function referenced inside a class method
+        `
+          export function handleResponse() {}
+          class MyClass {
+            test() {
+              const fn: AsyncFunctionPointer = handleResponse;
+            }
+          }
+        `,
+        // Exported function referenced in class method with assignment
+        `
+          export function handler() {}
+          class MyClass {
+            test() {
+              let fn: AsyncFunctionPointer;
+              fn = handler;
+            }
+          }
+        `,
+        // Exported function passed as argument from class method
+        `
+          export function handler() {}
+          function callHandler(fn: AsyncFunctionPointer) {}
+          class MyClass {
+            test() {
+              callHandler(handler);
+            }
+          }
+        `,
+        // Real-world scenario matching PostProcessFunctionRig.ts
+        `
+          export function handlePostProcessFunctionRigResponse(viewInstance: any, response: any): void {}
+          export class PostProcessFunctionRigView {
+            private loadDataWithPostProcess() {
+              const postProcessFn: AsyncFunctionPointer = handlePostProcessFunctionRigResponse;
+            }
+          }
+        `,
+      ],
+      invalid: [],
+    });
+  });
+
   it('should handle complex scenarios', () => {
     ruleTester.run('no-async-function-pointer-invalid-reference', rule, {
       valid: [
@@ -491,6 +537,44 @@ describe('no-async-function-pointer-invalid-reference', () => {
         `
           import { handler } from './other';
           const fn: AsyncFunctionPointer = handler;
+        `,
+        // Imported function used inside class method
+        `
+          import { handleResponse } from './utils';
+          class MyClass {
+            test() {
+              const fn: AsyncFunctionPointer = handleResponse;
+            }
+          }
+        `,
+        // Imported function assigned to variable inside class method
+        `
+          import { handler } from './handlers';
+          class MyClass {
+            test() {
+              let fn: AsyncFunctionPointer;
+              fn = handler;
+            }
+          }
+        `,
+        // Imported function passed as argument from class method
+        `
+          import { handler } from './handlers';
+          function callHandler(fn: AsyncFunctionPointer) {}
+          class MyClass {
+            test() {
+              callHandler(handler);
+            }
+          }
+        `,
+        // Default import
+        `
+          import handler from './handler';
+          class MyClass {
+            test() {
+              const fn: AsyncFunctionPointer = handler;
+            }
+          }
         `,
       ],
       invalid: [

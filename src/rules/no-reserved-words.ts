@@ -24,6 +24,7 @@ const BRIGHTSCRIPT_RESERVED_WORDS = new Set([
   'invalid',
   'let',
   'line_num',
+  'm',
   'next',
   'not',
   'objfun',
