@@ -73,7 +73,7 @@ function validateFontKeyFormat(value: string): { valid: boolean; error?: string 
       const validNames = Array.from(VALID_ROKU_SYSTEM_FONTS).sort().join(', ');
       return {
         valid: false,
-        error: `System font name must be one of: ${validNames}. Got: ${fontName}`,
+        error: `Font name "${fontName}" is not known. The correct format for fontKey is: FONT_NAME,SIZE (e.g., "Medium,20" or "LargeBold,24") or ~path.to.app.config.json.fontKey (e.g., "~theme.fonts.heading"). Valid font names are: ${validNames}`,
       };
     }
   }
@@ -168,14 +168,30 @@ function validatePath(
   pathStr: string,
   propertyName: string,
   context: Rule.RuleContext,
-  node: Rule.Node
+  valueNode: Rule.Node,
+  propertyNode?: Rule.Node
 ): void {
+  // Warn if key ends with 'Key' (except fontKey) and value starts with ~
+  // This is allowed in app.config.json but discouraged elsewhere
+  if (propertyName.endsWith('Key') && propertyName !== 'fontKey' && pathStr.startsWith('~')) {
+    // Report on the property node if available, otherwise use the value node
+    const reportNode = propertyNode || valueNode;
+    context.report({
+      node: reportNode,
+      messageId: 'keyWithTildeWarning',
+      data: {
+        property: propertyName,
+      },
+    });
+    // Continue validation - don't return early
+  }
+
   // For fontKey, validate direct font specifications
   if (propertyName === 'fontKey' && isDirectFontSpecification(pathStr)) {
     const validation = validateFontKeyFormat(pathStr);
     if (!validation.valid) {
       context.report({
-        node,
+        node: valueNode,
         messageId: 'invalidFontKeyFormat',
         data: {
           error: validation.error || 'Invalid font key format',
@@ -191,12 +207,15 @@ function validatePath(
     return;
   }
 
-  if (!jsonPathExists(config, pathStr)) {
+  // If path starts with ~, remove it for validation
+  const pathToValidate = pathStr.startsWith('~') ? pathStr.substring(1) : pathStr;
+
+  if (!jsonPathExists(config, pathToValidate)) {
     context.report({
-      node,
+      node: valueNode,
       messageId: 'invalidStyleKey',
       data: {
-        path: pathStr,
+        path: pathToValidate,
       },
     });
   }
@@ -215,6 +234,7 @@ const rule: Rule.RuleModule = {
     messages: {
       invalidStyleKey: 'Style key path "{{path}}" does not exist in app.config.json',
       invalidFontKeyFormat: '{{error}}',
+      keyWithTildeWarning: 'Keys ending in "Key" (except fontKey) should not use ~ references outside of app.config.json. Consider using a direct path instead.',
     },
   },
   create: function (context) {
@@ -230,7 +250,7 @@ const rule: Rule.RuleModule = {
           const propertyName = node.key.name;
           const stringLiterals = extractStringLiterals(node.value);
           for (const literal of stringLiterals) {
-            validatePath(literal, propertyName, context, node.value as Rule.Node);
+            validatePath(literal, propertyName, context, node.value as Rule.Node, node as Rule.Node);
           }
         }
       },
@@ -248,7 +268,8 @@ const rule: Rule.RuleModule = {
           const propertyName = node.left.property.name;
           const stringLiterals = extractStringLiterals(node.right);
           for (const literal of stringLiterals) {
-            validatePath(literal, propertyName, context, node.right as Rule.Node);
+            // For assignments, report on the property access (left side)
+            validatePath(literal, propertyName, context, node.right as Rule.Node, node.left.property as Rule.Node);
           }
         }
       },

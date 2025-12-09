@@ -153,7 +153,7 @@ function validateFontKeyFormat(value: string): { valid: boolean; error?: string 
       const validNames = Array.from(VALID_ROKU_SYSTEM_FONTS).sort().join(', ');
       return {
         valid: false,
-        error: `System font name must be one of: ${validNames}. Got: ${fontName}`,
+        error: `Font name "${fontName}" is not known. The correct format for fontKey is: FONT_NAME,SIZE (e.g., "Medium,20" or "LargeBold,24") or ~path.to.app.config.json.fontKey (e.g., "~theme.fonts.heading"). Valid font names are: ${validNames}`,
       };
     }
   }
@@ -182,17 +182,16 @@ function validateJsonReference(
     };
   }
 
-  // Check if key ends with 'Key' (except fontKey) - should not have ~ prefix
-  if (key.endsWith('Key') && key !== 'fontKey') {
-    return {
-      valid: false,
-      error: `Keys ending in 'Key' (except fontKey) should not have values starting with ~`,
-    };
-  }
-
   // Special handling for fontKey
   if (key === 'fontKey') {
-    // If fontKey has ~ prefix, validate the path exists after removing ~
+    // If fontKey has ~ prefix and has commas, it's invalid (references shouldn't have commas)
+    if (ref.includes(',')) {
+      return {
+        valid: false,
+        error: `Font key reference cannot contain commas`,
+      };
+    }
+    // If fontKey has ~ prefix and no commas, validate the path exists after removing ~
     const pathStr = ref.substring(1); // Remove ~ prefix
     if (!jsonPathExists(jsonObj, pathStr)) {
       return {
@@ -327,6 +326,104 @@ function traverseJson(obj: any, currentPath: string = ''): TraversalResult {
   return result;
 }
 
+/**
+ * Find the position of a value in JSON text, tracking used positions
+ * This ensures we find the correct occurrence when the same value appears multiple times
+ */
+function findValuePosition(
+  text: string,
+  jsonPath: string,
+  value: string,
+  usedPositions: Set<string>,
+  key?: string
+): { line: number; column: number } | null {
+  const lines = text.split('\n');
+  const searchValue = JSON.stringify(value);
+
+  // Parse jsonPath to get parent context
+  const pathParts = jsonPath.split('.');
+  const parentKey = pathParts.length > 1 ? pathParts[pathParts.length - 2] : null;
+
+  // If we have a key, search for the key-value pair pattern
+  if (key) {
+    const searchKey = JSON.stringify(key);
+
+    // Search for the pattern "key": "value" with parent context
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
+      let searchStart = 0;
+
+      // Look for the key-value pair
+      while (true) {
+        const keyIndex = line.indexOf(searchKey, searchStart);
+        if (keyIndex === -1) break;
+
+        // Check if this is followed by the value
+        const afterKey = line.substring(keyIndex + searchKey.length);
+        const colonIndex = afterKey.indexOf(':');
+
+        if (colonIndex !== -1) {
+          const valueStart = afterKey.substring(colonIndex + 1).trim();
+          if (valueStart.startsWith(searchValue)) {
+            const valueIndex = line.indexOf(searchValue, keyIndex);
+            const positionKey = `${i + 1}:${valueIndex}`;
+
+            // Check if parent key appears before this match (for better context matching)
+            const beforeMatch = line.substring(0, keyIndex);
+            const hasParentContext = !parentKey || beforeMatch.includes(JSON.stringify(parentKey));
+
+            // If this position hasn't been used and has parent context, use it
+            if (!usedPositions.has(positionKey) && hasParentContext) {
+              usedPositions.add(positionKey);
+              return { line: i + 1, column: valueIndex + 1 };
+            }
+          }
+        }
+
+        searchStart = keyIndex + 1;
+      }
+    }
+
+    // Fallback: find any unused occurrence of the key-value pair
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
+      const keyIndex = line.indexOf(searchKey);
+
+      if (keyIndex !== -1) {
+        const afterKey = line.substring(keyIndex + searchKey.length);
+        const colonIndex = afterKey.indexOf(':');
+
+        if (colonIndex !== -1) {
+          const valueStart = afterKey.substring(colonIndex + 1).trim();
+          if (valueStart.startsWith(searchValue)) {
+            const valueIndex = line.indexOf(searchValue, keyIndex);
+            const positionKey = `${i + 1}:${valueIndex}`;
+
+            if (!usedPositions.has(positionKey)) {
+              usedPositions.add(positionKey);
+              return { line: i + 1, column: valueIndex + 1 };
+            }
+          }
+        }
+      }
+    }
+  }
+
+  // Fallback: find any unused occurrence of the value
+  for (let i = 0; i < lines.length; i++) {
+    const index = lines[i].indexOf(searchValue);
+    if (index !== -1) {
+      const positionKey = `${i + 1}:${index}`;
+      if (!usedPositions.has(positionKey)) {
+        usedPositions.add(positionKey);
+        return { line: i + 1, column: index + 1 };
+      }
+    }
+  }
+
+  return null;
+}
+
 const rule: Rule.RuleModule = {
   meta: {
     type: 'problem',
@@ -347,7 +444,6 @@ const rule: Rule.RuleModule = {
       invalidExtendsReference: '{{error}}',
       jsonParseError: 'Failed to parse JSON: {{error}}',
       extendsWithTilde: '$extends values should not start with ~',
-      keyWithTilde: "Keys ending in 'Key' (except fontKey) should not have values starting with ~",
       invalidFontKeyFormat: '{{error}}',
     },
   },
@@ -493,8 +589,8 @@ const rule: Rule.RuleModule = {
             let messageId = 'invalidJsonReference';
             if (validation.error?.includes("$extends values should not start with ~")) {
               messageId = 'extendsWithTilde';
-            } else if (validation.error?.includes("Keys ending in 'Key'")) {
-              messageId = 'keyWithTilde';
+            } else if (jsonRef.key === 'fontKey') {
+              messageId = 'invalidFontKeyFormat';
             }
 
             context.report({
@@ -512,33 +608,50 @@ const rule: Rule.RuleModule = {
         }
 
         // Validate fontKey values without ~ prefix
+        // Track used positions to avoid reporting the same line for duplicate values
+        const usedFontKeyPositions = new Set<string>();
+
         for (const fontKey of traversal.fontKeys) {
+          const value = fontKey.value;
+
+          // If fontKey value contains ".", it's invalid (must use ~ prefix for references)
+          if (value.includes('.')) {
+            const position = findValuePosition(text, fontKey.jsonPath, value, usedFontKeyPositions, 'fontKey');
+            if (position) {
+              const searchText = JSON.stringify(value);
+              context.report({
+                node,
+                loc: {
+                  start: { line: position.line, column: position.column },
+                  end: { line: position.line, column: position.column + searchText.length },
+                },
+                messageId: 'invalidFontKeyFormat',
+                data: {
+                  error: `Font key with dot notation must be a reference (use ~${value})`,
+                },
+              });
+            }
+            continue;
+          }
+
+          // Otherwise, validate it's a known font name or valid font format
           const validation = validateFontKeyFormat(fontKey.value);
           if (!validation.valid) {
-            const lines = text.split('\n');
-            let line = 1;
-            let column = 1;
-            const searchText = JSON.stringify(fontKey.value);
-            for (let i = 0; i < lines.length; i++) {
-              const index = lines[i].indexOf(searchText);
-              if (index !== -1) {
-                line = i + 1;
-                column = index + 1;
-                break;
-              }
+            const position = findValuePosition(text, fontKey.jsonPath, fontKey.value, usedFontKeyPositions, 'fontKey');
+            if (position) {
+              const searchText = JSON.stringify(fontKey.value);
+              context.report({
+                node,
+                loc: {
+                  start: { line: position.line, column: position.column },
+                  end: { line: position.line, column: position.column + searchText.length },
+                },
+                messageId: 'invalidFontKeyFormat',
+                data: {
+                  error: validation.error || 'Invalid font key format',
+                },
+              });
             }
-
-            context.report({
-              node,
-              loc: {
-                start: { line, column },
-                end: { line, column: column + searchText.length },
-              },
-              messageId: 'invalidFontKeyFormat',
-              data: {
-                error: validation.error || 'Invalid font key format',
-              },
-            });
           }
         }
 

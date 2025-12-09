@@ -879,16 +879,21 @@ describe('app-config-json-valid', () => {
       });
     });
 
-    it('should report error for styleKey with ~ prefix', () => {
+    it('should allow styleKey with ~ prefix in app.config.json', () => {
       ruleTester.run('app-config-json-valid', rule, {
-        valid: [],
-        invalid: [
+        valid: [
           {
             code: JSON.stringify({
               rows: {},
               translations: { en: {} },
               cells: {},
-              theme: { colors: {}, fonts: {} },
+              theme: {
+                colors: {},
+                fonts: {},
+                styles: {
+                  heading: {},
+                },
+              },
               controls: {
                 Label: {
                   default: {
@@ -898,13 +903,9 @@ describe('app-config-json-valid', () => {
               },
             }, null, 2),
             filename: 'src/meta/app.config.json',
-            errors: [
-              {
-                messageId: 'keyWithTilde',
-              },
-            ],
           },
         ],
+        invalid: [],
       });
     });
 
@@ -929,7 +930,41 @@ describe('app-config-json-valid', () => {
             filename: 'src/meta/app.config.json',
             errors: [
               {
-                messageId: 'invalidJsonReference',
+                messageId: 'invalidFontKeyFormat',
+              },
+            ],
+          },
+        ],
+      });
+    });
+
+    it('should report error for fontKey with ~ prefix when it contains commas', () => {
+      ruleTester.run('app-config-json-valid', rule, {
+        valid: [],
+        invalid: [
+          {
+            code: JSON.stringify({
+              rows: {},
+              translations: { en: {} },
+              cells: {},
+              theme: {
+                colors: {},
+                fonts: {
+                  heading: 'pkg:/assets/fonts/font.ttf, 24',
+                },
+              },
+              controls: {
+                Label: {
+                  default: {
+                    fontKey: '~theme.fonts.heading,20',
+                  },
+                },
+              },
+            }, null, 2),
+            filename: 'src/meta/app.config.json',
+            errors: [
+              {
+                messageId: 'invalidFontKeyFormat',
               },
             ],
           },
@@ -1360,6 +1395,49 @@ describe('app-config-json-valid', () => {
                 Label: {
                   default: {
                     fontKey: 'MediumRegular,20',
+                  },
+                },
+              },
+            }, null, 2),
+            filename: 'src/meta/app.config.json',
+            errors: [
+              {
+                messageId: 'invalidFontKeyFormat',
+              },
+            ],
+          },
+          // Test that dot notation fontKey values must be references
+          {
+            code: JSON.stringify({
+              rows: {},
+              translations: { en: {} },
+              cells: {},
+              theme: { colors: {}, fonts: {} },
+              controls: {
+                Label: {
+                  default: {
+                    fontKey: 'path.to.something',
+                  },
+                },
+              },
+            }, null, 2),
+            filename: 'src/meta/app.config.json',
+            errors: [
+              {
+                messageId: 'invalidFontKeyFormat',
+              },
+            ],
+          },
+          {
+            code: JSON.stringify({
+              rows: {},
+              translations: { en: {} },
+              cells: {},
+              theme: { colors: {}, fonts: {} },
+              controls: {
+                Label: {
+                  default: {
+                    fontKey: 'theme.fonts.main',
                   },
                 },
               },

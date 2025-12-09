@@ -268,6 +268,59 @@ describe('app-config-style-key-valid', () => {
     });
   });
 
+  describe('warnings for keys ending in Key with ~ prefix', () => {
+    it('should warn for styleKey with ~ prefix outside app.config.json', () => {
+      ruleTester.run('app-config-style-key-valid', rule, {
+        valid: [],
+        invalid: [
+          {
+            code: `const obj = { styleKey: "~theme.styles.heading" };`,
+            filename: 'test.ts',
+            options: [],
+            errors: [
+              {
+                messageId: 'keyWithTildeWarning',
+                data: { property: 'styleKey' },
+              },
+            ],
+          },
+        ],
+      });
+    });
+
+    it('should warn for titleFontKey with ~ prefix outside app.config.json', () => {
+      ruleTester.run('app-config-style-key-valid', rule, {
+        valid: [],
+        invalid: [
+          {
+            code: `const obj = { titleFontKey: "~theme.fonts.text-regular-32" };`,
+            filename: 'test.ts',
+            options: [],
+            errors: [
+              {
+                messageId: 'keyWithTildeWarning',
+                data: { property: 'titleFontKey' },
+              },
+            ],
+          },
+        ],
+      });
+    });
+
+    it('should not warn for fontKey with ~ prefix', () => {
+      ruleTester.run('app-config-style-key-valid', rule, {
+        valid: [
+          {
+            code: `const obj = { fontKey: "~theme.fonts.heading" };`,
+            filename: 'test.ts',
+            options: [],
+          },
+        ],
+        invalid: [],
+      });
+    });
+  });
+
   describe('invalid cases', () => {
     it('should fail invalid styleKey in object literal', () => {
       ruleTester.run('app-config-style-key-valid', rule, {
