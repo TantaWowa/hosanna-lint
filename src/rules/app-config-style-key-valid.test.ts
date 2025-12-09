@@ -104,6 +104,47 @@ describe('app-config-style-key-valid', () => {
       });
     });
 
+    it('should pass fontKey with direct system font specification', () => {
+      ruleTester.run('app-config-style-key-valid', rule, {
+        valid: [
+          {
+            code: `const obj = { fontKey: "LargeBold,24" };`,
+            filename: 'test.ts',
+            options: [],
+          },
+          {
+            code: `const obj = { fontKey: "Small,16" };`,
+            filename: 'test.ts',
+            options: [],
+          },
+          {
+            code: `const obj = { fontKey: "MediumBold,20" };`,
+            filename: 'test.ts',
+            options: [],
+          },
+        ],
+        invalid: [],
+      });
+    });
+
+    it('should pass fontKey with direct font file path', () => {
+      ruleTester.run('app-config-style-key-valid', rule, {
+        valid: [
+          {
+            code: `const obj = { fontKey: "pkg:/assets/fonts/Montserrat-Black.ttf,34" };`,
+            filename: 'test.ts',
+            options: [],
+          },
+          {
+            code: `const obj = { fontKey: "pkg:/assets/fonts/font.ttf,30" };`,
+            filename: 'test.ts',
+            options: [],
+          },
+        ],
+        invalid: [],
+      });
+    });
+
     it('should pass valid fontStyleKey in object literal', () => {
       ruleTester.run('app-config-style-key-valid', rule, {
         valid: [
@@ -161,6 +202,24 @@ describe('app-config-style-key-valid', () => {
         valid: [
           {
             code: `obj.styleKey = "theme.colors.primary";`,
+            filename: 'test.ts',
+            options: [],
+          },
+        ],
+        invalid: [],
+      });
+    });
+
+    it('should pass fontKey with direct font specification in assignment', () => {
+      ruleTester.run('app-config-style-key-valid', rule, {
+        valid: [
+          {
+            code: `obj.fontKey = "LargeBold,24";`,
+            filename: 'test.ts',
+            options: [],
+          },
+          {
+            code: `obj.fontKey = "pkg:/assets/fonts/font.ttf,30";`,
             filename: 'test.ts',
             options: [],
           },
@@ -241,6 +300,109 @@ describe('app-config-style-key-valid', () => {
               {
                 messageId: 'invalidStyleKey',
                 data: { path: 'theme.fonts.invalid' },
+              },
+            ],
+          },
+        ],
+      });
+    });
+
+    it('should fail invalid fontKey path (not a direct font specification)', () => {
+      ruleTester.run('app-config-style-key-valid', rule, {
+        valid: [],
+        invalid: [
+          {
+            code: `const obj = { fontKey: "invalid.path" };`,
+            filename: 'test.ts',
+            options: [],
+            errors: [
+              {
+                messageId: 'invalidStyleKey',
+                data: { path: 'invalid.path' },
+              },
+            ],
+          },
+        ],
+      });
+    });
+
+    it('should fail invalid system font name in fontKey', () => {
+      ruleTester.run('app-config-style-key-valid', rule, {
+        valid: [],
+        invalid: [
+          {
+            code: `const obj = { fontKey: "LargeBsdf,32" };`,
+            filename: 'test.ts',
+            options: [],
+            errors: [
+              {
+                messageId: 'invalidFontKeyFormat',
+              },
+            ],
+          },
+          {
+            code: `const obj = { fontKey: "InvalidFont,20" };`,
+            filename: 'test.ts',
+            options: [],
+            errors: [
+              {
+                messageId: 'invalidFontKeyFormat',
+              },
+            ],
+          },
+          {
+            code: `const obj = { fontKey: "SmallRegular,16" };`,
+            filename: 'test.ts',
+            options: [],
+            errors: [
+              {
+                messageId: 'invalidFontKeyFormat',
+              },
+            ],
+          },
+        ],
+      });
+    });
+
+    it('should fail invalid font file path in fontKey', () => {
+      ruleTester.run('app-config-style-key-valid', rule, {
+        valid: [],
+        invalid: [
+          {
+            code: `const obj = { fontKey: "pkg:/someFontFile/font.ttf,30" };`,
+            filename: 'test.ts',
+            options: [],
+            errors: [
+              {
+                messageId: 'invalidFontKeyFormat',
+              },
+            ],
+          },
+        ],
+      });
+    });
+
+    it('should fail invalid font size format in fontKey', () => {
+      ruleTester.run('app-config-style-key-valid', rule, {
+        valid: [],
+        invalid: [
+          {
+            code: `const obj = { fontKey: "LargeBold,abc" };`,
+            filename: 'test.ts',
+            options: [],
+            errors: [
+              {
+                messageId: 'invalidFontKeyFormat',
+              },
+            ],
+          },
+          {
+            code: `const obj = { fontKey: "LargeBold,-10" };`,
+            filename: 'test.ts',
+            options: [],
+            errors: [
+              {
+                messageId: 'invalidFontKeyFormat',
               },
             ],
           },
