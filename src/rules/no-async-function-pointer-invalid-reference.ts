@@ -42,7 +42,7 @@ function hasAsyncFunctionPointerType(node: any): boolean {
  * Check if a function declaration is exported
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-function isExportedFunctionDeclaration(node: any): boolean {
+function isExportedFunctionDeclaration(node: any, context?: Rule.RuleContext): boolean {
   if (!node) return false;
 
   // Check if parent is ExportNamedDeclaration or ExportDefaultDeclaration
@@ -50,6 +50,57 @@ function isExportedFunctionDeclaration(node: any): boolean {
     if (node.parent.type === 'ExportNamedDeclaration' ||
         node.parent.type === 'ExportDefaultDeclaration') {
       return true;
+    }
+  }
+
+  // If parent is not set and we have context, check top-level exports
+  if (context && node.type === 'FunctionDeclaration' && node.id) {
+    try {
+      const functionName = node.id.name;
+      const ast = context.sourceCode.ast;
+
+      // Check top-level body for export declarations
+      if (ast.body && Array.isArray(ast.body)) {
+        for (const statement of ast.body) {
+          // Check if it's an export declaration that exports this function
+          if (statement.type === 'ExportNamedDeclaration') {
+            // Direct export: export function name() {}
+            if (statement.declaration &&
+                statement.declaration.type === 'FunctionDeclaration' &&
+                statement.declaration.id &&
+                statement.declaration.id.name === functionName) {
+              // If the function name matches, it's exported (same name = same function)
+              return true;
+            }
+            // Named export: export { name }
+            if (statement.specifiers && Array.isArray(statement.specifiers)) {
+              for (const spec of statement.specifiers) {
+                if (spec.type === 'ExportSpecifier' && spec.exported) {
+                  // exported can be Identifier or Literal
+                  const exportedName = spec.exported.type === 'Identifier'
+                    ? spec.exported.name
+                    : (spec.exported.type === 'Literal' && typeof spec.exported.value === 'string'
+                        ? spec.exported.value
+                        : null);
+                  if (exportedName === functionName) {
+                    return true;
+                  }
+                }
+              }
+            }
+          }
+          // Default export: export default function name() {}
+          if (statement.type === 'ExportDefaultDeclaration' &&
+              statement.declaration &&
+              statement.declaration.type === 'FunctionDeclaration' &&
+              statement.declaration.id &&
+              statement.declaration.id.name === functionName) {
+            return true;
+          }
+        }
+      }
+    } catch (e) {
+      // If we can't check, fall back to parent check result
     }
   }
 
@@ -82,21 +133,67 @@ function isInvalidAsyncFunctionPointerValue(node: any, context: Rule.RuleContext
 
   // For identifiers, inspect what they reference
   if (node.type === 'Identifier') {
-    const scope = context.sourceCode.getScope(node);
-    const variable = scope.variables.find(
-      (v: import('eslint').Scope.Variable) => v.name === node.name
-    );
+    let scope: import('eslint').Scope.Scope | null = context.sourceCode.getScope(node);
+
+    // Walk up scopes to find the variable definition
+    // This is important when we're inside nested scopes (like class methods)
+    let variable: import('eslint').Scope.Variable | undefined;
+    while (scope) {
+      variable = scope.variables.find(
+        (v: import('eslint').Scope.Variable) => v.name === node.name
+      );
+      if (variable && variable.defs.length > 0) {
+        break;
+      }
+      scope = scope.upper;
+    }
 
     if (variable && variable.defs.length > 0) {
+      // Check all definitions - if ANY of them is valid, the identifier is valid
+      let foundValidExport = false;
+
       for (const def of variable.defs) {
         // Allow imported bindings - we can't verify cross-module, so treat as valid
         if (def.type === 'ImportBinding') {
-          return false;
+          return false; // Valid - imported functions are allowed
         }
 
         const defNode = def.node as any;
         if (!defNode) {
           continue;
+        }
+
+        // Handle ExportNamedDeclaration - the function is inside the declaration
+        // This happens when we have: export function name() {}
+        if (defNode.type === 'ExportNamedDeclaration') {
+          if (defNode.declaration && defNode.declaration.type === 'FunctionDeclaration') {
+            // This is an exported function declaration - valid
+            foundValidExport = true;
+            continue; // Check other definitions too, but mark this as valid
+          }
+          // Also check if it's exported via export { name } syntax
+          if (defNode.specifiers && Array.isArray(defNode.specifiers)) {
+            // This is a named export - check if any specifier matches
+            for (const spec of defNode.specifiers) {
+              if (spec.type === 'ExportSpecifier') {
+                const exportedName = spec.exported?.type === 'Identifier'
+                  ? spec.exported.name
+                  : (spec.exported?.type === 'Literal' && typeof spec.exported.value === 'string'
+                      ? spec.exported.value
+                      : null);
+                const localName = spec.local?.type === 'Identifier'
+                  ? spec.local.name
+                  : (spec.local?.type === 'Literal' && typeof spec.local.value === 'string'
+                      ? spec.local.value
+                      : null);
+                // If the exported or local name matches our identifier, it's exported
+                if (exportedName === node.name || localName === node.name) {
+                  foundValidExport = true;
+                  break;
+                }
+              }
+            }
+          }
         }
 
         // Reject if it's a class method
@@ -126,13 +223,77 @@ function isInvalidAsyncFunctionPointerValue(node: any, context: Rule.RuleContext
 
         // For function declarations, only allow if they are exported
         if (defNode.type === 'FunctionDeclaration') {
-          if (!isExportedFunctionDeclaration(defNode)) {
-            return true;
+          // First check if parent is ExportNamedDeclaration (fast path)
+          if (defNode.parent &&
+              (defNode.parent.type === 'ExportNamedDeclaration' ||
+               defNode.parent.type === 'ExportDefaultDeclaration')) {
+            // This is an exported function declaration - valid
+            foundValidExport = true;
+            continue;
           }
 
-          // Exported function declaration is valid
-          return false;
+          // Also check if defNode itself is an ExportNamedDeclaration's declaration
+          // This can happen when scope returns the FunctionDeclaration directly
+          if (defNode.id && defNode.id.name) {
+            const functionName = defNode.id.name;
+
+            // Quick check: search AST for any export of a function with this name
+            try {
+              const ast = context.sourceCode.ast;
+              if (ast.body && Array.isArray(ast.body)) {
+                for (const statement of ast.body) {
+                  if (statement.type === 'ExportNamedDeclaration') {
+                    // Check if it exports a function with this name
+                    if (statement.declaration &&
+                        statement.declaration.type === 'FunctionDeclaration' &&
+                        statement.declaration.id &&
+                        statement.declaration.id.name === functionName) {
+                      foundValidExport = true;
+                      break;
+                    }
+                    // Check named exports
+                    if (statement.specifiers) {
+                      for (const spec of statement.specifiers) {
+                        if (spec.type === 'ExportSpecifier') {
+                          const exportedName = spec.exported?.type === 'Identifier'
+                            ? spec.exported.name
+                            : (spec.exported?.type === 'Literal' && typeof spec.exported.value === 'string'
+                                ? spec.exported.value
+                                : null);
+                          if (exportedName === functionName) {
+                            foundValidExport = true;
+                            break;
+                          }
+                        }
+                      }
+                    }
+                  }
+                  if (statement.type === 'ExportDefaultDeclaration' &&
+                      statement.declaration &&
+                      statement.declaration.type === 'FunctionDeclaration' &&
+                      statement.declaration.id &&
+                      statement.declaration.id.name === functionName) {
+                    foundValidExport = true;
+                    break;
+                  }
+                }
+              }
+            } catch (e) {
+              // Fall back to helper function if AST search fails
+              if (isExportedFunctionDeclaration(defNode, context)) {
+                foundValidExport = true;
+              }
+            }
+          }
+
+          // If we get here, this definition is not exported
+          // But don't return yet - check other definitions first
         }
+      }
+
+      // If we found at least one valid export, the identifier is valid
+      if (foundValidExport) {
+        return false;
       }
     }
 
@@ -155,7 +316,7 @@ const rule: Rule.RuleModule = {
     fixable: 'code',
     schema: [],
     messages: {
-      invalidAsyncFunctionPointer: 'AsyncFunctionPointer must only accept exported function declarations. Cannot use class methods, anonymous functions, arrow functions, or inline functions.',
+      invalidAsyncFunctionPointer: 'AsyncFunctionPointer must only accept exported function declarations. Cannot use class methods, anonymous functions, arrow functions, inline functions, or .bind() calls.',
     },
   },
   create: function (context) {
