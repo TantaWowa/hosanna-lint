@@ -1,5 +1,30 @@
 # Changelog
 
+## [1.10.0] - 2025-12-09
+
+### Added
+- New validation rules for `app.config.json`:
+  - `app-config-style-key-valid` to validate keys like `styleKey`, `fontKey`, `fontStyleKey`, `settingsKey`, `cellSettingsKey`, and `loadingCellStyleKey`.
+  - `app-config-get-valid` to validate `appConfig.get()` calls.
+  - Shared `app-config-loader` utility for loading/caching config.
+  - Support for `@res` in `-fhd` resolution for `pkg:/` asset paths.
+- New rule to enforce `AsyncFunctionPointer` to accept only exported functions.
+- New rule to enforce exported-only targets for fields and bound functions in `AsyncFunctionPointer`.
+- Added `m` as a reserved word in BrightScript (equivalent to 'this') under `no-reserved-words` rule.
+- Comprehensive test cases and updated README documentation for new rules.
+
+### Changed
+- Enhanced branch creation logic in release workflow:
+  - Ensure `main` branch is checked out and up-to-date before creating a release branch.
+  - Add checks for existing remote release branches and handle them by resetting to the latest `main` or creating a new branch.
+- Refactored `app-config-json-valid` rule to use the shared `app-config-loader` utility.
+
+### Fixed
+- Fixed scope resolution in `no-async-function-pointer-invalid-reference` to walk up the scope chain for nested scopes, allowing exported functions in class methods.
+- Updated error message in `no-async-function-pointer-invalid-reference` to mention `.bind()` calls are not allowed.
+- Added validation for direct font specifications in `fontKey` under `app-config-style-key-valid`.
+- Added validation for `fontKey` against valid Roku system font names in `app-config-json-valid`.
+
 ## [1.9.0] - 2025-10-13
 
 ### Added
@@ -139,6 +164,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `hosanna-import-prefix` rule to enforce @hs-src/ prefix for hosanna package imports
 
 ## [Unreleased]
+
 
 
 
