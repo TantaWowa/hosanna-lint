@@ -92,6 +92,28 @@ function validatePkgPath(
 }
 
 /**
+ * Valid Roku system font names (without "SystemFont" suffix, which is substituted automatically)
+ */
+const VALID_ROKU_SYSTEM_FONTS = new Set([
+  'Tiny',
+  'TinyBold',
+  'Smaller',
+  'SmallerBold',
+  'Smallest',
+  'SmallestBold',
+  'Small',
+  'SmallBold',
+  'Medium',
+  'MediumBold',
+  'Large',
+  'LargeBold',
+  'Largest',
+  'ExtraLarge',
+  'ExtraLargeBold',
+  'Badge',
+]);
+
+/**
  * Validate font key format (FILE,size or SystemFontName,size)
  */
 function validateFontKeyFormat(value: string): { valid: boolean; error?: string } {
@@ -115,7 +137,7 @@ function validateFontKeyFormat(value: string): { valid: boolean; error?: string 
     };
   }
 
-  // Validate font part: either pkg:/assets/fonts/... path OR system font name (alphanumeric, no spaces before comma)
+  // Validate font part: either pkg:/assets/fonts/... path OR valid Roku system font name
   if (fontPart.includes('pkg:/')) {
     // If it's a pkg path, validate it starts with pkg:/assets/fonts/
     if (!fontPart.trim().startsWith('pkg:/assets/fonts/')) {
@@ -125,11 +147,13 @@ function validateFontKeyFormat(value: string): { valid: boolean; error?: string 
       };
     }
   } else {
-    // System font name: alphanumeric, no spaces before comma
-    if (!/^[a-zA-Z0-9]+$/.test(fontPart.trim())) {
+    // System font name: must be one of the valid Roku system font names
+    const fontName = fontPart.trim();
+    if (!VALID_ROKU_SYSTEM_FONTS.has(fontName)) {
+      const validNames = Array.from(VALID_ROKU_SYSTEM_FONTS).sort().join(', ');
       return {
         valid: false,
-        error: `System font name must be alphanumeric, got: ${fontPart.trim()}`,
+        error: `System font name must be one of: ${validNames}. Got: ${fontName}`,
       };
     }
   }

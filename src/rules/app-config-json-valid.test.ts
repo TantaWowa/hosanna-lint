@@ -985,6 +985,183 @@ describe('app-config-json-valid', () => {
             }, null, 2),
             filename: 'src/meta/app.config.json',
           },
+          // Test all valid Roku system font names (without SystemFont suffix)
+          {
+            code: JSON.stringify({
+              rows: {},
+              translations: { en: {} },
+              cells: {},
+              theme: { colors: {}, fonts: {} },
+              controls: {
+                Label: {
+                  default: {
+                    fontKey: 'Tiny,10',
+                  },
+                },
+              },
+            }, null, 2),
+            filename: 'src/meta/app.config.json',
+          },
+          {
+            code: JSON.stringify({
+              rows: {},
+              translations: { en: {} },
+              cells: {},
+              theme: { colors: {}, fonts: {} },
+              controls: {
+                Label: {
+                  default: {
+                    fontKey: 'TinyBold,10',
+                  },
+                },
+              },
+            }, null, 2),
+            filename: 'src/meta/app.config.json',
+          },
+          {
+            code: JSON.stringify({
+              rows: {},
+              translations: { en: {} },
+              cells: {},
+              theme: { colors: {}, fonts: {} },
+              controls: {
+                Label: {
+                  default: {
+                    fontKey: 'Smaller,12',
+                  },
+                },
+              },
+            }, null, 2),
+            filename: 'src/meta/app.config.json',
+          },
+          {
+            code: JSON.stringify({
+              rows: {},
+              translations: { en: {} },
+              cells: {},
+              theme: { colors: {}, fonts: {} },
+              controls: {
+                Label: {
+                  default: {
+                    fontKey: 'SmallerBold,12',
+                  },
+                },
+              },
+            }, null, 2),
+            filename: 'src/meta/app.config.json',
+          },
+          {
+            code: JSON.stringify({
+              rows: {},
+              translations: { en: {} },
+              cells: {},
+              theme: { colors: {}, fonts: {} },
+              controls: {
+                Label: {
+                  default: {
+                    fontKey: 'Smallest,14',
+                  },
+                },
+              },
+            }, null, 2),
+            filename: 'src/meta/app.config.json',
+          },
+          {
+            code: JSON.stringify({
+              rows: {},
+              translations: { en: {} },
+              cells: {},
+              theme: { colors: {}, fonts: {} },
+              controls: {
+                Label: {
+                  default: {
+                    fontKey: 'SmallestBold,14',
+                  },
+                },
+              },
+            }, null, 2),
+            filename: 'src/meta/app.config.json',
+          },
+          {
+            code: JSON.stringify({
+              rows: {},
+              translations: { en: {} },
+              cells: {},
+              theme: { colors: {}, fonts: {} },
+              controls: {
+                Label: {
+                  default: {
+                    fontKey: 'Small,16',
+                  },
+                },
+              },
+            }, null, 2),
+            filename: 'src/meta/app.config.json',
+          },
+          {
+            code: JSON.stringify({
+              rows: {},
+              translations: { en: {} },
+              cells: {},
+              theme: { colors: {}, fonts: {} },
+              controls: {
+                Label: {
+                  default: {
+                    fontKey: 'SmallBold,16',
+                  },
+                },
+              },
+            }, null, 2),
+            filename: 'src/meta/app.config.json',
+          },
+          {
+            code: JSON.stringify({
+              rows: {},
+              translations: { en: {} },
+              cells: {},
+              theme: { colors: {}, fonts: {} },
+              controls: {
+                Label: {
+                  default: {
+                    fontKey: 'Medium,20',
+                  },
+                },
+              },
+            }, null, 2),
+            filename: 'src/meta/app.config.json',
+          },
+          {
+            code: JSON.stringify({
+              rows: {},
+              translations: { en: {} },
+              cells: {},
+              theme: { colors: {}, fonts: {} },
+              controls: {
+                Label: {
+                  default: {
+                    fontKey: 'MediumBold,20',
+                  },
+                },
+              },
+            }, null, 2),
+            filename: 'src/meta/app.config.json',
+          },
+          {
+            code: JSON.stringify({
+              rows: {},
+              translations: { en: {} },
+              cells: {},
+              theme: { colors: {}, fonts: {} },
+              controls: {
+                Label: {
+                  default: {
+                    fontKey: 'Large,24',
+                  },
+                },
+              },
+            }, null, 2),
+            filename: 'src/meta/app.config.json',
+          },
           {
             code: JSON.stringify({
               rows: {},
@@ -995,6 +1172,70 @@ describe('app-config-json-valid', () => {
                 Label: {
                   default: {
                     fontKey: 'LargeBold,40',
+                  },
+                },
+              },
+            }, null, 2),
+            filename: 'src/meta/app.config.json',
+          },
+          {
+            code: JSON.stringify({
+              rows: {},
+              translations: { en: {} },
+              cells: {},
+              theme: { colors: {}, fonts: {} },
+              controls: {
+                Label: {
+                  default: {
+                    fontKey: 'Largest,28',
+                  },
+                },
+              },
+            }, null, 2),
+            filename: 'src/meta/app.config.json',
+          },
+          {
+            code: JSON.stringify({
+              rows: {},
+              translations: { en: {} },
+              cells: {},
+              theme: { colors: {}, fonts: {} },
+              controls: {
+                Label: {
+                  default: {
+                    fontKey: 'ExtraLarge,32',
+                  },
+                },
+              },
+            }, null, 2),
+            filename: 'src/meta/app.config.json',
+          },
+          {
+            code: JSON.stringify({
+              rows: {},
+              translations: { en: {} },
+              cells: {},
+              theme: { colors: {}, fonts: {} },
+              controls: {
+                Label: {
+                  default: {
+                    fontKey: 'ExtraLargeBold,32',
+                  },
+                },
+              },
+            }, null, 2),
+            filename: 'src/meta/app.config.json',
+          },
+          {
+            code: JSON.stringify({
+              rows: {},
+              translations: { en: {} },
+              cells: {},
+              theme: { colors: {}, fonts: {} },
+              controls: {
+                Label: {
+                  default: {
+                    fontKey: 'Badge,18',
                   },
                 },
               },
@@ -1055,6 +1296,154 @@ describe('app-config-json-valid', () => {
                 Label: {
                   default: {
                     fontKey: 'font.ttf,abc',
+                  },
+                },
+              },
+            }, null, 2),
+            filename: 'src/meta/app.config.json',
+            errors: [
+              {
+                messageId: 'invalidFontKeyFormat',
+              },
+            ],
+          },
+          // Test invalid system font names
+          {
+            code: JSON.stringify({
+              rows: {},
+              translations: { en: {} },
+              cells: {},
+              theme: { colors: {}, fonts: {} },
+              controls: {
+                Label: {
+                  default: {
+                    fontKey: 'InvalidFont,20',
+                  },
+                },
+              },
+            }, null, 2),
+            filename: 'src/meta/app.config.json',
+            errors: [
+              {
+                messageId: 'invalidFontKeyFormat',
+              },
+            ],
+          },
+          {
+            code: JSON.stringify({
+              rows: {},
+              translations: { en: {} },
+              cells: {},
+              theme: { colors: {}, fonts: {} },
+              controls: {
+                Label: {
+                  default: {
+                    fontKey: 'SmallRegular,20',
+                  },
+                },
+              },
+            }, null, 2),
+            filename: 'src/meta/app.config.json',
+            errors: [
+              {
+                messageId: 'invalidFontKeyFormat',
+              },
+            ],
+          },
+          {
+            code: JSON.stringify({
+              rows: {},
+              translations: { en: {} },
+              cells: {},
+              theme: { colors: {}, fonts: {} },
+              controls: {
+                Label: {
+                  default: {
+                    fontKey: 'MediumRegular,20',
+                  },
+                },
+              },
+            }, null, 2),
+            filename: 'src/meta/app.config.json',
+            errors: [
+              {
+                messageId: 'invalidFontKeyFormat',
+              },
+            ],
+          },
+          {
+            code: JSON.stringify({
+              rows: {},
+              translations: { en: {} },
+              cells: {},
+              theme: { colors: {}, fonts: {} },
+              controls: {
+                Label: {
+                  default: {
+                    fontKey: 'HugeRegular,20',
+                  },
+                },
+              },
+            }, null, 2),
+            filename: 'src/meta/app.config.json',
+            errors: [
+              {
+                messageId: 'invalidFontKeyFormat',
+              },
+            ],
+          },
+          {
+            code: JSON.stringify({
+              rows: {},
+              translations: { en: {} },
+              cells: {},
+              theme: { colors: {}, fonts: {} },
+              controls: {
+                Label: {
+                  default: {
+                    fontKey: 'HugeBold,20',
+                  },
+                },
+              },
+            }, null, 2),
+            filename: 'src/meta/app.config.json',
+            errors: [
+              {
+                messageId: 'invalidFontKeyFormat',
+              },
+            ],
+          },
+          {
+            code: JSON.stringify({
+              rows: {},
+              translations: { en: {} },
+              cells: {},
+              theme: { colors: {}, fonts: {} },
+              controls: {
+                Label: {
+                  default: {
+                    fontKey: 'SystemFont,20',
+                  },
+                },
+              },
+            }, null, 2),
+            filename: 'src/meta/app.config.json',
+            errors: [
+              {
+                messageId: 'invalidFontKeyFormat',
+              },
+            ],
+          },
+          {
+            code: JSON.stringify({
+              rows: {},
+              translations: { en: {} },
+              cells: {},
+              theme: { colors: {}, fonts: {} },
+              controls: {
+                Label: {
+                  default: {
+                    fontKey: 'CustomFont,20',
                   },
                 },
               },
