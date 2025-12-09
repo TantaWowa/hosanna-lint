@@ -103,7 +103,19 @@ jobs:
       - name: Create release branch
         run: |
           BRANCH="release/v${{ steps.version.outputs.new_version }}"
-          git checkout -b "$BRANCH"
+          # Ensure we're on main and up to date
+          git checkout main
+          git pull origin main
+
+          # Check if branch exists remotely
+          if git ls-remote --heads origin "$BRANCH" | grep -q "$BRANCH"; then
+            echo "Branch $BRANCH already exists remotely. Checking it out and resetting to main..."
+            git checkout -b "$BRANCH" origin/"$BRANCH" 2>/dev/null || git checkout "$BRANCH"
+            git reset --hard origin/main
+          else
+            echo "Creating new branch $BRANCH from main..."
+            git checkout -b "$BRANCH"
+          fi
 
       - name: Bump version in package.json
         run: |
