@@ -28,6 +28,8 @@ import noCallOnAnonymousFunction from './rules/no-call-on-anonymous-function';
 import noImportExtensions from './rules/no-import-extensions';
 import noAsyncFunctionPointerInvalidReference from './rules/no-async-function-pointer-invalid-reference';
 import appConfigJsonValid from './rules/app-config-json-valid';
+import appConfigStyleKeyValid from './rules/app-config-style-key-valid';
+import appConfigGetValid from './rules/app-config-get-valid';
 
 const preprocess = (text: string, _filename: string) => {
   // Check if file starts with the exclude comment for any platform
@@ -40,7 +42,7 @@ const preprocess = (text: string, _filename: string) => {
   return [text];
 };
 
-const jsonPreprocess = (text: string, filename: string) => {
+const jsonPreprocess = (text: string, _filename: string) => {
   // For JSON files, convert to a virtual JavaScript file that ESLint can process
   // We'll create a simple program node that contains the JSON text
   // The rule will parse the JSON from the source text
@@ -79,6 +81,8 @@ const plugin = {
     'no-import-extensions': noImportExtensions,
     'no-async-function-pointer-invalid-reference': noAsyncFunctionPointerInvalidReference,
     'app-config-json-valid': appConfigJsonValid,
+    'app-config-style-key-valid': appConfigStyleKeyValid,
+    'app-config-get-valid': appConfigGetValid,
   },
   configs: {
     recommended: {
@@ -113,6 +117,8 @@ const plugin = {
         '@hosanna-eslint/no-import-extensions': 'warn',
         '@hosanna-eslint/no-async-function-pointer-invalid-reference': 'error',
         '@hosanna-eslint/app-config-json-valid': 'error',
+        '@hosanna-eslint/app-config-style-key-valid': 'error',
+        '@hosanna-eslint/app-config-get-valid': 'error',
       },
     },
   },

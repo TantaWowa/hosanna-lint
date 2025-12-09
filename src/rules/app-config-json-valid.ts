@@ -1,14 +1,13 @@
 import { Rule } from 'eslint';
 import * as fs from 'fs';
 import * as path from 'path';
+import { jsonPathExists } from '../utils/app-config-loader';
 
 interface Cache {
-  parsedJson: any;
   fileExistence: Map<string, boolean>;
-  jsonStructure: Map<string, any>;
 }
 
-// Cache per ESLint context
+// Cache per ESLint context for file existence checks
 const cacheMap = new WeakMap<Rule.RuleContext, Cache>();
 
 /**
@@ -18,40 +17,11 @@ function getCache(context: Rule.RuleContext): Cache {
   let cache = cacheMap.get(context);
   if (!cache) {
     cache = {
-      parsedJson: null,
       fileExistence: new Map(),
-      jsonStructure: new Map(),
     };
     cacheMap.set(context, cache);
   }
   return cache;
-}
-
-/**
- * Get JSON value by dot-notation path
- */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function getJsonValueByPath(obj: any, pathStr: string): any {
-  const parts = pathStr.split('.');
-  let current = obj;
-  for (const part of parts) {
-    if (current === null || current === undefined || typeof current !== 'object') {
-      return undefined;
-    }
-    current = current[part];
-    if (current === undefined) {
-      return undefined;
-    }
-  }
-  return current;
-}
-
-/**
- * Check if a JSON path exists
- */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function jsonPathExists(obj: any, pathStr: string): boolean {
-  return getJsonValueByPath(obj, pathStr) !== undefined;
 }
 
 /**
@@ -60,7 +30,7 @@ function jsonPathExists(obj: any, pathStr: string): boolean {
 function validatePkgPath(
   pkgPath: string,
   context: Rule.RuleContext,
-  jsonPath: string
+  _jsonPath: string
 ): { valid: boolean; error?: string } {
   if (!pkgPath.startsWith('pkg:/')) {
     return { valid: true }; // Not a pkg path, skip
@@ -77,6 +47,9 @@ function validatePkgPath(
 
   const relativePath = match[1];
   const cache = getCache(context);
+
+  // Resolve @res to -fhd for file system checks
+  const resolvedPath = relativePath.replace('@res', '-fhd');
   const cacheKey = `pkg:${relativePath}`;
 
   // Check cache first
@@ -85,15 +58,15 @@ function validatePkgPath(
     if (!exists) {
       return {
         valid: false,
-        error: `File not found: pkg:/assets/${relativePath} (checked at ${path.join(context.getCwd(), 'assets', relativePath)})`,
+        error: `File not found: pkg:/assets/${relativePath} (checked at ${path.join(context.getCwd(), 'assets', resolvedPath)})`,
       };
     }
     return { valid: true };
   }
 
-  // Check file existence
+  // Check file existence using resolved path
   const projectRoot = context.getCwd();
-  const fullPath = path.join(projectRoot, 'assets', relativePath);
+  const fullPath = path.join(projectRoot, 'assets', resolvedPath);
 
   let exists = false;
   try {
@@ -264,7 +237,7 @@ const rule: Rule.RuleModule = {
   create: function (context) {
     // Only process app.config.json files
     const filename = context.filename || '';
-    if (!filename.includes('src/meta/app.config.json') && !filename.endsWith('app.config.json')) {
+    if (!filename.includes('assets/meta/app.config.json') && !filename.endsWith('app.config.json')) {
       return {};
     }
 
@@ -287,9 +260,6 @@ const rule: Rule.RuleModule = {
           });
           return;
         }
-
-        const cache = getCache(context);
-        cache.parsedJson = jsonObj;
 
         // Validate required sections
         if (!jsonObj.rows || typeof jsonObj.rows !== 'object') {

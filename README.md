@@ -60,7 +60,7 @@ export default [
 
 ## Rules
 
-This plugin provides **30 specialized ESLint rules** organized by category to ensure Hosanna UI code quality and platform compatibility.
+This plugin provides **32 specialized ESLint rules** organized by category to ensure Hosanna UI code quality and platform compatibility.
 
 ### 📦 Import/Export Rules
 
@@ -286,7 +286,7 @@ const fn: AsyncFunctionPointer = handler;
 #### `app-config-json-valid`
 **Error level:** `error`
 
-Validates `app.config.json` files (located at `src/meta/app.config.json`) to ensure proper structure, file path validity, and JSON reference correctness.
+Validates `app.config.json` files (located at `assets/meta/app.config.json`) to ensure proper structure, file path validity, and JSON reference correctness.
 
 **Validations performed:**
 - Checks for required sections: `rows`, `translations`, `cells`, `theme`, `controls`
@@ -401,6 +401,100 @@ Validates `app.config.json` files (located at `src/meta/app.config.json`) to ens
     }
   }
 }
+```
+
+#### `app-config-style-key-valid`
+**Error level:** `error`
+
+Validates that style key properties (`styleKey`, `fontKey`, `fontStyleKey`, `settingsKey`, `cellSettingsKey`, `loadingCellStyleKey`) reference valid paths in `app.config.json`. Works with object literals, assignment expressions, and complex expressions (ternary, null coalescing, logical OR).
+
+**Validations performed:**
+- Validates `styleKey`, `fontKey`, `fontStyleKey`, `settingsKey`, `cellSettingsKey`, and `loadingCellStyleKey` properties in object literals
+- Validates these properties in assignment expressions (e.g., `obj.styleKey = "path"`)
+- Extracts and validates string literals from ternary operators, null coalescing (`??`), and logical OR (`||`) expressions
+- Checks that referenced paths exist in `app.config.json` using dot-notation (e.g., `"theme.colors.primary"`)
+
+**Example violations:**
+```typescript
+// ❌ Bad - invalid path in object literal
+const obj = {
+  styleKey: "theme.colors.invalid"
+};
+
+// ❌ Bad - invalid path in assignment
+obj.styleKey = "invalid.path";
+
+// ❌ Bad - invalid path in ternary operator
+obj.styleKey = condition ? "theme.colors.primary" : "invalid.path";
+
+// ❌ Bad - invalid path in null coalescing
+obj.styleKey = value ?? "invalid.path";
+
+// ❌ Bad - invalid path in logical OR
+obj.styleKey = value || "invalid.path";
+```
+
+**Example valid usage:**
+```typescript
+// ✅ Good - valid path in object literal
+const obj = {
+  styleKey: "theme.colors.primary",
+  fontKey: "theme.fonts.main",
+  fontStyleKey: "theme.fonts.main",
+  settingsKey: "styles.default"
+};
+
+// ✅ Good - valid path in assignment
+obj.styleKey = "theme.colors.secondary";
+
+// ✅ Good - valid paths in ternary operator
+obj.styleKey = condition ? "theme.colors.primary" : "theme.colors.secondary";
+
+// ✅ Good - valid path in null coalescing
+obj.styleKey = value ?? "theme.colors.primary";
+
+// ✅ Good - valid path in logical OR
+obj.styleKey = value || "theme.colors.primary";
+```
+
+#### `app-config-get-valid`
+**Error level:** `error`
+
+Validates that `appConfig.get()` and `appConfig.get<Type>()` calls reference valid paths in `app.config.json`.
+
+**Validations performed:**
+- Validates `appConfig.get("path.to.key")` calls
+- Validates `appConfig.get<Type>("path.to.key")` calls with type parameters
+- Validates `obj.appConfig.get("path.to.key")` calls (member expressions)
+- Validates simple template literals (without expressions)
+- Skips validation for non-string literal arguments (variables, function calls, etc.)
+
+**Example violations:**
+```typescript
+// ❌ Bad - invalid path in appConfig.get()
+const color = appConfig.get("theme.colors.invalid");
+
+// ❌ Bad - invalid path in appConfig.get<Type>()
+const font = appConfig.get<string>("theme.fonts.invalid");
+
+// ❌ Bad - invalid path in member expression
+const style = someObj.appConfig.get("invalid.path");
+```
+
+**Example valid usage:**
+```typescript
+// ✅ Good - valid path in appConfig.get()
+const color = appConfig.get("theme.colors.primary");
+
+// ✅ Good - valid path in appConfig.get<Type>()
+const font = appConfig.get<string>("theme.fonts.main");
+
+// ✅ Good - valid path in member expression
+const style = someObj.appConfig.get("styles.default");
+
+// ✅ Good - skipped for non-string literals (no validation)
+const dynamicKey = appConfig.get(someVariable);
+const computedKey = appConfig.get(`theme.colors.${key}`); // Template with expressions skipped
 ```
 
 #### `no-closure-variable-modification`
@@ -592,6 +686,8 @@ export default [
 
       // Configuration File rules
       '@hosanna-eslint/app-config-json-valid': 'error',
+      '@hosanna-eslint/app-config-style-key-valid': 'error',
+      '@hosanna-eslint/app-config-get-valid': 'error',
 
       // Language Feature rules
       '@hosanna-eslint/no-union-expression-in-non-statement': 'error',

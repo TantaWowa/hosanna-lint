@@ -56,27 +56,6 @@ function isExportedFunctionDeclaration(node: any): boolean {
   return false;
 }
 
-/**
- * Check if an identifier references an exported function declaration
- */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function referencesExportedFunction(node: any, context: Rule.RuleContext): boolean {
-  if (!node || node.type !== 'Identifier') return false;
-
-  const scope = context.sourceCode.getScope(node);
-  const variable = scope.variables.find((v: import('eslint').Scope.Variable) => v.name === node.name);
-
-  if (variable && variable.defs.length > 0) {
-    for (const def of variable.defs) {
-      // Check if this is a function declaration
-      if (def.node.type === 'FunctionDeclaration') {
-        return isExportedFunctionDeclaration(def.node);
-      }
-    }
-  }
-
-  return false;
-}
 
 /**
  * Check if a value node is invalid for AsyncFunctionPointer

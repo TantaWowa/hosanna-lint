@@ -727,6 +727,73 @@ describe('app-config-json-valid', () => {
       });
     });
 
+    it('should resolve @res to -fhd when checking file existence', () => {
+      // Create a file with -fhd suffix (the resolved form)
+      const testImageDir = path.join(tempDir, 'assets', 'images', 'controls');
+      fs.mkdirSync(testImageDir, { recursive: true });
+      const testImagePath = path.join(testImageDir, 'button-details-fhd.9.png');
+      fs.writeFileSync(testImagePath, 'test');
+
+      // Verify the file exists with -fhd suffix
+      expect(fs.existsSync(testImagePath)).toBe(true);
+
+      // The rule should pass because @res resolves to -fhd and the file exists
+      ruleTester.run('app-config-json-valid', rule, {
+        valid: [
+          {
+            code: JSON.stringify({
+              rows: {},
+              translations: { en: {} },
+              cells: {},
+              theme: { colors: {}, fonts: {} },
+              controls: {
+                Button: {
+                  default: {
+                    backgroundUri: 'pkg:/assets/images/controls/button-details@res.9.png',
+                  },
+                },
+              },
+            }, null, 2),
+            filename: 'assets/meta/app.config.json',
+          },
+        ],
+        invalid: [],
+      });
+
+      // Verify that the file with @res in the path doesn't exist (only -fhd version exists)
+      const unresovedPath = path.join(testImageDir, 'button-details@res.9.png');
+      expect(fs.existsSync(unresovedPath)).toBe(false);
+    });
+
+    it('should report error when @res file does not exist after resolution', () => {
+      ruleTester.run('app-config-json-valid', rule, {
+        valid: [],
+        invalid: [
+          {
+            code: JSON.stringify({
+              rows: {},
+              translations: { en: {} },
+              cells: {},
+              theme: { colors: {}, fonts: {} },
+              controls: {
+                Button: {
+                  default: {
+                    backgroundUri: 'pkg:/assets/images/controls/nonexistent@res.9.png',
+                  },
+                },
+              },
+            }, null, 2),
+            filename: 'assets/meta/app.config.json',
+            errors: [
+              {
+                messageId: 'invalidPkgPath',
+              },
+            ],
+          },
+        ],
+      });
+    });
+
     it('should handle complex nested structures with all validations', () => {
       ruleTester.run('app-config-json-valid', rule, {
         valid: [
