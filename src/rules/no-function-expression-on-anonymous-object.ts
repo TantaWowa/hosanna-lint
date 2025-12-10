@@ -18,15 +18,25 @@ const rule: Rule.RuleModule = {
     return {
       Property: function (node) {
         // Check if this is a property in an object expression (anonymous object)
-        // and the value is a function expression
-        if (
-          node.parent.type === 'ObjectExpression' &&
-          node.value.type === 'FunctionExpression'
-        ) {
-          context.report({
-            node: node.value,
-            messageId: 'functionExpressionOnAnonymousObject',
-          });
+        if (node.parent.type === 'ObjectExpression') {
+          // Case 1: method shorthand syntax - func() {}
+          // Property nodes with method: true represent method shorthand
+          if ((node as any).method === true) {
+            context.report({
+              node: node,
+              messageId: 'functionExpressionOnAnonymousObject',
+            });
+            return;
+          }
+
+          // Case 2: function expression syntax - myfunc: function() {}
+          // Check if the value is a function expression (non-arrow function)
+          if (node.value.type === 'FunctionExpression') {
+            context.report({
+              node: node.value,
+              messageId: 'functionExpressionOnAnonymousObject',
+            });
+          }
         }
       },
     };

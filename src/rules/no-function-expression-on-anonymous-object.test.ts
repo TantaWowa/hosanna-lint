@@ -16,7 +16,6 @@ describe('no-function-expression-on-anonymous-object', () => {
     ruleTester.run('no-function-expression-on-anonymous-object', rule, {
       valid: [
         "const obj = { method: () => {} };",
-        "const obj = { method() {} };",
         "const func = function() {}; const obj = { method: func };",
         "class MyClass { method = function() {}; }",
         "function regularFunction() {}",
@@ -46,10 +45,42 @@ describe('no-function-expression-on-anonymous-object', () => {
           ],
         },
         {
+          code: "const obj = { func() {} };",
+          errors: [
+            {
+              messageId: 'functionExpressionOnAnonymousObject',
+            },
+          ],
+        },
+        {
+          code: "const obj = { myfunc: function() {} };",
+          errors: [
+            {
+              messageId: 'functionExpressionOnAnonymousObject',
+            },
+          ],
+        },
+        {
           code: `
             const config = {
               onClick: function() { console.log('clicked'); },
               onHover: function() { console.log('hovered'); }
+            };
+          `,
+          errors: [
+            {
+              messageId: 'functionExpressionOnAnonymousObject',
+            },
+            {
+              messageId: 'functionExpressionOnAnonymousObject',
+            },
+          ],
+        },
+        {
+          code: `
+            const myObj = {
+              func() {},
+              myfunc: function() {}
             };
           `,
           errors: [
@@ -83,18 +114,40 @@ describe('no-function-expression-on-anonymous-object', () => {
             },
           ],
         },
+        {
+          code: `
+            const obj = {
+              nested: {
+                func() { return 42; }
+              }
+            };
+          `,
+          errors: [
+            {
+              messageId: 'functionExpressionOnAnonymousObject',
+            },
+          ],
+        },
       ],
     });
   });
 
-  it('should allow arrow functions and method definitions', () => {
+  it('should allow arrow functions but not method shorthand', () => {
     ruleTester.run('no-function-expression-on-anonymous-object', rule, {
       valid: [
         "const obj = { arrow: () => 42 };",
-        "const obj = { method() { return 42; } };",
         "const obj = { arrow: (param) => param * 2 };",
       ],
-      invalid: [],
+      invalid: [
+        {
+          code: "const obj = { method() { return 42; } };",
+          errors: [
+            {
+              messageId: 'functionExpressionOnAnonymousObject',
+            },
+          ],
+        },
+      ],
     });
   });
 });
