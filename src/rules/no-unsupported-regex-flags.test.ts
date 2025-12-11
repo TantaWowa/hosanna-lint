@@ -278,3 +278,4 @@ describe('no-unsupported-regex-flags', () => {
     });
   });
 });
+

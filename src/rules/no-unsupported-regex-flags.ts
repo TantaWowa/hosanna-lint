@@ -138,3 +138,4 @@ const rule: Rule.RuleModule = {
 };
 
 export default rule;
+
