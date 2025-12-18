@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.12.0] - 2025-12-18
+
+### Added
+- Introduced `no-uint8array-declaration` ESLint rule to warn against declaring `Uint8Array` due to its mapping to `roByteArray` in native BrightScript.
+- Added comprehensive tests for the `no-uint8array-declaration` rule.
+- Updated plugin configuration to include the new rule in the index.
+
 ## [1.11.0] - 2025-12-11
 
 ### Added
@@ -186,6 +193,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `hosanna-import-prefix` rule to enforce @hs-src/ prefix for hosanna package imports
 
 ## [Unreleased]
+
 
 
 
