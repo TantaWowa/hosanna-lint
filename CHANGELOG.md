@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.14.0] - 2026-01-15
+
+### Added
+- Added tests for validating `locale.*` prefix handling in `app-config`.
+- Enhanced `jsonPathExists` function to support locale resolution in translations.
+- Introduced setup and teardown logic for managing temporary directories during tests.
+
 ## [1.13.0] - 2026-01-15
 
 ### Added
@@ -200,6 +207,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `hosanna-import-prefix` rule to enforce @hs-src/ prefix for hosanna package imports
 
 ## [Unreleased]
+
 
 
 
