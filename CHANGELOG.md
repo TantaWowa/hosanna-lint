@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.13.0] - 2026-01-15
+
+### Added
+- Introduced a new ESLint rule `no-this-in-non-arrow-closure` to disallow the use of `this` in non-arrow function expressions that may become closures.
+- Added comprehensive tests for the new rule to ensure functionality across various scenarios.
+- Updated the plugin index to include the new rule in the configuration.
+
 ## [1.12.0] - 2025-12-18
 
 ### Added
@@ -193,6 +200,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `hosanna-import-prefix` rule to enforce @hs-src/ prefix for hosanna package imports
 
 ## [Unreleased]
+
 
 
 
