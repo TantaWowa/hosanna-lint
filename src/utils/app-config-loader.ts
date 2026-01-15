@@ -107,6 +107,26 @@ export function getJsonValueByPath(config: any, pathStr: string): any {
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function jsonPathExists(config: any, pathStr: string): boolean {
+  // Handle locale.* prefix - it resolves to translations.<locale>.*
+  // Check all available locales in translations section
+  // It's enough if the path exists in any locale
+  if (pathStr.startsWith('locale.')) {
+    const restOfPath = pathStr.substring('locale.'.length);
+    const translations = config?.translations;
+    
+    if (translations && typeof translations === 'object') {
+      // Check if the path exists in any locale
+      for (const locale in translations) {
+        const localePath = `translations.${locale}.${restOfPath}`;
+        if (getJsonValueByPath(config, localePath) !== undefined) {
+          return true;
+        }
+      }
+    }
+    
+    return false;
+  }
+  
   return getJsonValueByPath(config, pathStr) !== undefined;
 }
 

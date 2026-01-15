@@ -179,6 +179,143 @@ describe('app-config-get-valid', () => {
         invalid: [],
       });
     });
+
+  });
+
+  describe('locale.* prefix handling', () => {
+    let localeTempDir: string;
+    let localeConfigPath: string;
+    let localeOriginalCwd: string;
+
+    beforeEach(() => {
+      // Save original working directory
+      localeOriginalCwd = process.cwd();
+
+      // Create temporary directory structure for testing with unique name to avoid conflicts
+      const uniqueId = `${Date.now()}-${Math.random().toString(36).substring(7)}`;
+      localeTempDir = path.join(tmpdir(), `hosanna-test-locale-${uniqueId}`);
+
+      // Ensure parent directory exists
+      try {
+        fs.mkdirSync(localeTempDir, { recursive: true });
+      } catch (e) {
+        // If directory already exists, use it
+      }
+
+      const assetsMetaDir = path.join(localeTempDir, 'assets', 'meta');
+      try {
+        fs.mkdirSync(assetsMetaDir, { recursive: true });
+      } catch (e) {
+        // Directory might already exist
+      }
+
+      localeConfigPath = path.join(assetsMetaDir, 'app.config.json');
+
+      // Create config with translation structure matching user's example
+      const configWithTranslation = {
+        rows: {},
+        translations: {
+          en: {
+            common: {
+              languageComboBoxItems: [
+                { value: 'en', label: 'English' },
+                { value: 'es', label: 'Spanish' },
+              ],
+              languageComboBoxItems_iso: [
+                { value: 'en-US', label: 'English' },
+                { value: 'es-419', label: 'Spanish' },
+              ],
+            },
+          },
+        },
+        cells: {},
+        theme: {
+          colors: {
+            primary: '#FF0000',
+            secondary: '#00FF00',
+          },
+          fonts: {
+            main: 'Arial',
+            heading: 'Helvetica',
+          },
+        },
+        controls: {},
+        styles: {
+          default: {
+            color: '#000000',
+          },
+          primary: {
+            color: '#FF0000',
+          },
+        },
+      };
+
+      try {
+        fs.writeFileSync(localeConfigPath, JSON.stringify(configWithTranslation));
+      } catch (e) {
+        // If write fails, ensure directory exists and try again
+        fs.mkdirSync(assetsMetaDir, { recursive: true });
+        fs.writeFileSync(localeConfigPath, JSON.stringify(configWithTranslation));
+      }
+
+      // Change to temp directory so context.getCwd() returns it
+      try {
+        process.chdir(localeTempDir);
+      } catch (e) {
+        // If chdir fails, the test will still work if the path is absolute
+      }
+    });
+
+    afterEach(() => {
+      // Restore original working directory
+      try {
+        process.chdir(localeOriginalCwd);
+      } catch (e) {
+        // Ignore errors if directory was already cleaned up
+      }
+
+      // Clean up temporary directory
+      if (fs.existsSync(localeTempDir)) {
+        try {
+          fs.rmSync(localeTempDir, { recursive: true, force: true });
+        } catch (e) {
+          // Ignore cleanup errors
+        }
+      }
+    });
+
+    it('should pass locale.* prefix that resolves to translations.*', () => {
+      // locale.* prefix should resolve to translations.<locale>.*
+      // It's enough if the path exists in any locale
+      ruleTester.run('app-config-get-valid', rule, {
+        valid: [
+          {
+            code: `const items = appConfig.get<IComboBoxItem[]>('locale.common.languageComboBoxItems_iso');`,
+            filename: 'test.ts',
+          },
+        ],
+        invalid: [],
+      });
+    });
+
+    it('should fail locale.* prefix when path does not exist in any locale', () => {
+      // locale.* prefix should still fail if path doesn't exist in any locale
+      ruleTester.run('app-config-get-valid', rule, {
+        valid: [],
+        invalid: [
+          {
+            code: `const items = appConfig.get('locale.nonexistent.path');`,
+            filename: 'test.ts',
+            errors: [
+              {
+                messageId: 'invalidAppConfigKey',
+                data: { path: 'locale.nonexistent.path' },
+              },
+            ],
+          },
+        ],
+      });
+    });
   });
 
   describe('invalid cases', () => {
