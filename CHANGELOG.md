@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.15.0] - 2026-01-29
+
+### Added
+- Introduced a new ESLint rule `no-conditional-compilation-else` to disallow else clauses in conditional compilation statements.
+- Added comprehensive tests for the new rule to validate functionality across various scenarios.
+- Updated the plugin index to include the new rule in the configuration.
+
+### Changed
+- Enhanced existing tests to ensure temporary directories are created correctly.
+
 ## [1.14.0] - 2026-01-15
 
 ### Added
@@ -207,6 +217,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `hosanna-import-prefix` rule to enforce @hs-src/ prefix for hosanna package imports
 
 ## [Unreleased]
+
 
 
 
