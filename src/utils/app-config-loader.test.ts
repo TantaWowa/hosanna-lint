@@ -6,42 +6,15 @@ import { getAppConfig, getJsonValueByPath, jsonPathExists } from './app-config-l
 import { Rule } from 'eslint';
 
 // Mock ESLint RuleContext
-class MockContext implements Rule.RuleContext {
+class MockContext {
   private cwd: string;
-  filename: string = '';
-  sourceCode: any;
-  settings: any = {};
-  parserOptions: any = {};
-  parserPath: string | null = null;
-  options: any[] = [];
-  getCwd(): string {
-    return this.cwd;
-  }
-  getFilename(): string {
-    return this.filename;
-  }
-  getScope(): any {
-    return null;
-  }
-  getSourceCode(): any {
-    return this.sourceCode;
-  }
-  getDeclaredVariables(node: Rule.Node): any[] {
-    return [];
-  }
-  markVariableAsUsed(name: string): boolean {
-    return false;
-  }
-  report(descriptor: Rule.ReportDescriptor): void {
-    // Mock implementation
-  }
 
   constructor(cwd: string) {
     this.cwd = cwd;
-    this.sourceCode = {
-      text: '',
-      lines: [],
-    };
+  }
+
+  getCwd(): string {
+    return this.cwd;
   }
 }
 
@@ -76,18 +49,18 @@ describe('app-config-loader', () => {
       };
       fs.writeFileSync(configPath, JSON.stringify(config));
 
-      const result = getAppConfig(context);
+      const result = getAppConfig(context as unknown as Rule.RuleContext);
       expect(result).toEqual(config);
     });
 
     it('should return null if file does not exist', () => {
-      const result = getAppConfig(context);
+      const result = getAppConfig(context as unknown as Rule.RuleContext);
       expect(result).toBeNull();
     });
 
     it('should return null if file contains invalid JSON', () => {
       fs.writeFileSync(configPath, '{ invalid json }');
-      const result = getAppConfig(context);
+      const result = getAppConfig(context as unknown as Rule.RuleContext);
       expect(result).toBeNull();
     });
 
@@ -101,8 +74,8 @@ describe('app-config-loader', () => {
       };
       fs.writeFileSync(configPath, JSON.stringify(config));
 
-      const result1 = getAppConfig(context);
-      const result2 = getAppConfig(context);
+      const result1 = getAppConfig(context as unknown as Rule.RuleContext);
+      const result2 = getAppConfig(context as unknown as Rule.RuleContext);
 
       expect(result1).toBe(result2); // Same reference due to caching
       expect(result1).toEqual(config);
@@ -113,11 +86,11 @@ describe('app-config-loader', () => {
       const config2 = { rows: {}, translations: { en: {} }, cells: {}, theme: { colors: {}, fonts: {} }, controls: {}, extra: true };
 
       fs.writeFileSync(configPath, JSON.stringify(config1));
-      const result1 = getAppConfig(context);
+      const result1 = getAppConfig(context as unknown as Rule.RuleContext);
 
       const context2 = new MockContext(tempDir);
       fs.writeFileSync(configPath, JSON.stringify(config2));
-      const result2 = getAppConfig(context2);
+      const result2 = getAppConfig(context2 as unknown as Rule.RuleContext);
 
       expect(result1).not.toEqual(result2);
     });

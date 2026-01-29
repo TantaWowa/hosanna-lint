@@ -33,6 +33,7 @@ import appConfigGetValid from './rules/app-config-get-valid';
 import noUnsupportedRegexFlags from './rules/no-unsupported-regex-flags';
 import noUint8ArrayDeclaration from './rules/no-uint8array-declaration';
 import noThisInNonArrowClosure from './rules/no-this-in-non-arrow-closure';
+import noConditionalCompilationElse from './rules/no-conditional-compilation-else';
 
 const preprocess = (text: string, _filename: string) => {
   // Check if file starts with the exclude comment for any platform
@@ -89,6 +90,7 @@ const plugin = {
     'no-unsupported-regex-flags': noUnsupportedRegexFlags,
     'no-uint8array-declaration': noUint8ArrayDeclaration,
     'no-this-in-non-arrow-closure': noThisInNonArrowClosure,
+    'no-conditional-compilation-else': noConditionalCompilationElse,
   },
   configs: {
     recommended: {
@@ -128,6 +130,7 @@ const plugin = {
         '@hosanna-eslint/no-unsupported-regex-flags': 'warn',
         '@hosanna-eslint/no-uint8array-declaration': 'warn',
         '@hosanna-eslint/no-this-in-non-arrow-closure': 'error',
+        '@hosanna-eslint/no-conditional-compilation-else': 'error',
       },
     },
   },
