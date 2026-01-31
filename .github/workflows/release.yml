@@ -182,3 +182,42 @@ jobs:
           git pull --ff-only origin main
           git merge --no-ff "$BRANCH" -m "Merge release v${{ steps.version.outputs.new_version }} into main"
           git push origin main
+
+      - name: Calculate next development version
+        id: next_version
+        run: |
+          RELEASED_VERSION="${{ steps.version.outputs.new_version }}"
+          echo "Released version: $RELEASED_VERSION"
+
+          # Parse the released version
+          IFS='.' read -ra VERSION_PARTS <<< "$RELEASED_VERSION"
+          MAJOR="${VERSION_PARTS[0]}"
+          MINOR="${VERSION_PARTS[1]}"
+          PATCH="${VERSION_PARTS[2]}"
+
+          # Extract any pre-release suffix (e.g., -rc.1) and remove it for next version calculation
+          if [[ "$RELEASED_VERSION" =~ -([a-zA-Z0-9.-]+)$ ]]; then
+            # If it was a pre-release, the next version is the same without the suffix
+            NEXT_VERSION="$MAJOR.$MINOR.$PATCH-next"
+          else
+            # If it was a regular release, bump minor and add -next
+            NEXT_VERSION="$MAJOR.$((MINOR + 1)).0-next"
+          fi
+
+          echo "Next development version: $NEXT_VERSION"
+          echo "next_version=$NEXT_VERSION" >> $GITHUB_OUTPUT
+
+      - name: Bump to next development version
+        run: |
+          NEXT_VERSION="${{ steps.next_version.outputs.next_version }}"
+          echo "Bumping package.json to $NEXT_VERSION"
+          npm version "$NEXT_VERSION" --no-git-tag-version
+
+      - name: Commit and push next version to main
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          NEXT_VERSION="${{ steps.next_version.outputs.next_version }}"
+          git add package.json package-lock.json
+          git commit -m "chore: bump version to $NEXT_VERSION"
+          git push origin main
