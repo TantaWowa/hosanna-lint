@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.16.0] - 2026-01-31
+
+### Changed
+- Updated the `no-date-usage` rule to allow `new Date()` constructor calls and specific static methods that are automatically converted by the transpiler.
+- Enhanced tests for the `no-date-usage` rule to validate supported Date constructor calls and static methods, while maintaining error reporting for unsupported methods.
+- Improved error messages in the `no-date-usage` rule to clearly indicate which Date static methods are supported by the transpiler.
+
 ## [1.15.0] - 2026-01-29
 
 ### Added
@@ -217,6 +224,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `hosanna-import-prefix` rule to enforce @hs-src/ prefix for hosanna package imports
 
 ## [Unreleased]
+
 
 
 
