@@ -34,6 +34,7 @@ import noUnsupportedRegexFlags from './rules/no-unsupported-regex-flags';
 import noUint8ArrayDeclaration from './rules/no-uint8array-declaration';
 import noThisInNonArrowClosure from './rules/no-this-in-non-arrow-closure';
 import noConditionalCompilationElse from './rules/no-conditional-compilation-else';
+import noJsonStringifySpace from './rules/no-json-stringify-space';
 
 const preprocess = (text: string, _filename: string) => {
   // Check if file starts with the exclude comment for any platform
@@ -91,6 +92,7 @@ const plugin = {
     'no-uint8array-declaration': noUint8ArrayDeclaration,
     'no-this-in-non-arrow-closure': noThisInNonArrowClosure,
     'no-conditional-compilation-else': noConditionalCompilationElse,
+    'no-json-stringify-space': noJsonStringifySpace,
   },
   configs: {
     recommended: {
@@ -131,6 +133,7 @@ const plugin = {
         '@hosanna-eslint/no-uint8array-declaration': 'warn',
         '@hosanna-eslint/no-this-in-non-arrow-closure': 'error',
         '@hosanna-eslint/no-conditional-compilation-else': 'error',
+        '@hosanna-eslint/no-json-stringify-space': 'error',
       },
     },
   },
