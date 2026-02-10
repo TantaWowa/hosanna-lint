@@ -1,5 +1,16 @@
 # Changelog
 
+## [1.17.0] - 2026-02-10
+
+### Added
+- Introduced a new ESLint rule `app-config-rows-cells-valid` to validate property keys and values in `rows` and `cells` objects within `app.config.json` files.
+- Added comprehensive tests for the new rule to ensure correct identification of valid and invalid configurations.
+- Updated the README to include details about the new rule and its validation criteria.
+- Included the new rule in the plugin configuration index.
+
+### Fixed
+- Corrected package version information.
+
 ## [1.16.0] - 2026-01-31
 
 ### Changed
@@ -224,6 +235,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `hosanna-import-prefix` rule to enforce @hs-src/ prefix for hosanna package imports
 
 ## [Unreleased]
+
 
 
 
