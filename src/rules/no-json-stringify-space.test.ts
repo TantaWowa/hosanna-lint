@@ -26,7 +26,7 @@ describe('no-json-stringify-space', () => {
     });
   });
 
-  it('should report errors for JSON.stringify with space parameter', () => {
+  it('should report warnings for JSON.stringify with space parameter', () => {
     ruleTester.run('no-json-stringify-space', rule, {
       valid: [],
       invalid: [

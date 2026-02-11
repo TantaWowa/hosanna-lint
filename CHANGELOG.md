@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.17.1] - 2026-02-11
+
+### Changed
+- Changed `no-json-stringify-space` (JsonStringifySpaceNotSupported) from error to warning severity.
+
 ## [1.17.0] - 2026-02-11
 
 ### Added
@@ -233,6 +238,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `hosanna-import-prefix` rule to enforce @hs-src/ prefix for hosanna package imports
 
 ## [Unreleased]
+
 
 
 

@@ -136,7 +136,7 @@ const plugin = {
         '@hosanna-eslint/no-uint8array-declaration': 'warn',
         '@hosanna-eslint/no-this-in-non-arrow-closure': 'error',
         '@hosanna-eslint/no-conditional-compilation-else': 'error',
-        '@hosanna-eslint/no-json-stringify-space': 'error',
+        '@hosanna-eslint/no-json-stringify-space': 'warn',
       },
     },
   },
