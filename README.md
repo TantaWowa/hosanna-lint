@@ -60,7 +60,7 @@ export default [
 
 ## Rules
 
-This plugin provides **32 specialized ESLint rules** organized by category to ensure Hosanna UI code quality and platform compatibility.
+This plugin provides **33 specialized ESLint rules** organized by category to ensure Hosanna UI code quality and platform compatibility.
 
 ### 📦 Import/Export Rules
 
@@ -497,6 +497,186 @@ const dynamicKey = appConfig.get(someVariable);
 const computedKey = appConfig.get(`theme.colors.${key}`); // Template with expressions skipped
 ```
 
+#### `app-config-rows-cells-valid`
+**Error level:** `error`
+
+Validates property keys and values in `rows` and `cells` objects within `app.config.json` files. This rule ensures that:
+
+- Property keys in `rows` and `cells` objects are valid according to the CollectionView API schema
+- Property values match their expected types (string, number, boolean, array, object)
+- Enum values are valid (e.g., `focusStrategy`, `headerAppearance`, `horizAnimSettings`)
+- Nested structures (`focusSettings`, `headerSettings`) are validated
+- Scenegraph nodes in `views.base` arrays have valid properties based on their `subType`
+- State overrides (`normal`, `focused`, `disabled`, `selected`) reference valid `viewId`s
+- Required fields are present (e.g., `id` and `subType` in scenegraph nodes)
+
+**Validations performed:**
+- Validates all properties in `rows` objects against `ICollectionViewRowSettings` schema
+- Validates all properties in `cells` objects (including ViewFragment style properties)
+- Validates nested `focusSettings` properties against `ICollectionViewFocusSettings` schema
+- Validates nested `headerSettings` properties against `ICollectionViewHeaderSettings` schema
+- Validates scenegraph nodes in `cells.*.views.base` arrays (Poster, Rectangle, Group, Label, MaskGroup)
+- Validates state override properties match their base view schemas
+- Checks that state override `viewId`s exist in the corresponding `views.base` array
+
+**Example violations:**
+```json
+{
+  "rows": {
+    "someRow": {
+      // ❌ Bad - invalid property key
+      "invalidKey": "value",
+      
+      // ❌ Bad - invalid enum value
+      "focusStrategy": "invalidStrategy",
+      
+      // ❌ Bad - wrong type (should be number)
+      "height": "not-a-number",
+      
+      "focusSettings": {
+        // ❌ Bad - invalid property key in focusSettings
+        "invalidKey": "value",
+        
+        // ❌ Bad - invalid enum value
+        "horizAnimSettings": "invalid"
+      },
+      
+      "headerSettings": {
+        // ❌ Bad - invalid enum value
+        "headerAppearance": "invalid"
+      }
+    }
+  },
+  "cells": {
+    "someCell": {
+      "views": {
+        "base": [
+          {
+            // ❌ Bad - missing required id field
+            "subType": "Poster",
+            "width": 384
+          },
+          {
+            "id": "label",
+            // ❌ Bad - missing required subType field
+            "width": 384,
+            "height": 36
+          },
+          {
+            "id": "poster",
+            "subType": "Poster",
+            // ❌ Bad - invalid property key for Poster
+            "invalidKey": "value"
+          },
+          {
+            "id": "label",
+            "subType": "Label",
+            // ❌ Bad - invalid enum value
+            "horizAlign": "invalid"
+          }
+        ],
+        "focused": {
+          // ❌ Bad - viewId doesn't exist in views.base
+          "nonexistentViewId": {
+            "opacity": 1.0
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+**Example valid usage:**
+```json
+{
+  "rows": {
+    "someRow": {
+      "height": 100,
+      "spacing": 10,
+      "cellSize": [200, 150],
+      "focusStrategy": "focusOnPreviousItem",
+      "focusSettings": {
+        "horizAnimSettings": "floating",
+        "vertAnimSettings": "fixed",
+        "canLongPress": true,
+        "hideFocusIndicator": false,
+        "indicatorImageUri": "pkg:/assets/images/focus.png",
+        "indicatorBlendColor": "#ffffff",
+        "feedbackOffsets": [4, 4, -4, -4],
+        "focusedScale": 1.05
+      },
+      "headerSettings": {
+        "headerAppearance": "onTop",
+        "height": 51,
+        "fontKey": "~theme.fonts.text-medium-24",
+        "textColor": "#FFFFFF",
+        "backgroundColor": "#000000",
+        "backgroundOpacity": 0.8,
+        "backgroundVisible": true
+      }
+    }
+  },
+  "cells": {
+    "someCell": {
+      "views": {
+        "base": [
+          {
+            "id": "poster",
+            "subType": "Poster",
+            "width": 384,
+            "height": 216,
+            "uri": "${data.imageUrl}",
+            "opacity": 1.0,
+            "visible": true,
+            "translation": [0, 0],
+            "scale": [1.0, 1.0],
+            "rotation": 0,
+            "scaleRotateCenter": [0, 0]
+          },
+          {
+            "id": "label",
+            "subType": "Label",
+            "width": 384,
+            "height": 36,
+            "text": "${data.title}",
+            "color": "~theme.colors.white",
+            "fontKey": "~theme.fonts.text-regular-20",
+            "horizAlign": "left",
+            "vertAlign": "top",
+            "wrap": true,
+            "maxLines": 2,
+            "ellipsizeOnBoundary": true,
+            "ellipsisText": "...",
+            "opacity": 1.0,
+            "visible": true,
+            "translation": [0, 180],
+            "scale": [1.0, 1.0],
+            "rotation": 0,
+            "scaleRotateCenter": [0, 0]
+          }
+        ],
+        "normal": {
+          "poster": {
+            "opacity": 0.8
+          }
+        },
+        "focused": {
+          "poster": {
+            "opacity": 1.0,
+            "scale": [1.05, 1.05]
+          },
+          "label": {
+            "fontKey": "~theme.fonts.text-bold-24",
+            "color": "~theme.colors.red"
+          }
+        }
+      }
+    }
+  }
+}
+```
+
 #### `no-closure-variable-modification`
 **Error level:** `error`
 
@@ -688,6 +868,7 @@ export default [
       '@hosanna-eslint/app-config-json-valid': 'error',
       '@hosanna-eslint/app-config-style-key-valid': 'error',
       '@hosanna-eslint/app-config-get-valid': 'error',
+      '@hosanna-eslint/app-config-rows-cells-valid': 'error',
 
       // Language Feature rules
       '@hosanna-eslint/no-union-expression-in-non-statement': 'error',

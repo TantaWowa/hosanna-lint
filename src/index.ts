@@ -30,6 +30,7 @@ import noAsyncFunctionPointerInvalidReference from './rules/no-async-function-po
 import appConfigJsonValid from './rules/app-config-json-valid';
 import appConfigStyleKeyValid from './rules/app-config-style-key-valid';
 import appConfigGetValid from './rules/app-config-get-valid';
+import appConfigRowsCellsValid from './rules/app-config-rows-cells-valid';
 import noUnsupportedRegexFlags from './rules/no-unsupported-regex-flags';
 import noUint8ArrayDeclaration from './rules/no-uint8array-declaration';
 import noThisInNonArrowClosure from './rules/no-this-in-non-arrow-closure';
@@ -88,6 +89,7 @@ const plugin = {
     'app-config-json-valid': appConfigJsonValid,
     'app-config-style-key-valid': appConfigStyleKeyValid,
     'app-config-get-valid': appConfigGetValid,
+    'app-config-rows-cells-valid': appConfigRowsCellsValid,
     'no-unsupported-regex-flags': noUnsupportedRegexFlags,
     'no-uint8array-declaration': noUint8ArrayDeclaration,
     'no-this-in-non-arrow-closure': noThisInNonArrowClosure,
@@ -129,6 +131,7 @@ const plugin = {
         '@hosanna-eslint/app-config-json-valid': 'error',
         '@hosanna-eslint/app-config-style-key-valid': 'error',
         '@hosanna-eslint/app-config-get-valid': 'error',
+        '@hosanna-eslint/app-config-rows-cells-valid': 'error',
         '@hosanna-eslint/no-unsupported-regex-flags': 'warn',
         '@hosanna-eslint/no-uint8array-declaration': 'warn',
         '@hosanna-eslint/no-this-in-non-arrow-closure': 'error',
