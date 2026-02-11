@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.17.0] - 2026-02-11
+
+### Added
+- Introduced `no-json-stringify-space` rule to disallow the "space" parameter in `JSON.stringify` calls, as it is not supported on Roku devices, with accompanying tests.
+- Added `app-config-rows-cells-valid` rule to validate property keys and values in `rows` and `cells` objects within `app.config.json` files, including comprehensive tests and updated README.
+
+### Fixed
+- Corrected package version.
+
 ## [1.16.0] - 2026-01-31
 
 ### Changed
@@ -224,6 +233,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `hosanna-import-prefix` rule to enforce @hs-src/ prefix for hosanna package imports
 
 ## [Unreleased]
+
 
 
 
