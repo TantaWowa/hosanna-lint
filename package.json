@@ -1,6 +1,6 @@
 {
   "name": "@tantawowa/hosanna-eslint-plugin",
-  "version": "1.17.1",
+  "version": "1.17.1-next",
   "description": "Custom ESLint rules for Hosanna UI",
   "type": "commonjs",
   "main": "dist/index.js",
