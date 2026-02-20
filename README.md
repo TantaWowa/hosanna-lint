@@ -154,6 +154,16 @@ import config from '../config/config';
 
 Disallows `await` expressions since async/await is not supported in Hosanna/BrightScript.
 
+#### `promise-static-polyfilled`
+**Error level:** `warn`
+
+Warns when using Promise static methods (`resolve`, `reject`, `all`, `race`, `allSettled`, `any`) or `new Promise()` — these are polyfilled by HsPromise in Hosanna/Roku. Use `HsPromise` from `@hs-src/hosanna-bridge-lib/Promises` for clarity.
+
+#### `no-unsupported-promise-methods`
+**Error level:** `error`
+
+Disallows unsupported Promise static and instance methods. HsPromise only supports: static — `resolve`, `reject`, `all`, `race`, `allSettled`, `any`; instance — `then`, `catch`, `finally`. For example, `Promise.withResolvers()` is not supported.
+
 #### `no-call-on-anonymous-function`
 **Error level:** `error`
 
@@ -856,6 +866,8 @@ export default [
 
       // Function/Expression rules
       '@hosanna-eslint/no-await-expression': 'error',
+      '@hosanna-eslint/promise-static-polyfilled': 'warn',
+      '@hosanna-eslint/no-unsupported-promise-methods': 'error',
       '@hosanna-eslint/no-call-on-anonymous-function': 'error',
       '@hosanna-eslint/no-iife-usage': 'error',
       '@hosanna-eslint/no-nested-functions': 'error',
