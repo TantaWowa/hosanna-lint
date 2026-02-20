@@ -36,8 +36,6 @@ import noUint8ArrayDeclaration from './rules/no-uint8array-declaration';
 import noThisInNonArrowClosure from './rules/no-this-in-non-arrow-closure';
 import noConditionalCompilationElse from './rules/no-conditional-compilation-else';
 import noJsonStringifySpace from './rules/no-json-stringify-space';
-import promiseStaticPolyfilled from './rules/promise-static-polyfilled';
-import noUnsupportedPromiseMethods from './rules/no-unsupported-promise-methods';
 
 const preprocess = (text: string, _filename: string) => {
   // Check if file starts with the exclude comment for any platform
@@ -97,8 +95,6 @@ const plugin = {
     'no-this-in-non-arrow-closure': noThisInNonArrowClosure,
     'no-conditional-compilation-else': noConditionalCompilationElse,
     'no-json-stringify-space': noJsonStringifySpace,
-    'promise-static-polyfilled': promiseStaticPolyfilled,
-    'no-unsupported-promise-methods': noUnsupportedPromiseMethods,
   },
   configs: {
     recommended: {
@@ -141,8 +137,6 @@ const plugin = {
         '@hosanna-eslint/no-this-in-non-arrow-closure': 'error',
         '@hosanna-eslint/no-conditional-compilation-else': 'error',
         '@hosanna-eslint/no-json-stringify-space': 'warn',
-        '@hosanna-eslint/promise-static-polyfilled': 'warn',
-        '@hosanna-eslint/no-unsupported-promise-methods': 'error',
       },
     },
   },
