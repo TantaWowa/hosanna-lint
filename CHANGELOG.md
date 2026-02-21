@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.18.0] - 2026-02-21
+
+### Added
+- Introduced linting for promise static functions to improve code quality and consistency.
+
 ## [1.17.1] - 2026-02-11
 
 ### Changed
@@ -238,6 +243,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `hosanna-import-prefix` rule to enforce @hs-src/ prefix for hosanna package imports
 
 ## [Unreleased]
+
 
 
 
