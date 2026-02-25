@@ -13,6 +13,7 @@ import noUnsupportedStringMethods from './rules/no-unsupported-string-methods';
 import noEpsilonUsage from './rules/no-epsilon-usage';
 import noNaNUsage from './rules/no-nan-usage';
 import noNumberIsNaN from './rules/no-number-isnan';
+import noUnsafeNumberParsing from './rules/no-unsafe-number-parsing';
 import noNonNullOnCallExpression from './rules/no-non-null-on-call-expression';
 import noIsNaNEmulated from './rules/no-isnan-emulated';
 import noLargeNumericLiterals from './rules/no-large-numeric-literals';
@@ -74,6 +75,7 @@ const plugin = {
     'no-epsilon-usage': noEpsilonUsage,
     'no-nan-usage': noNaNUsage,
     'no-number-isnan': noNumberIsNaN,
+    'no-unsafe-number-parsing': noUnsafeNumberParsing,
     'no-non-null-on-call-expression': noNonNullOnCallExpression,
     'no-isnan-emulated': noIsNaNEmulated,
     'no-large-numeric-literals': noLargeNumericLiterals,
@@ -118,6 +120,7 @@ const plugin = {
         '@hosanna-eslint/no-epsilon-usage': 'warn',
         '@hosanna-eslint/no-nan-usage': 'error',
         '@hosanna-eslint/no-number-isnan': 'error',
+        '@hosanna-eslint/no-unsafe-number-parsing': 'warn',
         '@hosanna-eslint/no-non-null-on-call-expression': 'error',
         '@hosanna-eslint/no-isnan-emulated': 'warn',
         '@hosanna-eslint/no-large-numeric-literals': 'warn',
