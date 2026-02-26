@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.20.0] - 2026-02-26
+
+### Added
+- New rule `no-unsafe-number-parsing` with accompanying tests.
+
+### Changed
+- Improved release process.
+
 ## [1.18.0] - 2026-02-21
 
 ### Added
@@ -243,6 +251,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `hosanna-import-prefix` rule to enforce @hs-src/ prefix for hosanna package imports
 
 ## [Unreleased]
+
 
 
 
