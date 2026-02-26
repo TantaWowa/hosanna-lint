@@ -104,7 +104,9 @@ npm publish --access public --tag "$NPM_TAG"
 # --- GitHub Release (optional) ---
 if command -v gh &>/dev/null; then
   info "Creating GitHub Release..."
-  CHANGELOG_ENTRY=$(sed -n '/^## \[/, /^## \[/p' CHANGELOG.md | sed '$d')
+  # Extract only this version's changelog (from ## [X.Y.Z] to next ## [)
+  SAFE_VERSION=$(printf '%s' "$NEW_VERSION" | sed 's/[.]/\\./g')
+  CHANGELOG_ENTRY=$(sed -n "/^## \[${SAFE_VERSION}\]/,/^## \[/p" CHANGELOG.md | sed '$d')
   if [[ -n "$CHANGELOG_ENTRY" ]]; then
     echo "$CHANGELOG_ENTRY" | gh release create "v$NEW_VERSION" \
       --title "v$NEW_VERSION" \
