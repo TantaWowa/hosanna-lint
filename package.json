@@ -18,7 +18,8 @@
     "lint-fix": "eslint --config eslint.config.mjs --ignore-pattern \"node_modules/**\" --ignore-pattern \"dist/**\" --ignore-pattern \"**/*.d.ts\" --ignore-pattern \"**/*.js\" --fix",
     "dev:watch": "nodemon --watch src --watch scripts --exec \"npm run build\" --ext ts,js,json",
     "changelog": "npx ai-changelog-generator --write",
-    "changelog:dry": "npx ai-changelog-generator --dry-run"
+    "changelog:dry": "npx ai-changelog-generator --dry-run",
+    "release": "./scripts/release.sh"
   },
   "keywords": [
     "eslint",
