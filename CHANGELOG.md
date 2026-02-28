@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.21.0] - 2026-02-28
+
+### Added
+- New ESLint rules and tests for argument binding, basic type binary comparison, buffer API, crypto API, duplicate class names, and find node method.
+
+### Fixed
+- Fixed release script for improved functionality.
+- Updated release script to use `sed` instead of `head -n -1` for macOS compatibility.
+
 ## [1.20.0] - 2026-02-26
 
 ### Added
@@ -251,6 +260,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `hosanna-import-prefix` rule to enforce @hs-src/ prefix for hosanna package imports
 
 ## [Unreleased]
+
 
 
 
