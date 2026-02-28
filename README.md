@@ -58,13 +58,56 @@ export default [
 
 **Note:** New rules are automatically included in the recommended configuration, so you only need to update your ESLint config when you want to change severity levels or disable specific rules.
 
+### Type-Aware Rules
+
+Some rules (e.g. `no-unsafe-number-parsing`) use TypeScript type information when available for more precise detection. To enable type-awareness, configure your ESLint setup with `parserOptions.project` or `parserOptions.projectService` so the TypeScript parser can provide type information. Without this, the rules fall back to AST-only analysis.
+
+### IDE / Editor Integration
+
+To see ESLint diagnostics (including `no-unsafe-number-parsing` / HS-1105) in the editor:
+
+1. **Install the ESLint extension** (e.g. "ESLint" by Microsoft in VS Code / Cursor).
+2. **Ensure your project uses the plugin**:
+
+```javascript
+// eslint.config.mjs (flat config)
+import hosannaPlugin from '@tantawowa/hosanna-eslint-plugin';
+import tseslint from 'typescript-eslint';
+
+export default tseslint.config(
+  {
+    files: ['**/*.ts', '**/*.tsx'],
+    plugins: { '@hosanna-eslint': hosannaPlugin },
+    rules: { ...hosannaPlugin.configs.recommended.rules },
+    languageOptions: {
+      parserOptions: {
+        projectService: true,
+        tsconfigRootDir: import.meta.dirname,
+      },
+    },
+  }
+);
+```
+
+3. **Monorepo / local development**: If using the plugin via `workspace:*` or `link:`, run `npm run build` in the plugin package so the consuming project uses the latest build.
+
 ## Rules
 
-This plugin provides **33 specialized ESLint rules** organized by category to ensure Hosanna UI code quality and platform compatibility.
+This plugin provides **67 specialized ESLint rules** organized by category to ensure Hosanna UI code quality and platform compatibility.
+
+### Performance Impact Key
+
+Each rule is tagged with its performance impact:
+
+- **LOW** - Pure AST traversal, negligible overhead (<1ms per file)
+- **MEDIUM** - Requires TypeScript type checker via parserServices (~50-200ms added per file when type-checking is enabled; shared across all type-aware rules)
+- **HIGH** - Cross-file analysis, may add seconds to large projects
+
+**Note:** MEDIUM rules share the type-checker cost. If you already use any type-aware rule, adding more MEDIUM rules has minimal marginal cost.
 
 ### 📦 Import/Export Rules
 
-#### `hosanna-import-prefix`
+#### `hosanna-import-prefix` [LOW]
 **Error level:** `error`
 
 Requires all imports from hosanna packages to use the `@hs-src/` prefix, including relative imports.
@@ -92,7 +135,7 @@ import { Button } from 'hosanna-ui/views/controls/Button';
 import { Button } from '@hs-src/hosanna-ui/views/controls/Button';
 ```
 
-#### `no-hosanna-generated-imports`
+#### `no-hosanna-generated-imports` [LOW]
 **Error level:** `error`
 
 Prevents direct imports from generated files to avoid circular dependencies and runtime failures.
@@ -106,14 +149,14 @@ import { ButtonViewStruct } from '@hs-generated/hosanna-ui/views/controls/Button
 import { Button } from '@hs-src/hosanna-ui/views/controls/Button';
 ```
 
-#### `no-json-imports`
+#### `no-json-imports` [LOW]
 **Error level:** `error`
 
 Disallows JSON imports as they are not supported in Hosanna/BrightScript and can severely impact performance.
 
 **Auto-fix:** Suggests `JSON.parse(ReadAsciiFile(...))` pattern.
 
-#### `no-export-aliasing`
+#### `no-export-aliasing` [LOW]
 **Error level:** `error`
 
 Disallows export aliasing (`export =`) as it is not supported in Hosanna.
@@ -129,7 +172,7 @@ export { myFunction };
 export default myFunction;
 ```
 
-#### `no-import-extensions`
+#### `no-import-extensions` [LOW]
 **Error level:** `warn`
 
 Disallows `.js` and `.ts` extensions in import paths.
@@ -149,22 +192,22 @@ import config from '../config/config';
 
 ### 🔧 Function/Expression Rules
 
-#### `no-await-expression`
+#### `no-await-expression` [LOW]
 **Error level:** `error`
 
 Disallows `await` expressions since async/await is not supported in Hosanna/BrightScript.
 
-#### `promise-static-polyfilled`
+#### `promise-static-polyfilled` [LOW]
 **Error level:** `warn`
 
 Warns when using Promise static methods (`resolve`, `reject`, `all`, `race`, `allSettled`, `any`) or `new Promise()` — these are polyfilled by HsPromise in Hosanna/Roku. Use `HsPromise` from `@hs-src/hosanna-bridge-lib/Promises` for clarity.
 
-#### `no-unsupported-promise-methods`
+#### `no-unsupported-promise-methods` [LOW]
 **Error level:** `error`
 
 Disallows unsupported Promise static and instance methods. HsPromise only supports: static — `resolve`, `reject`, `all`, `race`, `allSettled`, `any`; instance — `then`, `catch`, `finally`. For example, `Promise.withResolvers()` is not supported.
 
-#### `no-call-on-anonymous-function`
+#### `no-call-on-anonymous-function` [LOW]
 **Error level:** `error`
 
 Disallows calls on anonymous function expressions as they may lack type information.
@@ -180,7 +223,7 @@ const myFunc = function() { return 42; };
 myFunc();
 ```
 
-#### `no-iife-usage`
+#### `no-iife-usage` [LOW]
 **Error level:** `error`
 
 Disallows Immediately Invoked Function Expressions as they are not supported in Hosanna.
@@ -196,7 +239,7 @@ const myFunc = () => { console.log('not IIFE'); };
 myFunc();
 ```
 
-#### `no-nested-functions`
+#### `no-nested-functions` [LOW]
 **Error level:** `error`
 
 Disallows nested function declarations to maintain clean code structure.
@@ -215,7 +258,7 @@ function outer() { return 42; }
 function inner() { return 24; }
 ```
 
-#### `no-function-expression-on-anonymous-object`
+#### `no-function-expression-on-anonymous-object` [LOW]
 **Error level:** `error`
 
 Disallows function expressions in object literals (anonymous objects).
@@ -234,7 +277,7 @@ const obj = {
 };
 ```
 
-#### `no-function-reference-outside-module`
+#### `no-function-reference-outside-module` [LOW]
 **Error level:** `error`
 
 Detects function references assigned to variables outside modules or classes.
@@ -250,7 +293,7 @@ class MyClass {
 }
 ```
 
-#### `no-async-function-pointer-invalid-reference`
+#### `no-async-function-pointer-invalid-reference` [LOW]
 **Error level:** `error`
 
 Ensures `AsyncFunctionPointer` type only accepts exported function declarations. Disallows class methods, anonymous functions, arrow functions, and inline functions.
@@ -293,7 +336,7 @@ const fn: AsyncFunctionPointer = handler;
 
 ### 📄 Configuration File Rules
 
-#### `app-config-json-valid`
+#### `app-config-json-valid` [LOW]
 **Error level:** `error`
 
 Validates `app.config.json` files (located at `assets/meta/app.config.json`) to ensure proper structure, file path validity, and JSON reference correctness.
@@ -413,7 +456,7 @@ Validates `app.config.json` files (located at `assets/meta/app.config.json`) to 
 }
 ```
 
-#### `app-config-style-key-valid`
+#### `app-config-style-key-valid` [LOW]
 **Error level:** `error`
 
 Validates that style key properties (`styleKey`, `fontKey`, `fontStyleKey`, `settingsKey`, `cellSettingsKey`, `loadingCellStyleKey`) reference valid paths in `app.config.json`. Works with object literals, assignment expressions, and complex expressions (ternary, null coalescing, logical OR).
@@ -467,7 +510,7 @@ obj.styleKey = value ?? "theme.colors.primary";
 obj.styleKey = value || "theme.colors.primary";
 ```
 
-#### `app-config-get-valid`
+#### `app-config-get-valid` [LOW]
 **Error level:** `error`
 
 Validates that `appConfig.get()` and `appConfig.get<Type>()` calls reference valid paths in `app.config.json`.
@@ -507,7 +550,7 @@ const dynamicKey = appConfig.get(someVariable);
 const computedKey = appConfig.get(`theme.colors.${key}`); // Template with expressions skipped
 ```
 
-#### `app-config-rows-cells-valid`
+#### `app-config-rows-cells-valid` [LOW]
 **Error level:** `error`
 
 Validates property keys and values in `rows` and `cells` objects within `app.config.json` files. This rule ensures that:
@@ -687,7 +730,7 @@ Validates property keys and values in `rows` and `cells` objects within `app.con
 }
 ```
 
-#### `no-closure-variable-modification`
+#### `no-closure-variable-modification` [LOW]
 **Error level:** `error`
 
 Detects modification of closure variables within nested functions.
@@ -703,7 +746,7 @@ function increment() {
 
 ### 🛠️ Language Feature Rules
 
-#### `no-union-expression-in-non-statement`
+#### `no-union-expression-in-non-statement` [LOW]
 **Error level:** `error`
 
 Restricts `++` and `--` operators to only be used as statements or on property access expressions.
@@ -722,7 +765,7 @@ this.value++;
 obj.counter--;
 ```
 
-#### `no-non-null-on-call-expression`
+#### `no-non-null-on-call-expression` [LOW]
 **Error level:** `error`
 
 Disallows non-null operator (`!`) on call expressions.
@@ -740,7 +783,7 @@ const result = getValue()?.defaultValue;
 
 ### 🔌 API/Built-in Rules
 
-#### `no-console-methods`
+#### `no-console-methods` [LOW]
 **Error level:** `error`
 
 Disallows console method calls since they're not supported in BrightScript.
@@ -754,7 +797,7 @@ console.log('debug message');
 console.error('error');
 ```
 
-#### `no-unsupported-array-methods`
+#### `no-unsupported-array-methods` [LOW]
 **Error level:** `error`
 
 Disallows unsupported Array prototype methods like `find`, `includes`, `flat`, etc.
@@ -767,40 +810,40 @@ arr.includes(5);
 arr.flat();
 ```
 
-#### `no-unsupported-string-methods`
+#### `no-unsupported-string-methods` [LOW]
 **Error level:** `error`
 
 Disallows unsupported String static methods.
 
-#### `no-date-usage`
+#### `no-date-usage` [LOW]
 **Error level:** `error`
 
 Disallows Date constructor and static methods since Date objects are not supported.
 
 **Auto-fix:** Suggests `HsDate` replacement.
 
-#### `no-epsilon-usage`
+#### `no-epsilon-usage` [LOW]
 **Error level:** `error`
 
 Disallows `Number.EPSILON` usage.
 
 **Auto-fix:** Replaces with `0.0000001`.
 
-#### `no-number-isnan`
+#### `no-number-isnan` [LOW]
 **Error level:** `error`
 
 Disallows `Number.isNaN()` usage.
 
 **Auto-fix:** Replaces with global `isNaN()`.
 
-#### `no-isnan-emulated`
+#### `no-isnan-emulated` [LOW]
 **Error level:** `warn`
 
 Warns about `isNaN()` usage since it's emulated on BrightScript and may be unreliable.
 
 ### 📝 Type/Syntax Rules
 
-#### `no-ts-module-declarations`
+#### `no-ts-module-declarations` [LOW]
 **Error level:** `error`
 
 Disallows TypeScript module declarations and blocks since they're not supported.
@@ -812,17 +855,17 @@ declare module 'myModule' { export const value: string; }
 module MyModule { export const value = 42; }
 ```
 
-#### `no-inline-classes`
+#### `no-inline-classes` [LOW]
 **Error level:** `error`
 
 Disallows class declarations inside functions since classes must be at module level.
 
-#### `no-computed-properties-in-objects`
+#### `no-computed-properties-in-objects` [LOW]
 **Error level:** `error`
 
 Restricts computed property keys in object literals to enums and literals only.
 
-#### `no-reserved-words`
+#### `no-reserved-words` [LOW]
 **Error level:** `error`
 
 Disallows BrightScript reserved words as variable or function names.
@@ -837,10 +880,336 @@ let function = 'test';
 
 ### 🔒 Data/Safety Rules
 
-#### `no-large-numeric-literals`
-**Error level:** `warn`
+#### `no-unsafe-number-parsing` [MEDIUM]
+**Error level:** `warn` | **HS-1105**
+
+Flags `Number()`, `parseInt()`, `parseFloat()`, and `.toFixed()` calls without NaN handling. Uses TypeScript type info when available for precision.
+
+#### `no-large-numeric-literals` [LOW]
+**Error level:** `warn` | **HS-1075**
 
 Warns about numeric literals exceeding Roku's safe integer limit (2147483647).
+
+### 🆕 BrightScript Limits Rules
+
+#### `no-infinity-usage` [LOW]
+**Error level:** `warn` | **HS-1038**
+
+Infinity is not supported in BrightScript and is transpiled as MAXINT (2147483647).
+
+```typescript
+// ❌ Bad
+const x = Infinity;
+const y = Number.POSITIVE_INFINITY;
+
+// ✅ Good
+const x = 2147483647;
+```
+
+#### `no-too-many-if-else` [LOW]
+**Error level:** `error` | **HS-1002**
+
+BrightScript only supports up to 250 if-else clauses in a chain.
+
+#### `no-too-many-switch-cases` [LOW]
+**Error level:** `error` | **HS-1003**
+
+BrightScript only supports up to 255 switch cases.
+
+#### `no-logical-expression-limit` [LOW]
+**Error level:** `error` | **HS-1036**
+
+BrightScript only allows up to 32 operands in a logical expression. Split into variables or use if statements.
+
+#### `no-too-many-nots` [LOW]
+**Error level:** `error` | **HS-1060**
+
+More than 3 sequential `!` operators is not supported in BrightScript.
+
+```typescript
+// ❌ Bad
+const x = !!!!value;
+
+// ✅ Good
+const x = !!!value;
+```
+
+#### `no-unsupported-compound-assignment` [LOW]
+**Error level:** `error` | **HS-1039**
+
+BrightScript only supports `=`, `+=`, `-=`, `*=`, `/=` assignment operators.
+
+```typescript
+// ❌ Bad
+x ||= 1;
+x &&= true;
+x ??= 'default';
+x **= 2;
+x %= 3;
+
+// ✅ Good
+x += 1;
+x -= 1;
+x *= 2;
+x /= 2;
+```
+
+### 🆕 API Restriction Rules
+
+#### `no-object-prototype` [LOW]
+**Error level:** `error` | **HS-1077**
+
+Object.prototype functions and fields are not supported in BrightScript.
+
+```typescript
+// ❌ Bad
+Object.prototype.hasOwnProperty.call(obj, 'key');
+
+// ✅ Good
+obj.hasOwnProperty('key');
+```
+
+#### `no-buffer-api` [LOW]
+**Error level:** `error` | **HS-1085**
+
+Node.js Buffer API is not supported. Use HsCrypto instead.
+
+```typescript
+// ❌ Bad
+Buffer.from('hello');
+new Buffer('data');
+
+// ✅ Good
+HsCrypto.base64Encode('hello');
+```
+
+#### `no-crypto-api` [LOW]
+**Error level:** `error` | **HS-1086**
+
+Web/Node crypto API is not supported. Use HsCrypto instead.
+
+```typescript
+// ❌ Bad
+crypto.getRandomValues(arr);
+window.crypto.subtle.digest('SHA-256', data);
+
+// ✅ Good
+HsCrypto.getRandomValues(arr);
+HsCrypto.sha256(data);
+```
+
+#### `no-json-stringify-replacer` [LOW]
+**Error level:** `error` | **HS-1096**
+
+The "replacer" parameter of JSON.stringify is not supported on Roku devices.
+
+```typescript
+// ❌ Bad
+JSON.stringify(obj, replacer);
+JSON.stringify(obj, (key, value) => value);
+
+// ✅ Good
+JSON.stringify(obj);
+JSON.stringify(obj, null);
+```
+
+#### `no-unsupported-object-methods` [LOW]
+**Error level:** `error` | **HS-1050/1051**
+
+Unsupported Object static methods. Supported: `keys`, `values`, `entries`, `assign`, `defineProperty`, `defineProperties`, `getOwnPropertyNames`.
+
+```typescript
+// ❌ Bad
+Object.create(null);
+Object.freeze(obj);
+Object.is(a, b);
+
+// ✅ Good
+Object.keys(obj);
+Object.assign({}, obj);
+```
+
+#### `no-unsupported-math-methods` [LOW]
+**Error level:** `error` | **HS-1108**
+
+Flags unsupported Math methods. All standard trig, rounding, and utility methods are supported.
+
+#### `no-unsupported-number-static-methods` [LOW]
+**Error level:** `error` | **HS-1064**
+
+Unsupported Number static methods. Supported: `isFinite`, `isInteger`, `isNaN`, `isSafeInteger`, `parseFloat`, `parseInt`, `toString`.
+
+#### `no-unsupported-json-functions` [LOW]
+**Error level:** `error` | **HS-1045**
+
+Only `JSON.parse` and `JSON.stringify` are supported.
+
+#### `no-interface-computed-property` [LOW]
+**Error level:** `error` | **HS-1080**
+
+Computed property names are not allowed in interface declarations.
+
+```typescript
+// ❌ Bad
+interface IExample { [MyEnum.Key]: string; }
+
+// ✅ Good
+interface IExample { myField: string; }
+```
+
+#### `no-argument-binding` [LOW]
+**Error level:** `error` | **HS-1071**
+
+`.bind()` with argument binding (more than 1 argument) is not supported. Only `.bind(thisArg)` is allowed.
+
+```typescript
+// ❌ Bad
+fn.bind(this, 1, 2);
+
+// ✅ Good
+fn.bind(this);
+```
+
+#### `no-for-in-on-array` [LOW]
+**Error level:** `warn` | **HS-1033**
+
+`for...in` is discouraged in BrightScript. Use `for...of` for values or a numeric `for` loop for indices.
+
+#### `no-find-node-method` [LOW]
+**Error level:** `warn` | **HS-1076**
+
+Avoid using `.findNode()` directly. Import and use the `findNode` utility from utils to avoid Roku SceneGraph bugs.
+
+#### `no-unsupported-destructuring-context` [LOW]
+**Error level:** `error` | **HS-1040/1041**
+
+Destructuring is only supported in function parameters and variable declarations.
+
+```typescript
+// ❌ Bad
+({ a, b } = obj);
+
+// ✅ Good
+const { a, b } = obj;
+function foo({ a, b }) {}
+```
+
+### 🆕 Type-Aware Rules (require TypeScript type checker)
+
+#### `no-for-of-on-non-array` [MEDIUM]
+**Error level:** `error` | **HS-1014**
+
+BrightScript only supports `for...of` on arrays. Flags iteration over Map, Set, and other non-array iterables.
+
+#### `no-basic-type-binary-comparison` [MEDIUM]
+**Error level:** `error` | **HS-1019**
+
+Only basic types (string, number, boolean) are supported for binary comparisons in BrightScript. Comparing objects requires IHsIdentifiable or field comparison.
+
+#### `no-function-typed-as-any` [MEDIUM]
+**Error level:** `error` | **HS-1034**
+
+Function parameters typed as `any` generate unsafe transpiler output. Provide specific types.
+
+```typescript
+// ❌ Bad
+function foo(cb: any) {}
+
+// ✅ Good
+function foo(cb: () => void) {}
+```
+
+#### `no-suboptimal-array-access` [MEDIUM]
+**Error level:** `warn` | **HS-1042/1043/1044**
+
+Warns about member access patterns that cause runtime type coercion (e.g., accessing arrays with string keys, objects with numeric keys).
+
+#### `no-string-method-on-non-string` [MEDIUM]
+**Error level:** `warn` | **HS-1106**
+
+Warns when calling string methods on a non-string type.
+
+#### `no-number-method-on-non-number` [MEDIUM]
+**Error level:** `warn` | **HS-1107**
+
+Warns when calling number methods (e.g., `.toFixed()`) on a non-number type.
+
+#### `no-static-member-access-with-this` [LOW]
+**Error level:** `error` | **HS-1056**
+
+Disallows accessing static class members via `this`. Use `ClassName.staticMember` instead.
+
+```typescript
+// ❌ Bad
+class Foo {
+  static bar = 1;
+  method() { this.bar; }
+}
+
+// ✅ Good
+class Foo {
+  static bar = 1;
+  method() { Foo.bar; }
+}
+```
+
+#### `no-typeof-brs-node-method` [MEDIUM]
+**Error level:** `warn` | **HS-1103**
+
+`typeof` on a method of ISGROSGNode or IBrsNode can crash at runtime on Roku.
+
+#### `no-comparison-brs-node-method` [MEDIUM]
+**Error level:** `warn` | **HS-1104**
+
+Comparing a method of ISGROSGNode or IBrsNode can crash at runtime on Roku.
+
+#### `no-recursion-in-logical-expression` [LOW]
+**Error level:** `warn` | **HS-1037**
+
+Warns about function calls in short-circuit logical assignments that could cause recursion.
+
+```typescript
+// ❌ Warn
+x = x || getValue();
+
+// ✅ Good
+x = x || defaultValue;
+```
+
+### 🆕 Class/Interface Analysis Rules
+
+#### `no-case-insensitive-class-collision` [LOW]
+**Error level:** `error` | **HS-1020**
+
+BrightScript class methods and fields must be case-insensitively unique.
+
+```typescript
+// ❌ Bad
+class Foo {
+  getValue() {}
+  GetValue() {} // Collision!
+}
+```
+
+#### `no-duplicate-class-name` [HIGH]
+**Error level:** `error` | **HS-1063**
+
+Class names must be unique across the whole project (BrightScript limitation).
+
+#### `no-getter-setter-mismatch` [MEDIUM]
+**Error level:** `error` | **HS-1057**
+
+Class members and their interface definitions must have the same kind (getter/setter vs property).
+
+#### `no-vague-state-field-usage` [HIGH]
+**Error level:** `warn` | **HS-1073**
+
+Warns about accessing state/observable/annotated fields through interfaces, which may cause performance issues or crashes in setters/getters.
+
+#### `no-vague-computed-access` [HIGH]
+**Error level:** `warn` | **HS-1081**
+
+Warns about computed property access (`obj[key]`) on types that have getters/setters/annotated fields.
 
 ### 📋 Recommended Configuration
 

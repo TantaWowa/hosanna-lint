@@ -1,61 +1,63 @@
 import { Rule, Scope } from 'eslint';
 
-// Array methods that are not supported in Hosanna/BrightScript
-const UNSUPPORTED_ARRAY_METHODS = new Set([
-  //There are none right now
-  'none'
+const SUPPORTED_ARRAY_STATIC_METHODS = new Set([
+  'isArray', 'from', 'of',
+]);
+
+const SUPPORTED_ARRAY_INSTANCE_METHODS = new Set([
+  'map', 'filter', 'entries', 'reduce', 'forEach', 'slice', 'splice',
+  'concat', 'find', 'findIndex', 'findLast', 'findLastIndex',
+  'includes', 'indexOf', 'lastIndexOf', 'join', 'push', 'pop',
+  'shift', 'unshift', 'every', 'some', 'flat', 'flatMap',
+  'reverse', 'sort', 'keys', 'values', 'length', 'toString',
 ]);
 
 const rule: Rule.RuleModule = {
   meta: {
     type: 'problem',
     docs: {
-      description: 'Disallow unsupported Array methods in Hosanna',
+      description: 'HS-1047/1110: Disallow unsupported Array methods in Hosanna/BrightScript. Only methods polyfilled by the transpiler are allowed.',
       category: 'Best Practices',
       recommended: true,
     },
-    fixable: 'code',
     schema: [],
     messages: {
-      unsupportedArrayMethod: 'Array method "{{method}}" is not supported in Hosanna/BrightScript.',
+      unsupportedArrayStaticMethod: 'HS-1047: Array static method "{{method}}" is not supported in Hosanna/BrightScript.',
+      unsupportedArrayInstanceMethod: 'HS-1110: Array instance method "{{method}}" is not supported in Hosanna/BrightScript.',
     },
   },
   create: function (context) {
     return {
       CallExpression: function (node) {
-        // Check for Array.method() calls
         if (
-          node.callee.type === 'MemberExpression' &&
-          node.callee.object.type === 'Identifier' &&
-          node.callee.object.name === 'Array' &&
-          node.callee.property.type === 'Identifier'
+          node.callee.type !== 'MemberExpression' ||
+          node.callee.property.type !== 'Identifier'
         ) {
-          const methodName = node.callee.property.name;
-          if (UNSUPPORTED_ARRAY_METHODS.has(methodName)) {
-            context.report({
-              node: node.callee.property,
-              messageId: 'unsupportedArrayMethod',
-              data: { method: methodName },
-            });
-          }
+          return;
         }
 
-        // Check for arrayInstance.method() calls on arrays
+        const methodName = node.callee.property.name;
+
         if (
-          node.callee.type === 'MemberExpression' &&
-          node.callee.property.type === 'Identifier'
+          node.callee.object.type === 'Identifier' &&
+          node.callee.object.name === 'Array' &&
+          !SUPPORTED_ARRAY_STATIC_METHODS.has(methodName)
         ) {
-          const methodName = node.callee.property.name;
-          if (UNSUPPORTED_ARRAY_METHODS.has(methodName)) {
-            // Check if the object is likely an array by checking its type annotation or usage
-            const object = node.callee.object;
-            if (isLikelyArray(object, context)) {
-              context.report({
-                node: node.callee.property,
-                messageId: 'unsupportedArrayMethod',
-                data: { method: methodName },
-              });
-            }
+          context.report({
+            node: node.callee.property,
+            messageId: 'unsupportedArrayStaticMethod',
+            data: { method: methodName },
+          });
+          return;
+        }
+
+        if (!SUPPORTED_ARRAY_INSTANCE_METHODS.has(methodName)) {
+          if (isLikelyArray(node.callee.object, context)) {
+            context.report({
+              node: node.callee.property,
+              messageId: 'unsupportedArrayInstanceMethod',
+              data: { method: methodName },
+            });
           }
         }
       },
@@ -63,35 +65,28 @@ const rule: Rule.RuleModule = {
   },
 };
 
-// Helper function to determine if an expression is likely an array
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function isLikelyArray(node: any, context: Rule.RuleContext): boolean {
-  // Check for array literals
   if (node.type === 'ArrayExpression') {
     return true;
   }
 
-  // Check for variable references that are declared as arrays
   if (node.type === 'Identifier') {
     const scope = context.sourceCode.getScope(node);
     const variable = scope.variables.find((v: Scope.Variable) => v.name === node.name);
     if (variable && variable.defs.length > 0) {
       const def = variable.defs[0];
-      // Check if it's declared with array type annotation
       if (def.node.type === 'VariableDeclarator' && def.node.id.typeAnnotation) {
-        const typeAnnotation = def.node.id.typeAnnotation;
-        if (isArrayTypeAnnotation(typeAnnotation)) {
+        if (isArrayTypeAnnotation(def.node.id.typeAnnotation)) {
           return true;
         }
       }
-      // Check if initialized with array literal
       if (def.node.type === 'VariableDeclarator' && def.node.init && def.node.init.type === 'ArrayExpression') {
         return true;
       }
     }
   }
 
-  // Check for array access patterns (array[index])
   if (node.type === 'MemberExpression' && node.computed === true) {
     return isLikelyArray(node.object, context);
   }
@@ -99,7 +94,6 @@ function isLikelyArray(node: any, context: Rule.RuleContext): boolean {
   return false;
 }
 
-// Helper function to check if a type annotation represents an array
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function isArrayTypeAnnotation(typeAnnotation: any): boolean {
   if (!typeAnnotation || !typeAnnotation.typeAnnotation) {

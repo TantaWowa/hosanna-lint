@@ -12,72 +12,70 @@ const ruleTester = new RuleTester({
 });
 
 describe('no-unsupported-string-methods', () => {
-  it('should pass supported string operations', () => {
+  it('should pass supported string instance methods (HS-1048/1109)', () => {
     ruleTester.run('no-unsupported-string-methods', rule, {
       valid: [
-        "const str = 'hello';",
-        "str.length;",
-        "str.charAt(0);",
-        "str.charCodeAt(0);",
-        "str.substring(0, 5);",
-        "str.substr(0, 5);",
-        "str.slice(0, 5);",
-        "str.indexOf('l');",
-        "str.lastIndexOf('l');",
-        "str.toLowerCase();",
-        "str.toUpperCase();",
-        "str.trim();",
-        "str.split(',');",
-        "str.replace('old', 'new');",
-        "str.concat(' world');",
+        'const str = "hello"; str.toUpperCase();',
+        'const str = "hello"; str.toLowerCase();',
+        'const str = "hello"; str.trim();',
+        'const str = "hello"; str.charAt(0);',
+        'const str = "hello"; str.indexOf("l");',
+        'const str = "hello"; str.split(",");',
+        'const str = "hello"; str.startsWith("h");',
+        'const str = "hello"; str.endsWith("o");',
+        'const str = "hello"; str.includes("ell");',
+        'const str = "hello"; str.substring(0, 3);',
+        'const str = "hello"; str.slice(0, 3);',
+        '"hello".toUpperCase();',
+        '`template`.indexOf("t");',
       ],
       invalid: [],
     });
   });
 
-  it('should report errors for unsupported String static methods', () => {
+  it('should pass supported String static usage', () => {
+    ruleTester.run('no-unsupported-string-methods', rule, {
+      valid: [
+        "String('hello');",
+        "new String('hello');",
+      ],
+      invalid: [],
+    });
+  });
+
+  it('should report unsupported String static methods (HS-1048)', () => {
     ruleTester.run('no-unsupported-string-methods', rule, {
       valid: [],
       invalid: [
         {
-          code: "String.fromCharCode(65);",
-          errors: [
-            {
-              messageId: 'unsupportedStringMethod',
-              data: { method: 'fromCharCode' },
-            },
-          ],
+          code: 'String.fromCharCode(65);',
+          errors: [{ messageId: 'unsupportedStringMethod', data: { method: 'fromCharCode' } }],
         },
         {
-          code: "String.fromCodePoint(65);",
-          errors: [
-            {
-              messageId: 'unsupportedStringMethod',
-              data: { method: 'fromCodePoint' },
-            },
-          ],
+          code: 'String.fromCodePoint(65);',
+          errors: [{ messageId: 'unsupportedStringMethod', data: { method: 'fromCodePoint' } }],
         },
         {
-          code: "String.raw`template`;",
-          errors: [
-            {
-              messageId: 'unsupportedStringMethod',
-              data: { method: 'raw' },
-            },
-          ],
+          code: 'String.raw`template`;',
+          errors: [{ messageId: 'unsupportedStringMethod', data: { method: 'raw' } }],
         },
       ],
     });
   });
 
-  it('should allow supported String methods', () => {
+  it('should report unsupported string instance methods (HS-1109)', () => {
     ruleTester.run('no-unsupported-string-methods', rule, {
-      valid: [
-        "String('hello');", // Constructor call
-        "new String('hello');", // Constructor with new
-        "str.toString();", // Instance method
+      valid: [],
+      invalid: [
+        {
+          code: 'const str = "hello"; str.localeCompare("world");',
+          errors: [{ messageId: 'unsupportedStringInstanceMethod', data: { method: 'localeCompare' } }],
+        },
+        {
+          code: '"hello".localeCompare("world");',
+          errors: [{ messageId: 'unsupportedStringInstanceMethod', data: { method: 'localeCompare' } }],
+        },
       ],
-      invalid: [],
     });
   });
 });
