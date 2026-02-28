@@ -2,12 +2,14 @@
 set -euo pipefail
 
 # Manual release script - replicates .github/workflows/release.yml for local execution
-# Usage: ./scripts/release.sh [version] [npmTag]
+# Usage: ./scripts/release.sh [version] [npmTag] [otp]
 #   version: major|minor|patch or specific semver (e.g. 1.2.3, 1.2.3-rc.1). Default: minor
 #   npmTag:  npm dist-tag (e.g. latest, next). Default: latest
+#   otp:     npm 2FA one-time password (required if npm account has 2FA). Use NPM_OTP env var instead if preferred.
 
 VERSION_INPUT="${1:-minor}"
 NPM_TAG="${2:-latest}"
+NPM_OTP="${3:-${NPM_OTP:-}}"
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$REPO_ROOT"
 
@@ -99,7 +101,11 @@ git push origin "v$NEW_VERSION"
 
 # --- Publish to npm ---
 info "Publishing to npm (tag: $NPM_TAG)..."
-npm publish --access public --tag "$NPM_TAG"
+if [[ -n "$NPM_OTP" ]]; then
+  npm publish --access public --tag "$NPM_TAG" --otp "$NPM_OTP"
+else
+  npm publish --access public --tag "$NPM_TAG"
+fi
 
 # --- GitHub Release (optional) ---
 if command -v gh &>/dev/null; then
