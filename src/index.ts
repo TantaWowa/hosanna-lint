@@ -72,6 +72,7 @@ import noNumberMethodOnNonNumber from './rules/no-number-method-on-non-number';
 import noStaticMemberAccessWithThis from './rules/no-static-member-access-with-this';
 import noTypeofBrsNodeMethod from './rules/no-typeof-brs-node-method';
 import noComparisonBrsNodeMethod from './rules/no-comparison-brs-node-method';
+import noSgnNodeMutation from './rules/no-sgn-node-mutation';
 import noRecursionInLogicalExpression from './rules/no-recursion-in-logical-expression';
 
 // Tier 3: Cross-file / deep analysis rules (HIGH performance impact)
@@ -174,6 +175,7 @@ const plugin = {
     'no-static-member-access-with-this': w('no-static-member-access-with-this', noStaticMemberAccessWithThis),
     'no-typeof-brs-node-method': w('no-typeof-brs-node-method', noTypeofBrsNodeMethod),
     'no-comparison-brs-node-method': w('no-comparison-brs-node-method', noComparisonBrsNodeMethod),
+    'no-sgn-node-mutation': w('no-sgn-node-mutation', noSgnNodeMutation),
     'no-recursion-in-logical-expression': w('no-recursion-in-logical-expression', noRecursionInLogicalExpression),
 
     // Tier 3: Cross-file / deep analysis rules (HIGH performance impact)
@@ -260,6 +262,7 @@ const plugin = {
         '@hosanna-eslint/no-static-member-access-with-this': 'error',
         '@hosanna-eslint/no-typeof-brs-node-method': 'warn',
         '@hosanna-eslint/no-comparison-brs-node-method': 'warn',
+        '@hosanna-eslint/no-sgn-node-mutation': 'warn',
         '@hosanna-eslint/no-recursion-in-logical-expression': 'warn',
 
         // Tier 3: Cross-file / deep analysis rules (HIGH performance impact)
