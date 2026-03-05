@@ -3,7 +3,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 
 interface AppConfigCache {
-  config: any | null;
+  config: Record<string, unknown> | null;
   loaded: boolean;
   fileNotFound: boolean;
 }
@@ -31,7 +31,7 @@ function getCache(context: Rule.RuleContext): AppConfigCache {
  * Load app.config.json from assets/meta/app.config.json relative to project root
  * Returns null if file doesn't exist or can't be parsed
  */
-export function getAppConfig(context: Rule.RuleContext): any | null {
+export function getAppConfig(context: Rule.RuleContext): Record<string, unknown> | null {
   const cache = getCache(context);
 
   // Return cached config if already loaded
@@ -74,8 +74,7 @@ export function getAppConfig(context: Rule.RuleContext): any | null {
  * @param pathStr - Dot-notation path (e.g., "theme.colors.primary")
  * @returns The value at the path, or undefined if not found
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function getJsonValueByPath(config: any, pathStr: string): any {
+export function getJsonValueByPath(config: Record<string, unknown> | null | undefined, pathStr: string): unknown {
   if (!config || typeof config !== 'object') {
     return undefined;
   }
@@ -86,12 +85,12 @@ export function getJsonValueByPath(config: any, pathStr: string): any {
   }
 
   const parts = pathStr.split('.');
-  let current = config;
+  let current: unknown = config;
   for (const part of parts) {
     if (current === null || current === undefined || typeof current !== 'object') {
       return undefined;
     }
-    current = current[part];
+    current = (current as Record<string, unknown>)[part];
     if (current === undefined) {
       return undefined;
     }
@@ -105,8 +104,7 @@ export function getJsonValueByPath(config: any, pathStr: string): any {
  * @param pathStr - Dot-notation path (e.g., "theme.colors.primary")
  * @returns true if the path exists, false otherwise
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function jsonPathExists(config: any, pathStr: string): boolean {
+export function jsonPathExists(config: Record<string, unknown> | null | undefined, pathStr: string): boolean {
   // Handle locale.* prefix - it resolves to translations.<locale>.*
   // Check all available locales in translations section
   // It's enough if the path exists in any locale

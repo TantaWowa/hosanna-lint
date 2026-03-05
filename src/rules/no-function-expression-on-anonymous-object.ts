@@ -21,7 +21,7 @@ const rule: Rule.RuleModule = {
         if (node.parent.type === 'ObjectExpression') {
           // Case 1: method shorthand syntax - func() {}
           // Property nodes with method: true represent method shorthand
-          if ((node as any).method === true) {
+          if ((node as Rule.Node & { method?: boolean }).method === true) {
             context.report({
               node: node,
               messageId: 'functionExpressionOnAnonymousObject',

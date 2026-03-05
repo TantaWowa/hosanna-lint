@@ -18,7 +18,7 @@ function isFunctionExpressionClosure(node: Rule.Node): boolean {
 
   // Assigned to property: obj.fn = function() {}
   if (parent.type === 'AssignmentExpression') {
-    const assignmentParent = parent as any;
+    const assignmentParent = parent as Rule.Node & { right?: Rule.Node };
     if (assignmentParent.right === node) {
       return true;
     }
@@ -29,8 +29,7 @@ function isFunctionExpressionClosure(node: Rule.Node): boolean {
     const propertyParent = parent.parent;
     if (propertyParent && propertyParent.type === 'ObjectExpression') {
       // Skip if this is a method definition (method shorthand or computed method)
-      const propertyParentNode = propertyParent as any;
-      if ((parent as any).method === true) {
+      if ((parent as Rule.Node & { method?: boolean }).method === true) {
         return false;
       }
       return true;
@@ -39,7 +38,7 @@ function isFunctionExpressionClosure(node: Rule.Node): boolean {
 
   // Passed as argument: callFn(function() {})
   if (parent.type === 'CallExpression') {
-    const callParent = parent as any;
+    const callParent = parent as Rule.Node & { arguments?: Rule.Node[] };
     if (callParent.arguments && callParent.arguments.includes(node)) {
       return true;
     }

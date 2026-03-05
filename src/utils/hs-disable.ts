@@ -66,6 +66,7 @@ const RULE_TO_HS_CODES: Record<string, string[]> = {
   'no-static-member-access-with-this': ['hs-1056'],
   'no-typeof-brs-node-method': ['hs-1103'],
   'no-comparison-brs-node-method': ['hs-1104'],
+  'no-sgnode-equality-unsafe': ['hs-1114'],
   'no-recursion-in-logical-expression': ['hs-1037'],
   'no-ternary-iife-slow-path': ['hs-1112'],
   'no-nullish-coalescing-iife-slow-path': ['hs-1113'],

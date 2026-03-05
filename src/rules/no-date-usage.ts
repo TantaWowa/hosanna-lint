@@ -36,7 +36,7 @@ const rule: Rule.RuleModule = {
      * Gets the method name from a MemberExpression node.
      * Handles both non-computed (Date.now) and computed with string literal (Date['now']).
      */
-    function getMethodName(node: any): string | null {
+    function getMethodName(node: { property: { type: string; name?: string; value?: string }; computed?: boolean }): string | null {
       if (node.property.type === 'Identifier') {
         return node.property.name;
       }

@@ -166,7 +166,7 @@ function validateFontKeyFormat(value: string): { valid: boolean; error?: string 
  */
 function validateJsonReference(
   ref: string,
-  jsonObj: any,
+  jsonObj: Record<string, unknown>,
   jsonPath: string,
   key: string
 ): { valid: boolean; error?: string } {
@@ -219,7 +219,7 @@ function validateJsonReference(
  */
 function validateExtendsReference(
   extendsPath: string,
-  jsonObj: any,
+  jsonObj: Record<string, unknown>,
   jsonPath: string
 ): { valid: boolean; error?: string } {
   if (!jsonPathExists(jsonObj, extendsPath)) {
@@ -460,15 +460,15 @@ const rule: Rule.RuleModule = {
         const text = sourceCode.text;
 
         // Parse JSON
-        let jsonObj: any;
+        let jsonObj: Record<string, unknown>;
         try {
-          jsonObj = JSON.parse(text);
-        } catch (error: any) {
+          jsonObj = JSON.parse(text) as Record<string, unknown>;
+        } catch (error: unknown) {
           context.report({
             node,
             messageId: 'jsonParseError',
             data: {
-              error: error.message || String(error),
+              error: error instanceof Error ? error.message : String(error),
             },
           });
           return;

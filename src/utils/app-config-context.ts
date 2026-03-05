@@ -132,8 +132,7 @@ export function getSubTypeFromNode(node: any): string | null {
  * Path format: cells.someCell.views.base[0]
  */
 export function getSubTypeFromBaseView(
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  config: any,
+  config: Record<string, unknown> | null | undefined,
   cellKey: string,
   index: number
 ): string | null {
@@ -153,15 +152,14 @@ export function getSubTypeFromBaseView(
  * Extract subType from cell base view (for state overrides)
  */
 export function getSubTypeFromCellBaseView(
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  config: any,
+  config: Record<string, unknown> | null | undefined,
   cellKey: string,
   viewId: string
 ): string | null {
   try {
     const baseViews = config?.cells?.[cellKey]?.views?.base;
     if (Array.isArray(baseViews)) {
-      const view = baseViews.find((v: any) => v?.id === viewId);
+      const view = baseViews.find((v: unknown) => (v as { id?: string })?.id === viewId);
       return getSubTypeFromNode(view);
     }
   } catch {

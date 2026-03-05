@@ -18,7 +18,7 @@ function collectIdentifiers(node: Rule.Node | undefined, identifiers: Set<string
     return;
   }
   for (const key of ['left', 'right', 'argument', 'arguments', 'test', 'consequent', 'alternate', 'callee', 'object', 'property', 'expression'] as const) {
-    const child = (node as any)[key];
+    const child = (node as Record<string, Rule.Node | Rule.Node[] | undefined>)[key];
     if (child) {
       if (Array.isArray(child)) {
         for (const c of child) collectIdentifiers(c, identifiers);
@@ -33,7 +33,7 @@ function hasCallExpression(node: Rule.Node | undefined): boolean {
   if (!node) return false;
   if (node.type === 'CallExpression') return true;
   for (const key of ['left', 'right', 'argument', 'arguments', 'test', 'consequent', 'alternate', 'callee', 'object', 'property', 'expression'] as const) {
-    const child = (node as any)[key];
+    const child = (node as Record<string, Rule.Node | Rule.Node[] | undefined>)[key];
     if (child) {
       if (Array.isArray(child)) {
         if (child.some((c: Rule.Node) => hasCallExpression(c))) return true;

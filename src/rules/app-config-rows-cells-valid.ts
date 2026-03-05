@@ -75,7 +75,7 @@ function findKeyPosition(
 function findValuePosition(
   text: string,
   jsonPath: string,
-  value: any,
+  value: unknown,
   usedPositions: Set<string>,
   key?: string
 ): { line: number; column: number } | null {
@@ -126,7 +126,7 @@ function findValuePosition(
  * Validate property value type
  */
 function validateValueType(
-  value: any,
+  value: unknown,
   fieldDef: { type: string; enumValues?: string[]; tupleTypes?: string[]; arrayItemType?: string }
 ): { valid: boolean; error?: string } {
   const { type, enumValues, tupleTypes, arrayItemType } = fieldDef;
@@ -203,7 +203,7 @@ function validateValueType(
  */
 function validateProperty(
   key: string,
-  value: any,
+  value: unknown,
   jsonPath: string,
   context: ReturnType<typeof getContextAtPath>,
   text: string,
@@ -211,8 +211,7 @@ function validateProperty(
   usedValuePositions: Set<string>,
   ruleContext: Rule.RuleContext,
   node: Rule.Node,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  fullConfig?: any
+  fullConfig?: Record<string, unknown>
 ): void {
   let validKeys: Set<string>;
   let fieldDef: { type: string; enumValues?: string[]; tupleTypes?: string[]; arrayItemType?: string } | undefined;
@@ -369,17 +368,15 @@ function validateProperty(
 /**
  * Traverse and validate rows/cells objects
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function traverseAndValidate(
-  obj: any,
+  obj: unknown,
   currentPath: string,
   text: string,
   usedKeyPositions: Set<string>,
   usedValuePositions: Set<string>,
   ruleContext: Rule.RuleContext,
   node: Rule.Node,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  fullConfig: any
+  fullConfig: Record<string, unknown>
 ): void {
   if (obj === null || obj === undefined) {
     return;
@@ -517,17 +514,18 @@ const rule: Rule.RuleModule = {
         // Validate state override viewId references
         if (jsonObj.cells && typeof jsonObj.cells === 'object') {
           for (const [cellKey, cellValue] of Object.entries(jsonObj.cells)) {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            const cell = cellValue as any;
+            const cell = cellValue as Record<string, unknown> | null | undefined;
             if (cell?.views) {
-              const baseViews = cell.views.base;
+              const views = cell.views as Record<string, unknown>;
+              const baseViews = views.base;
               if (Array.isArray(baseViews)) {
-                const baseViewIds = new Set(baseViews.map((v: any) => v?.id).filter(Boolean));
+                const baseViewIds = new Set(
+                  baseViews.map((v: unknown) => (v as { id?: string })?.id).filter(Boolean)
+                );
                 
                 // Check state overrides
                 for (const state of ['normal', 'focused', 'disabled', 'selected']) {
-                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                  const stateOverrides = (cell.views as any)[state];
+                  const stateOverrides = views[state];
                   if (stateOverrides && typeof stateOverrides === 'object') {
                     for (const [viewId] of Object.entries(stateOverrides)) {
                       if (!baseViewIds.has(viewId)) {

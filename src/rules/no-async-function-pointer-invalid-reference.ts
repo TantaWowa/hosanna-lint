@@ -99,7 +99,7 @@ function isExportedFunctionDeclaration(node: any, context?: Rule.RuleContext): b
           }
         }
       }
-    } catch (e) {
+    } catch (_e) {
       // If we can't check, fall back to parent check result
     }
   }
@@ -112,8 +112,7 @@ function isExportedFunctionDeclaration(node: any, context?: Rule.RuleContext): b
  * Check if a value node is invalid for AsyncFunctionPointer
  * Returns true if invalid (should be reported), false if valid
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function isInvalidAsyncFunctionPointerValue(node: any, context: Rule.RuleContext): boolean {
+function isInvalidAsyncFunctionPointerValue(node: Rule.Node | null | undefined, context: Rule.RuleContext): boolean {
   if (!node) return false;
 
   // Reject arrow functions
@@ -158,7 +157,7 @@ function isInvalidAsyncFunctionPointerValue(node: any, context: Rule.RuleContext
           return false; // Valid - imported functions are allowed
         }
 
-        const defNode = def.node as any;
+        const defNode = def.node as Rule.Node & { type?: string; declaration?: Rule.Node; specifiers?: Array<{ type?: string; exported?: Rule.Node; local?: Rule.Node }> };
         if (!defNode) {
           continue;
         }
@@ -278,7 +277,7 @@ function isInvalidAsyncFunctionPointerValue(node: any, context: Rule.RuleContext
                   }
                 }
               }
-            } catch (e) {
+            } catch (_e) {
               // Fall back to helper function if AST search fails
               if (isExportedFunctionDeclaration(defNode, context)) {
                 foundValidExport = true;
