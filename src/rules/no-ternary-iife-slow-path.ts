@@ -18,7 +18,7 @@ function collectIdentifiers(node: Rule.Node | undefined, identifiers: Set<string
     return;
   }
   for (const key of ['left', 'right', 'argument', 'arguments', 'test', 'consequent', 'alternate', 'callee', 'object', 'property', 'expression'] as const) {
-    const child = (node as Record<string, Rule.Node | Rule.Node[] | undefined>)[key];
+    const child = (node as unknown as { [k: string]: Rule.Node | Rule.Node[] | undefined })[key];
     if (child) {
       if (Array.isArray(child)) {
         for (const c of child) collectIdentifiers(c, identifiers);
@@ -33,7 +33,7 @@ function hasCallExpression(node: Rule.Node | undefined): boolean {
   if (!node) return false;
   if (node.type === 'CallExpression') return true;
   for (const key of ['left', 'right', 'argument', 'arguments', 'test', 'consequent', 'alternate', 'callee', 'object', 'property', 'expression'] as const) {
-    const child = (node as Record<string, Rule.Node | Rule.Node[] | undefined>)[key];
+    const child = (node as unknown as { [k: string]: Rule.Node | Rule.Node[] | undefined })[key];
     if (child) {
       if (Array.isArray(child)) {
         if (child.some((c: Rule.Node) => hasCallExpression(c))) return true;
@@ -74,6 +74,17 @@ const rule: Rule.RuleModule = {
         const hasCalls = hasCallExpression(node.consequent as Rule.Node) || hasCallExpression(node.alternate as Rule.Node);
 
         if (consequentRefsTest || alternateRefsTest || hasCalls) {
+          // Assignment context (e.g. a = a ? 10 / a : a) enables faster if/else emission
+          const parent = (node as Rule.Node & { parent?: Rule.Node }).parent;
+          if (parent?.type === 'AssignmentExpression') {
+            const assignment = parent as Rule.Node & { left: Rule.Node; right: Rule.Node };
+            if (assignment.right === node) {
+              const targetIds = new Set<string>();
+              collectIdentifiers(assignment.left, targetIds);
+              const isAssignmentContext = [...testIds].some((id) => targetIds.has(id));
+              if (isAssignmentContext) return;
+            }
+          }
           context.report({ node, messageId: 'ternaryIifeSlowPath' });
         }
       },

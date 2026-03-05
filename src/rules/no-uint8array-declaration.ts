@@ -37,9 +37,10 @@ const rule: Rule.RuleModule = {
 
       // Check for Uint8Array in function parameter type annotations
       FunctionDeclaration: function (node) {
-        const funcNode = node as Rule.Node & { params?: Array<{ typeAnnotation?: { typeAnnotation?: Rule.Node } }> };
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const funcNode = node as any;
         if (funcNode.params) {
-          funcNode.params.forEach((param: { typeAnnotation?: { typeAnnotation?: Rule.Node } }) => {
+          funcNode.params.forEach((param: any) => {
             if (param.typeAnnotation) {
               const typeAnnotation = param.typeAnnotation.typeAnnotation;
               if (
@@ -60,9 +61,11 @@ const rule: Rule.RuleModule = {
 
       // Check for Uint8Array in arrow function parameter type annotations
       ArrowFunctionExpression: function (node) {
-        const arrowNode = node as Rule.Node & { params?: Array<{ typeAnnotation?: { typeAnnotation?: Rule.Node } }> };
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const arrowNode = node as any;
         if (arrowNode.params) {
-          arrowNode.params.forEach((param: { typeAnnotation?: { typeAnnotation?: Rule.Node } }) => {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          arrowNode.params.forEach((param: any) => {
             if (param.typeAnnotation) {
               const typeAnnotation = param.typeAnnotation.typeAnnotation;
               if (

@@ -66,4 +66,14 @@ describe('no-ternary-iife-slow-path', () => {
       invalid: [],
     });
   });
+
+  it('does NOT flag assignment context (a = a ? ... : a) - enables faster if/else emission', () => {
+    ruleTester.run('no-ternary-iife-slow-path', rule, {
+      valid: [
+        'a = a ? 10 / a : a;',
+        'x = x ? x + 1 : 0;',
+      ],
+      invalid: [],
+    });
+  });
 });

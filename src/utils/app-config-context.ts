@@ -131,11 +131,8 @@ export function getSubTypeFromNode(node: any): string | null {
  * Extract subType from views.base array item
  * Path format: cells.someCell.views.base[0]
  */
-export function getSubTypeFromBaseView(
-  config: Record<string, unknown> | null | undefined,
-  cellKey: string,
-  index: number
-): string | null {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function getSubTypeFromBaseView(config: any, cellKey: string, index: number): string | null {
   try {
     const baseViews = config?.cells?.[cellKey]?.views?.base;
     if (Array.isArray(baseViews) && baseViews[index]) {
@@ -151,15 +148,12 @@ export function getSubTypeFromBaseView(
 /**
  * Extract subType from cell base view (for state overrides)
  */
-export function getSubTypeFromCellBaseView(
-  config: Record<string, unknown> | null | undefined,
-  cellKey: string,
-  viewId: string
-): string | null {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function getSubTypeFromCellBaseView(config: any, cellKey: string, viewId: string): string | null {
   try {
     const baseViews = config?.cells?.[cellKey]?.views?.base;
     if (Array.isArray(baseViews)) {
-      const view = baseViews.find((v: unknown) => (v as { id?: string })?.id === viewId);
+      const view = baseViews.find((v: any) => v?.id === viewId);
       return getSubTypeFromNode(view);
     }
   } catch {

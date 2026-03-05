@@ -112,7 +112,8 @@ function isExportedFunctionDeclaration(node: any, context?: Rule.RuleContext): b
  * Check if a value node is invalid for AsyncFunctionPointer
  * Returns true if invalid (should be reported), false if valid
  */
-function isInvalidAsyncFunctionPointerValue(node: Rule.Node | null | undefined, context: Rule.RuleContext): boolean {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function isInvalidAsyncFunctionPointerValue(node: any, context: Rule.RuleContext): boolean {
   if (!node) return false;
 
   // Reject arrow functions

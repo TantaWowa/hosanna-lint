@@ -463,19 +463,21 @@ const rule: Rule.RuleModule = {
         let jsonObj: Record<string, unknown>;
         try {
           jsonObj = JSON.parse(text) as Record<string, unknown>;
-        } catch (error: unknown) {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        } catch (error: any) {
           context.report({
             node,
             messageId: 'jsonParseError',
             data: {
-              error: error instanceof Error ? error.message : String(error),
+              error: error.message || String(error),
             },
           });
           return;
         }
 
-        // Validate required sections
-        if (!jsonObj.rows || typeof jsonObj.rows !== 'object') {
+        // Validate required sections (use type assertion for nested access)
+        const json = jsonObj as Record<string, unknown> & { translations?: { en?: unknown }; theme?: { colors?: unknown; fonts?: unknown } };
+        if (!json.rows || typeof json.rows !== 'object') {
           context.report({
             node,
             messageId: 'missingSection',
@@ -483,20 +485,20 @@ const rule: Rule.RuleModule = {
           });
         }
 
-        if (!jsonObj.translations || typeof jsonObj.translations !== 'object') {
+        if (!json.translations || typeof json.translations !== 'object') {
           context.report({
             node,
             messageId: 'missingSection',
             data: { section: 'translations' },
           });
-        } else if (!jsonObj.translations.en) {
+        } else if (!json.translations.en) {
           context.report({
             node,
             messageId: 'missingTranslationEn',
           });
         }
 
-        if (!jsonObj.cells || typeof jsonObj.cells !== 'object') {
+        if (!json.cells || typeof json.cells !== 'object') {
           context.report({
             node,
             messageId: 'missingSection',
@@ -504,20 +506,20 @@ const rule: Rule.RuleModule = {
           });
         }
 
-        if (!jsonObj.theme || typeof jsonObj.theme !== 'object') {
+        if (!json.theme || typeof json.theme !== 'object') {
           context.report({
             node,
             messageId: 'missingSection',
             data: { section: 'theme' },
           });
         } else {
-          if (!jsonObj.theme.colors || typeof jsonObj.theme.colors !== 'object') {
+          if (!json.theme.colors || typeof json.theme.colors !== 'object') {
             context.report({
               node,
               messageId: 'missingThemeColors',
             });
           }
-          if (!jsonObj.theme.fonts || typeof jsonObj.theme.fonts !== 'object') {
+          if (!json.theme.fonts || typeof json.theme.fonts !== 'object') {
             context.report({
               node,
               messageId: 'missingThemeFonts',
@@ -525,7 +527,7 @@ const rule: Rule.RuleModule = {
           }
         }
 
-        if (!jsonObj.controls || typeof jsonObj.controls !== 'object') {
+        if (!json.controls || typeof json.controls !== 'object') {
           context.report({
             node,
             messageId: 'missingSection',
