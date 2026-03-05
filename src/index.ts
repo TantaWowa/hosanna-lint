@@ -74,6 +74,8 @@ import noTypeofBrsNodeMethod from './rules/no-typeof-brs-node-method';
 import noComparisonBrsNodeMethod from './rules/no-comparison-brs-node-method';
 import noSgnNodeMutation from './rules/no-sgn-node-mutation';
 import noRecursionInLogicalExpression from './rules/no-recursion-in-logical-expression';
+import noTernaryIifeSlowPath from './rules/no-ternary-iife-slow-path';
+import noNullishCoalescingIifeSlowPath from './rules/no-nullish-coalescing-iife-slow-path';
 
 // Tier 3: Cross-file / deep analysis rules (HIGH performance impact)
 import noCaseInsensitiveClassCollision from './rules/no-case-insensitive-class-collision';
@@ -177,6 +179,8 @@ const plugin = {
     'no-comparison-brs-node-method': w('no-comparison-brs-node-method', noComparisonBrsNodeMethod),
     'no-sgn-node-mutation': w('no-sgn-node-mutation', noSgnNodeMutation),
     'no-recursion-in-logical-expression': w('no-recursion-in-logical-expression', noRecursionInLogicalExpression),
+    'no-ternary-iife-slow-path': w('no-ternary-iife-slow-path', noTernaryIifeSlowPath),
+    'no-nullish-coalescing-iife-slow-path': w('no-nullish-coalescing-iife-slow-path', noNullishCoalescingIifeSlowPath),
 
     // Tier 3: Cross-file / deep analysis rules (HIGH performance impact)
     'no-case-insensitive-class-collision': w('no-case-insensitive-class-collision', noCaseInsensitiveClassCollision),
@@ -264,6 +268,8 @@ const plugin = {
         '@hosanna-eslint/no-comparison-brs-node-method': 'warn',
         '@hosanna-eslint/no-sgn-node-mutation': 'warn',
         '@hosanna-eslint/no-recursion-in-logical-expression': 'warn',
+        '@hosanna-eslint/no-ternary-iife-slow-path': 'warn',
+        '@hosanna-eslint/no-nullish-coalescing-iife-slow-path': 'warn',
 
         // Tier 3: Cross-file / deep analysis rules (HIGH performance impact)
         '@hosanna-eslint/no-case-insensitive-class-collision': 'error',

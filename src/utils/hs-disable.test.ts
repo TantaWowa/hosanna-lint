@@ -2,9 +2,11 @@ import { describe, it } from 'vitest';
 import { RuleTester } from 'eslint';
 import parser from '@typescript-eslint/parser';
 import noInfinityUsage from '../rules/no-infinity-usage';
+import noTernaryIifeSlowPath from '../rules/no-ternary-iife-slow-path';
 import { wrapRuleWithHsDisable } from './hs-disable';
 
 const wrappedRule = wrapRuleWithHsDisable(noInfinityUsage, 'no-infinity-usage');
+const wrappedTernaryRule = wrapRuleWithHsDisable(noTernaryIifeSlowPath, 'no-ternary-iife-slow-path');
 
 const ruleTester = new RuleTester({
   languageOptions: { ecmaVersion: 2020, sourceType: 'module', parser },
@@ -132,6 +134,28 @@ describe('hs:disable directive support', () => {
           errors: [{ messageId: 'infinityNotSupported' }],
         },
       ],
+    });
+  });
+
+  it('should suppress no-ternary-iife-slow-path with hs:disable-next-line hs-1112', () => {
+    ruleTester.run('no-ternary-iife-slow-path', wrappedTernaryRule, {
+      valid: [
+        {
+          code: `// hs:disable-next-line hs-1112\nconst x = a ? a + 1 : 0;`,
+        },
+      ],
+      invalid: [],
+    });
+  });
+
+  it('should suppress no-ternary-iife-slow-path with hs:disable-next-line no-ternary-iife-slow-path', () => {
+    ruleTester.run('no-ternary-iife-slow-path', wrappedTernaryRule, {
+      valid: [
+        {
+          code: `// hs:disable-next-line no-ternary-iife-slow-path\nconst x = a ? a + 1 : 0;`,
+        },
+      ],
+      invalid: [],
     });
   });
 });

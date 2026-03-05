@@ -67,6 +67,8 @@ const RULE_TO_HS_CODES: Record<string, string[]> = {
   'no-typeof-brs-node-method': ['hs-1103'],
   'no-comparison-brs-node-method': ['hs-1104'],
   'no-recursion-in-logical-expression': ['hs-1037'],
+  'no-ternary-iife-slow-path': ['hs-1112'],
+  'no-nullish-coalescing-iife-slow-path': ['hs-1113'],
   'no-case-insensitive-class-collision': ['hs-1020'],
   'no-duplicate-class-name': ['hs-1063'],
   'no-getter-setter-mismatch': ['hs-1057'],

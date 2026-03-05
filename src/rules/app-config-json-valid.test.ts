@@ -41,12 +41,9 @@ describe('app-config-json-valid', () => {
   let assetsDir: string;
 
   beforeEach(() => {
-    // Create temporary directory structure for testing
-    tempDir = path.join(tmpdir(), `hosanna-test-${Date.now()}`);
-    // Ensure tempDir exists first
-    fs.mkdirSync(tempDir, { recursive: true });
+    // Create temporary directory structure for testing (mkdtempSync is atomic, avoids race conditions)
+    tempDir = fs.mkdtempSync(path.join(tmpdir(), 'hosanna-test-'));
     assetsDir = path.join(tempDir, 'assets');
-    fs.mkdirSync(assetsDir, { recursive: true });
     fs.mkdirSync(path.join(assetsDir, 'images'), { recursive: true });
     fs.mkdirSync(path.join(assetsDir, 'fonts'), { recursive: true });
   });
