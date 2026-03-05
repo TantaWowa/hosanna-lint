@@ -1,5 +1,16 @@
 # Changelog
 
+## [1.23.0] - 2026-03-05
+
+### Added
+- Enhanced `no-ternary-iife-slow-path` rule with additional test cases for property references.
+- Introduced `no-sgnode-equality-unsafe` rule with tests to warn against unsafe equality checks on SGNode instances.
+- Added `no-ternary-iife-slow-path` and `no-nullish-coalescing-iife-slow-path` rules with corresponding tests.
+
+### Fixed
+- Removed unnecessary whitespace and improved type safety with explicit `any` annotations in utils.
+- Updated type assertions and error handling in various rules for improved type safety.
+
 ## [1.22.0] - 2026-03-03
 
 ### Added
@@ -215,6 +226,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
 
 
 
