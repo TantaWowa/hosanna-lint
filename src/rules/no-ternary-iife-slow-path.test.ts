@@ -76,4 +76,31 @@ describe('no-ternary-iife-slow-path', () => {
       invalid: [],
     });
   });
+
+  it('still flags this.prop when branches reference the tested property', () => {
+    ruleTester.run('no-ternary-iife-slow-path', rule, {
+      valid: [],
+      invalid: [
+        {
+          code: 'const x = this.isChecked ? this.isChecked : ViewStatus.Normal;',
+          errors: [{ messageId: 'ternaryIifeSlowPath' }],
+        },
+      ],
+    });
+  });
+
+  it('does NOT flag this.prop when branches use this.otherProp (different property)', () => {
+    ruleTester.run('no-ternary-iife-slow-path', rule, {
+      valid: [
+        `const viewStatus = this.isChecked
+          ? this.activeViewStatus === ViewStatus.Focused
+            ? ViewStatus.FocusSelected
+            : ViewStatus.Selected
+          : this.activeViewStatus === ViewStatus.Focused
+            ? ViewStatus.Focused
+            : ViewStatus.Normal;`,
+      ],
+      invalid: [],
+    });
+  });
 });

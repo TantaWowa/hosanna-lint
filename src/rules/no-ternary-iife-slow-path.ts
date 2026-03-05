@@ -69,8 +69,17 @@ const rule: Rule.RuleModule = {
         const alternateIds = new Set<string>();
         collectIdentifiers(node.alternate as Rule.Node, alternateIds);
 
-        const consequentRefsTest = [...consequentIds].some((id) => testIds.has(id));
-        const alternateRefsTest = [...alternateIds].some((id) => testIds.has(id));
+        // When test is this.prop, exclude 'this' from overlap - branches using this.otherProp
+        // don't reference the tested value (this.prop), so no IIFE slow path is needed.
+        const testIdsForOverlap =
+          node.test.type === 'MemberExpression' &&
+          node.test.object.type === 'Identifier' &&
+          node.test.object.name === 'this'
+            ? new Set([...testIds].filter((id) => id !== 'this'))
+            : testIds;
+
+        const consequentRefsTest = [...consequentIds].some((id) => testIdsForOverlap.has(id));
+        const alternateRefsTest = [...alternateIds].some((id) => testIdsForOverlap.has(id));
         const hasCalls = hasCallExpression(node.consequent as Rule.Node) || hasCallExpression(node.alternate as Rule.Node);
 
         if (consequentRefsTest || alternateRefsTest || hasCalls) {
