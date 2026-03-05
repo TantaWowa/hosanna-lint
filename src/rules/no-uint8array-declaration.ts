@@ -40,6 +40,7 @@ const rule: Rule.RuleModule = {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const funcNode = node as any;
         if (funcNode.params) {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           funcNode.params.forEach((param: any) => {
             if (param.typeAnnotation) {
               const typeAnnotation = param.typeAnnotation.typeAnnotation;

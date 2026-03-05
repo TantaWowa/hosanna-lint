@@ -29,21 +29,21 @@ export function getContextAtPath(jsonPath: string): AppConfigContext {
     if (parts.length === 1) {
       return { type: 'rows' };
     }
-    
+
     const rowKey = parts[1];
-    
+
     if (parts.length === 2) {
       return { type: 'rows', rowKey };
     }
-    
+
     if (parts[2] === 'focusSettings') {
       return { type: 'row.focusSettings', rowKey };
     }
-    
+
     if (parts[2] === 'headerSettings') {
       return { type: 'row.headerSettings', rowKey };
     }
-    
+
     // Still in rows context, deeper nesting
     return { type: 'rows', rowKey };
   }
@@ -53,24 +53,24 @@ export function getContextAtPath(jsonPath: string): AppConfigContext {
     if (parts.length === 1) {
       return { type: 'cells' };
     }
-    
+
     const cellKey = parts[1];
-    
+
     if (parts.length === 2) {
       return { type: 'cells', cellKey };
     }
-    
+
     if (parts[2] === 'views') {
       if (parts.length === 3) {
         return { type: 'cell.views', cellKey };
       }
-      
+
       if (parts[3] === 'base') {
         // Could be cells.someCell.views.base or cells.someCell.views.base[0]
         const baseIndex = parts[4] ? parseInt(parts[4].replace(/\[|\]/g, ''), 10) : undefined;
         return { type: 'cell.views.base', cellKey, index: isNaN(baseIndex as number) ? undefined : baseIndex };
       }
-      
+
       // Check for state overrides: cells.someCell.views.normal.viewId
       if (parts[3] === 'normal' || parts[3] === 'focused' || parts[3] === 'disabled' || parts[3] === 'selected') {
         const state = parts[3] as 'normal' | 'focused' | 'disabled' | 'selected';
@@ -78,7 +78,7 @@ export function getContextAtPath(jsonPath: string): AppConfigContext {
         return { type: 'cell.stateOverride', cellKey, state, viewId };
       }
     }
-    
+
     // Still in cells context, deeper nesting
     return { type: 'cells', cellKey };
   }
@@ -119,11 +119,11 @@ export function getSubTypeFromNode(node: any): string | null {
   if (!node || typeof node !== 'object') {
     return null;
   }
-  
+
   if (typeof node.subType === 'string') {
     return node.subType;
   }
-  
+
   return null;
 }
 
@@ -141,7 +141,7 @@ export function getSubTypeFromBaseView(config: any, cellKey: string, index: numb
   } catch {
     // Ignore errors
   }
-  
+
   return null;
 }
 
@@ -153,13 +153,14 @@ export function getSubTypeFromCellBaseView(config: any, cellKey: string, viewId:
   try {
     const baseViews = config?.cells?.[cellKey]?.views?.base;
     if (Array.isArray(baseViews)) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const view = baseViews.find((v: any) => v?.id === viewId);
       return getSubTypeFromNode(view);
     }
   } catch {
     // Ignore errors
   }
-  
+
   return null;
 }
 
