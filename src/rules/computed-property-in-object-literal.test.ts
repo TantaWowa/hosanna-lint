@@ -2,6 +2,9 @@ import { describe, it } from 'vitest';
 import { RuleTester } from 'eslint';
 import parser from '@typescript-eslint/parser';
 import rule from './computed-property-in-object-literal';
+import { wrapRuleWithHsDisable } from '../utils/hs-disable';
+
+const wrappedRule = wrapRuleWithHsDisable(rule, 'computed-property-in-object-literal');
 
 const ruleTester = new RuleTester({
   languageOptions: {
@@ -47,7 +50,7 @@ describe('computed-property-in-object-literal', () => {
     });
   });
 
-  it('should report errors for invalid computed properties (variables and expressions)', () => {
+  it('should report warnings for computed properties that emit slower code (variables and expressions)', () => {
     ruleTester.run('computed-property-in-object-literal', rule, {
       valid: [],
       invalid: [
@@ -123,5 +126,36 @@ describe('computed-property-in-object-literal', () => {
         },
       ],
     });
+  });
+
+  it('should use message matching transpiler diagnostic (HS-1031)', () => {
+    ruleTester.run('computed-property-in-object-literal', rule, {
+      valid: [],
+      invalid: [
+        {
+          code: "const obj = { [dynamicKey]: 'value' };",
+          errors: [
+            {
+              messageId: 'computedPropertyInObjectLiteral',
+              message: /emit slower code on Roku/,
+            },
+          ],
+        },
+      ],
+    });
+  });
+
+  it('should be suppressed by //hs: disable-next-line', () => {
+    ruleTester.run('computed-property-in-object-literal', wrappedRule, {
+      valid: [
+        "// hs: disable-next-line computed-property-in-object-literal\nconst obj = { [variable]: 'value' };",
+        "// hs: disable-next-line hs-1031\nconst obj = { [variable]: 'value' };",
+      ],
+      invalid: [],
+    });
+  });
+
+  it('should have rule meta.type suggestion (warning-style)', () => {
+    expect(rule.meta?.type).toBe('suggestion');
   });
 });

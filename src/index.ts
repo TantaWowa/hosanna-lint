@@ -202,7 +202,7 @@ const plugin = {
         '@hosanna-eslint/no-await-expression': 'error',
         '@hosanna-eslint/no-nested-functions': 'error',
         '@hosanna-eslint/no-inline-classes': 'error',
-        '@hosanna-eslint/computed-property-in-object-literal': 'error',
+        '@hosanna-eslint/computed-property-in-object-literal': 'warn',
         '@hosanna-eslint/no-date-usage': 'error',
         '@hosanna-eslint/no-reserved-words': 'error',
         '@hosanna-eslint/no-unsupported-array-methods': 'error',

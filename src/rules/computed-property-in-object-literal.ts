@@ -2,16 +2,15 @@ import { Rule } from 'eslint';
 
 const rule: Rule.RuleModule = {
   meta: {
-    type: 'problem',
+    type: 'suggestion',
     docs: {
-      description: 'Restrict computed property keys in object literals to enums and literals only',
+      description: 'Computed property keys in object literals emit slower code on Roku than literal keys',
       category: 'Best Practices',
       recommended: true,
     },
-    fixable: 'code',
     schema: [],
     messages: {
-      computedPropertyInObjectLiteral: 'Computed property keys in object literals are only supported for enums and literals. Code like: `const b = MyEnum.Value; const a = { [b]: \'c\' }` should be refactored to `const a = {} a[b] = \'c\'`. Code like `const a = { [MyEnum.Value]: \'c\' }` is supported',
+      computedPropertyInObjectLiteral: 'Computed property keys in object literals emit slower code on Roku than literal keys. For better performance, prefer literal keys or enum values when possible. Use //hs: disable-next-line to suppress.',
     },
   },
   create: function (context) {
