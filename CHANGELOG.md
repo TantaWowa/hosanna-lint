@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.24.0] - 2026-03-09
+
+### Changed
+- Refactored `computed-property-in-object-literal` rule to emit warnings instead of errors, with updated tests.
+
 ## [1.23.0] - 2026-03-05
 
 ### Added
@@ -226,6 +231,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
 
 
 
