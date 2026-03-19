@@ -23,6 +23,8 @@ import noIifeUsage from './rules/no-iife-usage';
 import noTsModuleDeclarations from './rules/no-ts-module-declarations';
 import noFunctionReferenceOutsideModule from './rules/no-function-reference-outside-module';
 import noClosureVariableModification from './rules/no-closure-variable-modification';
+import noClosureCapturesVariableBeforeAssignment from './rules/no-closure-captures-variable-before-assignment';
+import noNativeFunctionClosureOrVariadicInvocation from './rules/no-native-function-closure-or-variadic-invocation';
 import noExportAliasing from './rules/no-export-aliasing';
 import noUnaryOnIllegalType from './rules/no-unary-on-illegal-type';
 import noUnionExpressionInNonStatement from './rules/no-union-expression-in-non-statement';
@@ -129,6 +131,8 @@ const plugin = {
     'no-ts-module-declarations': w('no-ts-module-declarations', noTsModuleDeclarations),
     'no-function-reference-outside-module': w('no-function-reference-outside-module', noFunctionReferenceOutsideModule),
     'no-closure-variable-modification': w('no-closure-variable-modification', noClosureVariableModification),
+    'no-closure-captures-variable-before-assignment': w('no-closure-captures-variable-before-assignment', noClosureCapturesVariableBeforeAssignment),
+    'no-native-function-closure-or-variadic-invocation': w('no-native-function-closure-or-variadic-invocation', noNativeFunctionClosureOrVariadicInvocation),
     'no-export-aliasing': w('no-export-aliasing', noExportAliasing),
     'no-unary-on-illegal-type': w('no-unary-on-illegal-type', noUnaryOnIllegalType),
     'no-union-expression-in-non-statement': w('no-union-expression-in-non-statement', noUnionExpressionInNonStatement),
@@ -219,6 +223,8 @@ const plugin = {
         '@hosanna-eslint/no-ts-module-declarations': 'error',
         '@hosanna-eslint/no-function-reference-outside-module': 'error',
         '@hosanna-eslint/no-closure-variable-modification': 'error',
+        '@hosanna-eslint/no-closure-captures-variable-before-assignment': 'error',
+        '@hosanna-eslint/no-native-function-closure-or-variadic-invocation': 'warn',
         '@hosanna-eslint/no-export-aliasing': 'error',
         '@hosanna-eslint/no-unary-on-illegal-type': 'error',
         '@hosanna-eslint/no-union-expression-in-non-statement': 'error',

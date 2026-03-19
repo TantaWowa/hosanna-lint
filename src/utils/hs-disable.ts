@@ -27,6 +27,8 @@ const RULE_TO_HS_CODES: Record<string, string[]> = {
   'no-ts-module-declarations': ['hs-1018', 'hs-1017'],
   'no-function-reference-outside-module': ['hs-1025'],
   'no-closure-variable-modification': ['hs-1023'],
+  'no-closure-captures-variable-before-assignment': ['hs-1116'],
+  'no-native-function-closure-or-variadic-invocation': ['hs-1115'],
   'no-export-aliasing': ['hs-1012'],
   'no-unary-on-illegal-type': ['hs-1070'],
   'no-union-expression-in-non-statement': ['hs-1013'],
