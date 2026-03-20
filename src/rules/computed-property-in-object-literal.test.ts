@@ -117,6 +117,14 @@ describe('computed-property-in-object-literal', () => {
           ],
         },
         {
+          code: "const obj = { [newPanel.id]: { opacity: 1 } };",
+          errors: [
+            {
+              messageId: 'computedPropertyInObjectLiteral',
+            },
+          ],
+        },
+        {
           code: "const b = MyEnum.Value; const a = { [b]: 'c' };",
           errors: [
             {

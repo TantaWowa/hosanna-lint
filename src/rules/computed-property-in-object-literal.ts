@@ -27,10 +27,12 @@ const rule: Rule.RuleModule = {
           }
 
           // Allow member expressions that look like enum references (e.g., MyEnum.Value)
+          // Enums are conventionally PascalCase; variable.property (e.g. newPanel.id) emits slower code
           if (keyExpr.type === 'MemberExpression' &&
               keyExpr.object.type === 'Identifier' &&
-              keyExpr.property.type === 'Identifier') {
-            // This could be an enum reference like MyEnum.Value - allow it
+              keyExpr.property.type === 'Identifier' &&
+              /^[A-Z]/.test((keyExpr.object as { name: string }).name)) {
+            // PascalCase object suggests enum reference - allow it
             return;
           }
 

@@ -13,6 +13,10 @@ describe('no-ternary-iife-slow-path', () => {
       valid: [],
       invalid: [
         {
+          code: "result.message = typeof parsed.message === 'string' ? parsed.message : '';",
+          errors: [{ messageId: 'ternaryIifeSlowPath' }],
+        },
+        {
           code: 'const x = s.logoImage ? path + s.logoImage : "";',
           errors: [{ messageId: 'ternaryIifeSlowPath' }],
         },
