@@ -1,19 +1,11 @@
 import { Rule, Scope } from 'eslint';
+import {
+  SUPPORTED_STRING_INSTANCE_METHODS,
+  SUPPORTED_STRING_STATIC_METHODS,
+} from '@tantawowa/hosanna-supported-apis';
 
-const UNSUPPORTED_STRING_STATIC_METHODS = new Set([
-  'fromCharCode',
-  'fromCodePoint',
-  'raw',
-]);
-
-const SUPPORTED_STRING_INSTANCE_METHODS = new Set([
-  'toUpperCase', 'toLowerCase', 'toLocaleLowerCase', 'toLocaleUpperCase',
-  'charAt', 'charCodeAt', 'indexOf', 'split', 'trim', 'startsWith',
-  'endsWith', 'padStart', 'padEnd', 'repeat', 'includes', 'lastIndexOf',
-  'trimStart', 'trimEnd', 'substring', 'slice', 'concat', 'match',
-  'matchAll', 'replace', 'replaceAll', 'toString', 'substr', 'length',
-  'at', 'search', 'valueOf',
-]);
+const SUPPORTED_STRING_STATIC = new Set<string>(SUPPORTED_STRING_STATIC_METHODS);
+const SUPPORTED_STRING_INSTANCE = new Set<string>(SUPPORTED_STRING_INSTANCE_METHODS);
 
 const rule: Rule.RuleModule = {
   meta: {
@@ -45,7 +37,7 @@ const rule: Rule.RuleModule = {
           node.callee.object.type === 'Identifier' &&
           node.callee.object.name === 'String'
         ) {
-          if (UNSUPPORTED_STRING_STATIC_METHODS.has(methodName)) {
+          if (!SUPPORTED_STRING_STATIC.has(methodName)) {
             context.report({
               node: node.callee.property,
               messageId: 'unsupportedStringMethod',
@@ -55,7 +47,7 @@ const rule: Rule.RuleModule = {
           return;
         }
 
-        if (!SUPPORTED_STRING_INSTANCE_METHODS.has(methodName)) {
+        if (!SUPPORTED_STRING_INSTANCE.has(methodName)) {
           if (isLikelyString(node.callee.object, context)) {
             context.report({
               node: node.callee.property,

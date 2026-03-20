@@ -1,9 +1,7 @@
 import { Rule } from 'eslint';
+import { SUPPORTED_OBJECT_STATIC_METHODS } from '@tantawowa/hosanna-supported-apis';
 
-const SUPPORTED_OBJECT_STATIC_METHODS = new Set([
-  'keys', 'values', 'entries', 'assign',
-  'defineProperty', 'defineProperties', 'getOwnPropertyNames',
-]);
+const SUPPORTED_OBJECT_STATIC = new Set<string>(SUPPORTED_OBJECT_STATIC_METHODS);
 
 const rule: Rule.RuleModule = {
   meta: {
@@ -27,7 +25,7 @@ const rule: Rule.RuleModule = {
           node.callee.object.type === 'Identifier' &&
           node.callee.object.name === 'Object' &&
           node.callee.property.type === 'Identifier' &&
-          !SUPPORTED_OBJECT_STATIC_METHODS.has(node.callee.property.name)
+          !SUPPORTED_OBJECT_STATIC.has(node.callee.property.name)
         ) {
           context.report({
             node: node.callee.property,

@@ -1,16 +1,11 @@
 import { Rule, Scope } from 'eslint';
+import {
+  SUPPORTED_ARRAY_INSTANCE_METHODS,
+  SUPPORTED_ARRAY_STATIC_METHODS,
+} from '@tantawowa/hosanna-supported-apis';
 
-const SUPPORTED_ARRAY_STATIC_METHODS = new Set([
-  'isArray', 'from', 'of',
-]);
-
-const SUPPORTED_ARRAY_INSTANCE_METHODS = new Set([
-  'map', 'filter', 'entries', 'reduce', 'forEach', 'slice', 'splice',
-  'concat', 'find', 'findIndex', 'findLast', 'findLastIndex',
-  'includes', 'indexOf', 'lastIndexOf', 'join', 'push', 'pop',
-  'shift', 'unshift', 'every', 'some', 'flat', 'flatMap',
-  'reverse', 'sort', 'keys', 'values', 'length', 'toString',
-]);
+const SUPPORTED_ARRAY_STATIC = new Set<string>(SUPPORTED_ARRAY_STATIC_METHODS);
+const SUPPORTED_ARRAY_INSTANCE = new Set<string>(SUPPORTED_ARRAY_INSTANCE_METHODS);
 
 const rule: Rule.RuleModule = {
   meta: {
@@ -41,7 +36,7 @@ const rule: Rule.RuleModule = {
         if (
           node.callee.object.type === 'Identifier' &&
           node.callee.object.name === 'Array' &&
-          !SUPPORTED_ARRAY_STATIC_METHODS.has(methodName)
+          !SUPPORTED_ARRAY_STATIC.has(methodName)
         ) {
           context.report({
             node: node.callee.property,
@@ -51,7 +46,7 @@ const rule: Rule.RuleModule = {
           return;
         }
 
-        if (!SUPPORTED_ARRAY_INSTANCE_METHODS.has(methodName)) {
+        if (!SUPPORTED_ARRAY_INSTANCE.has(methodName)) {
           if (isLikelyArray(node.callee.object, context)) {
             context.report({
               node: node.callee.property,

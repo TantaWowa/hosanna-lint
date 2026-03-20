@@ -15,7 +15,7 @@ Today those lists live **separately** in each project. The **compiler** uses ful
 
 The **linter** implements overlapping rules (e.g. `@hosanna-eslint/no-unsupported-string-methods` with messages labeled HS-1048/1109) but often uses **heuristic** “is this probably a string/array?” checks (`isLikelyString` / `isLikelyArray` on identifiers and simple initializers). So **ESLint can stay green while the compiler still errors**—for example `someExpr.localeCompare(...)` when `someExpr` is typed as `string` but is not a “likely string” AST pattern.
 
-**Goal:** Reduce drift and maintenance cost by making **hosanna-lint the canonical home for API support metadata** (supported/unsupported method names per category, and any related tables the compiler needs). The **compiler should import that metadata** (via a published package, workspace package, or path alias—whatever fits the repo layout) so **one edit updates both** lint rules and compiler diagnostics.
+**Goal:** Reduce drift and maintenance cost by centralizing API support metadata in **`@tantawowa/hosanna-supported-apis`** on npm. Both **hosanna-lint** and **hosanna-compiler** depend on that package so **one publish updates both** lint rules and compiler diagnostics.
 
 ## Requirements
 
@@ -23,14 +23,14 @@ The **linter** implements overlapping rules (e.g. `@hosanna-eslint/no-unsupporte
 
 2. **Identify** in `hosanna-lint` the corresponding ESLint rules (e.g. `src/rules/no-unsupported-string-methods.ts`, `no-unsupported-array-methods.ts`, `no-unsupported-promise-methods.ts`, `no-unsupported-object-methods.ts`) and the **HS code mapping** in `src/utils/hs-disable.ts`.
 
-3. **Extract** the canonical data into **shared modules inside `hosanna-lint`** (e.g. `src/metadata/` or `packages/hosanna-supported-apis/`):
+3. **Maintain** the canonical data in **`@tantawowa/hosanna-supported-apis`** (source may live in the compiler repo or a separate repo; publish to npm for consumers).
    - Export plain data structures: `Set`s, readonly arrays, or frozen objects—whatever both TS projects can consume without pulling in ESLint.
    - Include **comments or docstrings** that reference HS diagnostic codes where helpful.
    - Keep names stable and obvious (`SUPPORTED_STRING_INSTANCE_METHODS`, etc.).
 
-4. **Wire `hosanna-lint` rules** to import from that metadata (replace inlined `Set` literals).
+4. **`hosanna-lint` rules** import from `@tantawowa/hosanna-supported-apis` (replace any inlined duplicates).
 
-5. **Wire `hosanna-compiler`** to depend on the same metadata (workspace dependency, npm package, or relative import from the lint package’s **built** or **source** output—choose the approach that matches the monorepo’s build graph). Compiler checks should **derive** allow/deny logic from the shared module, not duplicate lists.
+5. **`hosanna-compiler`** depends on the same npm package. Compiler checks should **derive** allow/deny logic from the shared module, not duplicate lists.
 
 6. **Verification**
    - Run existing tests in both projects.

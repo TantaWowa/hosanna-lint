@@ -43,14 +43,17 @@ describe('no-unsupported-string-methods', () => {
     });
   });
 
+  it('should allow transpiler-supported String static methods (HS-1048)', () => {
+    ruleTester.run('no-unsupported-string-methods', rule, {
+      valid: ['String.fromCharCode(65);'],
+      invalid: [],
+    });
+  });
+
   it('should report unsupported String static methods (HS-1048)', () => {
     ruleTester.run('no-unsupported-string-methods', rule, {
       valid: [],
       invalid: [
-        {
-          code: 'String.fromCharCode(65);',
-          errors: [{ messageId: 'unsupportedStringMethod', data: { method: 'fromCharCode' } }],
-        },
         {
           code: 'String.fromCodePoint(65);',
           errors: [{ messageId: 'unsupportedStringMethod', data: { method: 'fromCodePoint' } }],

@@ -1,8 +1,7 @@
 import { Rule } from 'eslint';
+import { SUPPORTED_COMPOUND_ASSIGNMENT_OPERATORS } from '@tantawowa/hosanna-supported-apis';
 
-const SUPPORTED_ASSIGNMENT_OPERATORS = new Set([
-  '=', '+=', '-=', '*=', '/=',
-]);
+const SUPPORTED_ASSIGNMENT_OPERATORS = new Set<string>(SUPPORTED_COMPOUND_ASSIGNMENT_OPERATORS);
 
 const rule: Rule.RuleModule = {
   meta: {

@@ -1,27 +1,11 @@
 import { Rule } from 'eslint';
+import {
+  HSPROMISE_SUPPORTED_INSTANCE_METHODS as HSPROMISE_INSTANCE_NAMES,
+  HSPROMISE_SUPPORTED_STATIC_METHODS as HSPROMISE_STATIC_NAMES,
+} from '@tantawowa/hosanna-supported-apis';
 
-/**
- * Promise static methods supported by HsPromise polyfill.
- * Any method not in this set is unsupported and will fail at runtime.
- */
-const HSPROMISE_SUPPORTED_STATIC_METHODS = new Set([
-  'resolve',
-  'reject',
-  'all',
-  'race',
-  'allSettled',
-  'any',
-]);
-
-/**
- * Promise instance methods supported by HsPromise.
- * Any instance method not in this set is unsupported.
- */
-const HSPROMISE_SUPPORTED_INSTANCE_METHODS = new Set([
-  'then',
-  'catch',
-  'finally',
-]);
+const HSPROMISE_SUPPORTED_STATIC_METHODS = new Set<string>(HSPROMISE_STATIC_NAMES);
+const HSPROMISE_SUPPORTED_INSTANCE_METHODS = new Set<string>(HSPROMISE_INSTANCE_NAMES);
 
 const rule: Rule.RuleModule = {
   meta: {

@@ -1,9 +1,7 @@
 import { Rule } from 'eslint';
+import { SUPPORTED_NUMBER_STATIC_METHODS } from '@tantawowa/hosanna-supported-apis';
 
-const SUPPORTED_NUMBER_STATIC_METHODS = new Set([
-  'isFinite', 'isInteger', 'isNaN', 'isSafeInteger',
-  'parseFloat', 'parseInt', 'toString',
-]);
+const SUPPORTED_NUMBER_STATIC = new Set<string>(SUPPORTED_NUMBER_STATIC_METHODS);
 
 const rule: Rule.RuleModule = {
   meta: {
@@ -27,7 +25,7 @@ const rule: Rule.RuleModule = {
           node.callee.object.type === 'Identifier' &&
           node.callee.object.name === 'Number' &&
           node.callee.property.type === 'Identifier' &&
-          !SUPPORTED_NUMBER_STATIC_METHODS.has(node.callee.property.name)
+          !SUPPORTED_NUMBER_STATIC.has(node.callee.property.name)
         ) {
           context.report({
             node: node.callee.property,

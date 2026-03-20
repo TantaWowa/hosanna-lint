@@ -1,6 +1,7 @@
 import { Rule } from 'eslint';
+import { SUPPORTED_JSON_METHODS } from '@tantawowa/hosanna-supported-apis';
 
-const SUPPORTED_JSON_METHODS = new Set(['parse', 'stringify']);
+const SUPPORTED_JSON = new Set<string>(SUPPORTED_JSON_METHODS);
 
 const rule: Rule.RuleModule = {
   meta: {
@@ -24,7 +25,7 @@ const rule: Rule.RuleModule = {
           node.callee.object.type === 'Identifier' &&
           node.callee.object.name === 'JSON' &&
           node.callee.property.type === 'Identifier' &&
-          !SUPPORTED_JSON_METHODS.has(node.callee.property.name)
+          !SUPPORTED_JSON.has(node.callee.property.name)
         ) {
           context.report({
             node: node.callee.property,

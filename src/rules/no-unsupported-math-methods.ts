@@ -1,16 +1,8 @@
 import { Rule } from 'eslint';
+import { SUPPORTED_MATH_METHODS, SUPPORTED_MATH_PROPERTIES } from '@tantawowa/hosanna-supported-apis';
 
-const SUPPORTED_MATH_METHODS = new Set([
-  'abs', 'atan', 'sin', 'cos', 'tan', 'exp', 'sqrt', 'log', 'random', 'sign',
-  'min', 'max', 'pow', 'round', 'ceil', 'floor',
-  'asin', 'acos', 'atan2', 'cbrt', 'trunc', 'fround', 'imul',
-  'hypot', 'log10', 'log2', 'expm1', 'log1p', 'clz32',
-  'sinh', 'cosh', 'tanh', 'asinh', 'acosh', 'atanh',
-]);
-
-const SUPPORTED_MATH_PROPERTIES = new Set([
-  'PI', 'E', 'LN2', 'LN10', 'LOG2E', 'LOG10E', 'SQRT2', 'SQRT1_2',
-]);
+const SUPPORTED_MATH_METHOD_SET = new Set<string>(SUPPORTED_MATH_METHODS);
+const SUPPORTED_MATH_PROPERTY_SET = new Set<string>(SUPPORTED_MATH_PROPERTIES);
 
 const rule: Rule.RuleModule = {
   meta: {
@@ -34,7 +26,7 @@ const rule: Rule.RuleModule = {
           node.callee.object.type === 'Identifier' &&
           node.callee.object.name === 'Math' &&
           node.callee.property.type === 'Identifier' &&
-          !SUPPORTED_MATH_METHODS.has(node.callee.property.name)
+          !SUPPORTED_MATH_METHOD_SET.has(node.callee.property.name)
         ) {
           context.report({
             node: node.callee.property,
@@ -48,8 +40,8 @@ const rule: Rule.RuleModule = {
           node.object.type === 'Identifier' &&
           node.object.name === 'Math' &&
           node.property.type === 'Identifier' &&
-          !SUPPORTED_MATH_METHODS.has(node.property.name) &&
-          !SUPPORTED_MATH_PROPERTIES.has(node.property.name) &&
+          !SUPPORTED_MATH_METHOD_SET.has(node.property.name) &&
+          !SUPPORTED_MATH_PROPERTY_SET.has(node.property.name) &&
           node.parent?.type !== 'CallExpression'
         ) {
           context.report({

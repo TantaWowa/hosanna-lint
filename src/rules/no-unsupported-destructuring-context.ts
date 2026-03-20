@@ -1,11 +1,7 @@
 import { Rule } from 'eslint';
+import { SUPPORTED_DESTRUCTURING_PARENT_TYPES } from '@tantawowa/hosanna-supported-apis';
 
-const SUPPORTED_PARENT_TYPES = new Set([
-  'VariableDeclarator',
-  'FunctionDeclaration',
-  'FunctionExpression',
-  'ArrowFunctionExpression',
-]);
+const SUPPORTED_PARENT_TYPES = new Set<string>(SUPPORTED_DESTRUCTURING_PARENT_TYPES);
 
 const rule: Rule.RuleModule = {
   meta: {

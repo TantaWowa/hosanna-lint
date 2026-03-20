@@ -1,7 +1,7 @@
 import { Rule } from 'eslint';
+import { UNSUPPORTED_REGEX_FLAGS } from '@tantawowa/hosanna-supported-apis';
 
-// Regex flags that are not supported in Hosanna/BrightScript
-const UNSUPPORTED_FLAGS = new Set(['u', 'y']);
+const UNSUPPORTED_FLAGS = new Set<string>(UNSUPPORTED_REGEX_FLAGS);
 
 /**
  * Extract flags string from a node
