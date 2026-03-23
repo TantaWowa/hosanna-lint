@@ -4,15 +4,52 @@ import * as ts from 'typescript';
 /**
  * HS-1042/1043/1044: The transpiler flags these only in specific ambiguous
  * scenarios. We only flag when the type checker provides clear evidence of
- * a mismatch (e.g. string literal key on a confirmed array type, or a
- * non-numeric string literal on an array). We skip anything ambiguous
- * to avoid false positives.
+ * a mismatch (e.g. string literal key on a confirmed array type), or when
+ * the receiver is explicitly `as any` / `as unknown` with a non-literal key (HS-1044).
  */
+function unwrapToInnerExpression(node: Rule.Node): Rule.Node {
+  let n: Rule.Node | undefined = node;
+  // Use loose casts: Rule.Node includes ESTree nodes where `expression` is not always a Node (e.g. ArrowFunctionExpression).
+  while (n && (n as { type?: string }).type === 'ParenthesizedExpression') {
+    n = (n as { expression?: Rule.Node }).expression;
+  }
+  while (n && (n as { type?: string }).type === 'TSNonNullExpression') {
+    n = (n as { expression?: Rule.Node }).expression;
+  }
+  return n ?? node;
+}
+
+/** True if peeling TSAsExpression / TSSatisfiesExpression hits any or unknown. */
+function isEffectivelyAnyOrUnknownCast(expr: Rule.Node | null | undefined): boolean {
+  let n: Rule.Node | null | undefined = expr ?? undefined;
+  while (n) {
+    const t = (n as { type?: string }).type;
+    if (t === 'TSAsExpression' || t === 'TSSatisfiesExpression') {
+      const ann = (n as { typeAnnotation?: { type?: string } }).typeAnnotation;
+      if (ann?.type === 'TSAnyKeyword' || ann?.type === 'TSUnknownKeyword') {
+        return true;
+      }
+      n = (n as { expression?: Rule.Node }).expression;
+      continue;
+    }
+    break;
+  }
+  return false;
+}
+
+function isStringOrNumberLiteralProperty(prop: Rule.Node & { type?: string; value?: unknown }): boolean {
+  if (prop.type === 'Literal') {
+    return typeof prop.value === 'string' || typeof prop.value === 'number';
+  }
+  return false;
+}
+
 const rule: Rule.RuleModule = {
   meta: {
     type: 'suggestion',
     docs: {
-      description: 'HS-1042: Warn about accessing arrays with non-numeric string literal keys.',
+      description:
+        'HS-1042/HS-1044: Warn about ambiguous array/computed access (non-numeric string on arrays; any/unknown casts with dynamic keys).',
       category: 'Best Practices',
       recommended: true,
     },
@@ -20,6 +57,8 @@ const rule: Rule.RuleModule = {
     messages: {
       arrayWithNonNumericStringLiteral:
         'HS-1042_1: Cannot access array with non-numeric string literal "{{key}}". Arrays must be accessed with numeric indices.',
+      ambiguousAnyUnknownAccess:
+        'HS-1044: SubOptimalArrayAccesss_AmbiguousAccess: Ambiguous member access; using hs_safeKey for runtime key resolution. Specify types for better performance.',
     },
   },
   create: function (context) {
@@ -32,12 +71,28 @@ const rule: Rule.RuleModule = {
 
     return {
       MemberExpression: function (node) {
-        if (!hasTypeInfo || !node.computed) return;
+        if (!node.computed) return;
 
-        // Only flag the most clear-cut case: string literal key on an array
-        if (node.property.type !== 'Literal' || typeof node.property.value !== 'string') return;
+        const innerObject = unwrapToInnerExpression(node.object as Rule.Node);
 
-        const stringKey = node.property.value;
+        // HS-1044: (x as any|unknown)[non-literal] — AST-only, matches transpiler ambiguity
+        if (!isStringOrNumberLiteralProperty(node.property as Rule.Node & { type?: string; value?: unknown })) {
+          if (isEffectivelyAnyOrUnknownCast(innerObject)) {
+            context.report({
+              node,
+              messageId: 'ambiguousAnyUnknownAccess',
+            });
+          }
+        }
+
+        if (!hasTypeInfo) return;
+
+        // HS-1042_1: string literal key on array/tuple
+        if (node.property.type !== 'Literal' || typeof (node.property as { value?: unknown }).value !== 'string') {
+          return;
+        }
+
+        const stringKey = (node.property as { value: string }).value;
         if (!isNaN(Number(stringKey))) return;
 
         try {

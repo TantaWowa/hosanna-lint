@@ -26,4 +26,16 @@ describe('no-unsupported-delete-operator', () => {
       ],
     });
   });
+
+  it('reports HS-1001 for dot-delete with non-identifier property', () => {
+    ruleTester.run('no-unsupported-delete-operator', rule, {
+      valid: [],
+      invalid: [
+        {
+          code: 'delete (obj as any).#priv;',
+          errors: [{ messageId: 'unexpectedDeleteProperty' }],
+        },
+      ],
+    });
+  });
 });

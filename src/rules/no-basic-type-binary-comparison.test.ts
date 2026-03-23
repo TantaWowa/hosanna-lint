@@ -64,10 +64,50 @@ describe('no-basic-type-binary-comparison', () => {
     });
   });
 
-  it('does NOT flag comparing two objects (transpiler uses _hid)', () => {
+  it('does NOT flag comparing two objects when IHsIdentifiable is not in the program (false negative ok)', () => {
     typeAwareRuleTester.run('no-basic-type-binary-comparison', rule, {
       valid: [
         'const a: {id: string} = {id: "a"}; const b: {id: string} = {id: "b"}; a === b;',
+      ],
+      invalid: [],
+    });
+  });
+
+  it('flags === on two object types when IHsIdentifiable exists and neither side is assignable (HS-1019)', () => {
+    typeAwareRuleTester.run('no-basic-type-binary-comparison', rule, {
+      valid: [
+        `
+        interface IHsIdentifiable { _hid: string }
+        interface Box extends IHsIdentifiable {}
+        declare const x: Box;
+        declare const y: Box;
+        x === y;
+        `,
+      ],
+      invalid: [
+        {
+          code: `
+        interface IHsIdentifiable { _hid: string }
+        interface Plain { n: number }
+        declare const a: Plain;
+        declare const b: Plain;
+        a === b;
+        `,
+          errors: [{ messageId: 'objectEqualityHsEqualFallback' }],
+        },
+      ],
+    });
+  });
+
+  it('does NOT flag two BRS/SG node types (HS-1114 rule covers)', () => {
+    typeAwareRuleTester.run('no-basic-type-binary-comparison', rule, {
+      valid: [
+        `
+        interface ISGROSGNode { id: string }
+        declare const a: ISGROSGNode;
+        declare const b: ISGROSGNode;
+        a === b;
+        `,
       ],
       invalid: [],
     });

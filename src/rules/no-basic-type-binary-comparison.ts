@@ -1,5 +1,6 @@
 import { Rule } from 'eslint';
 import * as ts from 'typescript';
+import { isBrsNodeType } from '../utils/is-brs-node-type';
 
 const COMPARISON_OPERATORS = new Set(['===', '!==', '==', '!=']);
 
@@ -8,7 +9,8 @@ const COMPARISON_OPERATORS = new Set(['===', '!==', '==', '!=']);
  * against a primitive (string, number, boolean) that is NOT null/undefined.
  *
  * It does NOT fire when:
- * - Both sides are objects (transpiler compares via _hid)
+ * - Both sides are BRS/SG node types (HS-1114 via no-sgnode-equality-unsafe)
+ * - One side is a BRS/SG node and the other is not (error via no-mixed-brs-node-binary-comparison)
  * - Either side is null/undefined
  * - Both sides are primitives
  */
@@ -92,11 +94,35 @@ function classifyType(type: ts.Type, checker: ts.TypeChecker): 'primitive' | 'nu
   return 'object';
 }
 
+/** Assignability check (TypeChecker API; ESLint-facing Program typings may omit the method). */
+function isTypeAssignableToChecker(checker: ts.TypeChecker, source: ts.Type, target: ts.Type): boolean {
+  const fn = (checker as unknown as { isTypeAssignableTo(s: ts.Type, t: ts.Type): boolean }).isTypeAssignableTo;
+  return fn.call(checker, source, target);
+}
+
+function findInterfaceDeclaration(program: ts.Program, interfaceName: string): ts.InterfaceDeclaration | undefined {
+  let found: ts.InterfaceDeclaration | undefined;
+  function visit(n: ts.Node): void {
+    if (found) return;
+    if (ts.isInterfaceDeclaration(n) && n.name.text === interfaceName) {
+      found = n;
+      return;
+    }
+    ts.forEachChild(n, visit);
+  }
+  for (const sf of program.getSourceFiles()) {
+    visit(sf);
+    if (found) return found;
+  }
+  return undefined;
+}
+
 const rule: Rule.RuleModule = {
   meta: {
     type: 'problem',
     docs: {
-      description: 'HS-1019: Disallow binary comparison of an object/interface against a primitive. The transpiler only flags mixing object types with string/number/boolean.',
+      description:
+        'HS-1019: Disallow unsafe binary comparisons for BrightScript (object vs primitive, and object vs object equality when not IHsIdentifiable).',
       category: 'Best Practices',
       recommended: true,
     },
@@ -104,6 +130,8 @@ const rule: Rule.RuleModule = {
     messages: {
       nonBasicTypeComparison:
         'HS-1019: Comparing non-basic types ({{leftType}} {{operator}} {{rightType}}) is not supported in BrightScript. Only string, number, and boolean comparisons work. Consider comparing a unique field like _hid instead.',
+      objectEqualityHsEqualFallback:
+        'HS-1019: Comparing non-basic types ({{leftType}} {{operator}} {{rightType}}). The transpiler rewrites ===/!== to hs_equal(...) here; BrightScript reference equality is unsafe. Prefer comparing _hid or another stable primitive field when possible.',
     },
   },
   create: function (context) {
@@ -127,6 +155,11 @@ const rule: Rule.RuleModule = {
           const leftClass = classifyType(leftType, checker);
           const rightClass = classifyType(rightType, checker);
 
+          const isLeftBrs = isBrsNodeType(leftType);
+          const isRightBrs = isBrsNodeType(rightType);
+          if (isLeftBrs && isRightBrs) return;
+          if (isLeftBrs !== isRightBrs) return;
+
           // Only flag: one side is object, other side is primitive
           // Don't flag: both objects (transpiler uses _hid comparison)
           // Don't flag: either side is nullish/any
@@ -139,6 +172,36 @@ const rule: Rule.RuleModule = {
             context.report({
               node,
               messageId: 'nonBasicTypeComparison',
+              data: {
+                leftType: checker.typeToString(leftType),
+                rightType: checker.typeToString(rightType),
+                operator: node.operator,
+              },
+            });
+            return;
+          }
+
+          // Transpiler HS-1019 warning path: === / !== on two non-primitive objects that are not both IHsIdentifiable
+          const isStrictEquality = node.operator === '===' || node.operator === '!==';
+          if (
+            isStrictEquality &&
+            leftClass === 'object' &&
+            rightClass === 'object'
+          ) {
+            const program = parserServices!.program!;
+            const ifaceDecl = findInterfaceDeclaration(program, 'IHsIdentifiable');
+            if (!ifaceDecl) return;
+
+            const ifaceSym = checker.getSymbolAtLocation(ifaceDecl.name);
+            if (!ifaceSym) return;
+            const ifaceType = checker.getDeclaredTypeOfSymbol(ifaceSym);
+
+            if (isTypeAssignableToChecker(checker, leftType, ifaceType)) return;
+            if (isTypeAssignableToChecker(checker, rightType, ifaceType)) return;
+
+            context.report({
+              node,
+              messageId: 'objectEqualityHsEqualFallback',
               data: {
                 leftType: checker.typeToString(leftType),
                 rightType: checker.typeToString(rightType),

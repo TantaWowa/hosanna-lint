@@ -39,6 +39,7 @@ import noUnsupportedRegexFlags from './rules/no-unsupported-regex-flags';
 import noUint8ArrayDeclaration from './rules/no-uint8array-declaration';
 import noThisInNonArrowClosure from './rules/no-this-in-non-arrow-closure';
 import noConditionalCompilationElse from './rules/no-conditional-compilation-else';
+import noMixedConditionalCompilation from './rules/no-mixed-conditional-compilation';
 import noJsonStringifySpace from './rules/no-json-stringify-space';
 import promiseStaticPolyfilled from './rules/promise-static-polyfilled';
 import noUnsupportedPromiseMethods from './rules/no-unsupported-promise-methods';
@@ -72,6 +73,7 @@ import noUnsupportedDeleteOperator from './rules/no-unsupported-delete-operator'
 // Tier 2: Type-aware rules (MEDIUM performance impact)
 import noForOfOnNonArray from './rules/no-for-of-on-non-array';
 import noBasicTypeBinaryComparison from './rules/no-basic-type-binary-comparison';
+import noMixedBrsNodeBinaryComparison from './rules/no-mixed-brs-node-binary-comparison';
 import noFunctionTypedAsAny from './rules/no-function-typed-as-any';
 import noSuboptimalArrayAccess from './rules/no-suboptimal-array-access';
 import noStringMethodOnNonString from './rules/no-string-method-on-non-string';
@@ -154,6 +156,7 @@ const plugin = {
     'no-uint8array-declaration': w('no-uint8array-declaration', noUint8ArrayDeclaration),
     'no-this-in-non-arrow-closure': w('no-this-in-non-arrow-closure', noThisInNonArrowClosure),
     'no-conditional-compilation-else': w('no-conditional-compilation-else', noConditionalCompilationElse),
+    'no-mixed-conditional-compilation': w('no-mixed-conditional-compilation', noMixedConditionalCompilation),
     'no-json-stringify-space': w('no-json-stringify-space', noJsonStringifySpace),
     'promise-static-polyfilled': w('promise-static-polyfilled', promiseStaticPolyfilled),
     'no-unsupported-promise-methods': w('no-unsupported-promise-methods', noUnsupportedPromiseMethods),
@@ -190,6 +193,10 @@ const plugin = {
     // Tier 2: Type-aware rules (MEDIUM performance impact)
     'no-for-of-on-non-array': w('no-for-of-on-non-array', noForOfOnNonArray),
     'no-basic-type-binary-comparison': w('no-basic-type-binary-comparison', noBasicTypeBinaryComparison),
+    'no-mixed-brs-node-binary-comparison': w(
+      'no-mixed-brs-node-binary-comparison',
+      noMixedBrsNodeBinaryComparison
+    ),
     'no-function-typed-as-any': w('no-function-typed-as-any', noFunctionTypedAsAny),
     'no-suboptimal-array-access': w('no-suboptimal-array-access', noSuboptimalArrayAccess),
     'no-string-method-on-non-string': w('no-string-method-on-non-string', noStringMethodOnNonString),
@@ -288,7 +295,8 @@ const plugin = {
 
         // Tier 2: Type-aware rules (MEDIUM performance impact)
         '@hosanna-eslint/no-for-of-on-non-array': 'error',
-        '@hosanna-eslint/no-basic-type-binary-comparison': 'error',
+        '@hosanna-eslint/no-basic-type-binary-comparison': 'warn',
+        '@hosanna-eslint/no-mixed-brs-node-binary-comparison': 'error',
         '@hosanna-eslint/no-function-typed-as-any': 'error',
         '@hosanna-eslint/no-suboptimal-array-access': 'warn',
         '@hosanna-eslint/no-string-method-on-non-string': 'warn',
@@ -310,6 +318,13 @@ const plugin = {
         '@hosanna-eslint/no-getter-setter-mismatch': 'error',
         '@hosanna-eslint/no-vague-state-field-usage': 'warn',
         '@hosanna-eslint/no-vague-computed-access': 'warn',
+      },
+    },
+    /** Merge with `recommended` for transpiler/editor parity (HS-1099, HS-1011 subset). */
+    strict: {
+      rules: {
+        '@hosanna-eslint/no-date-usage': ['warn', { reportNewDateAsHs1099: true }],
+        '@hosanna-eslint/no-mixed-conditional-compilation': 'warn',
       },
     },
   },
