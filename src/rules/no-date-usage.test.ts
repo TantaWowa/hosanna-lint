@@ -179,4 +179,16 @@ describe('no-date-usage', () => {
       ],
     });
   });
+
+  it('should report HS-1084 for unsupported Date static used as a value (not a call)', () => {
+    ruleTester.run('no-date-usage', rule, {
+      valid: [],
+      invalid: [
+        {
+          code: 'const ref = Date.toISOString;',
+          errors: [{ messageId: 'dateStaticMemberNotSupported', data: { name: 'toISOString' } }],
+        },
+      ],
+    });
+  });
 });

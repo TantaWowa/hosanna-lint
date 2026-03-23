@@ -27,8 +27,12 @@ const rule: Rule.RuleModule = {
     fixable: 'code',
     schema: [],
     messages: {
-      dateStaticMethodNotSupported: 'Date.{{method}} is not supported in Hosanna. The transpiler only supports: now, parse, UTC, sharedDate, SetLocale, GetLocale, fromISOString, fromTimestamp.',
-      dateTypeNotSupported: 'Type "Date" is not supported in Hosanna. Use "HsDate" instead.',
+      dateStaticMethodNotSupported:
+        'HS-1052: DateFunctionNotSupported: date function "{{method}}" is not supported. The transpiler only supports: now, parse, UTC, sharedDate, SetLocale, GetLocale, fromISOString, fromTimestamp.',
+      dateTypeNotSupported:
+        "HS-1083: DateTypeNotSupported: Type 'Date' is not supported in Hosanna. Use 'HsDate' instead.",
+      dateStaticMemberNotSupported:
+        "HS-1084: DateStaticFunctionNotSupported: 'Date.{{name}}' is not supported in BrightScript. Please use 'HsDate' instead.",
     },
   },
   create: function (context) {
@@ -70,6 +74,21 @@ const rule: Rule.RuleModule = {
             });
           }
         }
+      },
+
+      // HS-1084: Date.unsupported as a value reference (not a direct call)
+      MemberExpression: function (node) {
+        if (node.object.type !== 'Identifier' || node.object.name !== 'Date') return;
+        const staticName = getMethodName(node);
+        if (!staticName) return;
+        const p = node.parent;
+        if (p.type === 'CallExpression' && p.callee === node) return;
+        if (HSDATE_SUPPORTED_STATIC_METHODS.has(staticName)) return;
+        context.report({
+          node,
+          messageId: 'dateStaticMemberNotSupported',
+          data: { name: staticName },
+        });
       },
 
       // Check for Date type annotations - these are not transpiled, so still error

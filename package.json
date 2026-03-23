@@ -50,6 +50,6 @@
     "node": ">=18.0.0"
   },
   "dependencies": {
-    "@tantawowa/hosanna-supported-apis": "^1.0.0"
+    "@tantawowa/hosanna-supported-apis": "file:../hosanna-supported-apis"
   }
 }

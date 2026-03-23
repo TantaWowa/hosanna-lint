@@ -63,6 +63,11 @@ import noForInOnArray from './rules/no-for-in-on-array';
 import noUnsupportedJsonFunctions from './rules/no-unsupported-json-functions';
 import noFindNodeMethod from './rules/no-find-node-method';
 import noUnsupportedDestructuringContext from './rules/no-unsupported-destructuring-context';
+import noCaseInsensitiveModuleCollision from './rules/no-case-insensitive-module-collision';
+import noConsoleApi from './rules/no-console-api';
+import noIsPrototypeOfArity from './rules/no-is-prototype-of-arity';
+import noUnsupportedSpreadContext from './rules/no-unsupported-spread-context';
+import noUnsupportedDeleteOperator from './rules/no-unsupported-delete-operator';
 
 // Tier 2: Type-aware rules (MEDIUM performance impact)
 import noForOfOnNonArray from './rules/no-for-of-on-non-array';
@@ -79,6 +84,8 @@ import noSgnNodeMutation from './rules/no-sgn-node-mutation';
 import noRecursionInLogicalExpression from './rules/no-recursion-in-logical-expression';
 import noTernaryIifeSlowPath from './rules/no-ternary-iife-slow-path';
 import noNullishCoalescingIifeSlowPath from './rules/no-nullish-coalescing-iife-slow-path';
+import noUnsupportedUpdateNonNumber from './rules/no-unsupported-update-non-number';
+import noAmbiguousArrayMethodCall from './rules/no-ambiguous-array-method-call';
 
 // Tier 3: Cross-file / deep analysis rules (HIGH performance impact)
 import noCaseInsensitiveClassCollision from './rules/no-case-insensitive-class-collision';
@@ -171,6 +178,14 @@ const plugin = {
     'no-unsupported-json-functions': w('no-unsupported-json-functions', noUnsupportedJsonFunctions),
     'no-find-node-method': w('no-find-node-method', noFindNodeMethod),
     'no-unsupported-destructuring-context': w('no-unsupported-destructuring-context', noUnsupportedDestructuringContext),
+    'no-case-insensitive-module-collision': w(
+      'no-case-insensitive-module-collision',
+      noCaseInsensitiveModuleCollision
+    ),
+    'no-console-api': w('no-console-api', noConsoleApi),
+    'no-is-prototype-of-arity': w('no-is-prototype-of-arity', noIsPrototypeOfArity),
+    'no-unsupported-spread-context': w('no-unsupported-spread-context', noUnsupportedSpreadContext),
+    'no-unsupported-delete-operator': w('no-unsupported-delete-operator', noUnsupportedDeleteOperator),
 
     // Tier 2: Type-aware rules (MEDIUM performance impact)
     'no-for-of-on-non-array': w('no-for-of-on-non-array', noForOfOnNonArray),
@@ -187,6 +202,8 @@ const plugin = {
     'no-recursion-in-logical-expression': w('no-recursion-in-logical-expression', noRecursionInLogicalExpression),
     'no-ternary-iife-slow-path': w('no-ternary-iife-slow-path', noTernaryIifeSlowPath),
     'no-nullish-coalescing-iife-slow-path': w('no-nullish-coalescing-iife-slow-path', noNullishCoalescingIifeSlowPath),
+    'no-unsupported-update-non-number': w('no-unsupported-update-non-number', noUnsupportedUpdateNonNumber),
+    'no-ambiguous-array-method-call': w('no-ambiguous-array-method-call', noAmbiguousArrayMethodCall),
 
     // Tier 3: Cross-file / deep analysis rules (HIGH performance impact)
     'no-case-insensitive-class-collision': w('no-case-insensitive-class-collision', noCaseInsensitiveClassCollision),
@@ -263,6 +280,11 @@ const plugin = {
         '@hosanna-eslint/no-unsupported-json-functions': 'error',
         '@hosanna-eslint/no-find-node-method': 'warn',
         '@hosanna-eslint/no-unsupported-destructuring-context': 'error',
+        '@hosanna-eslint/no-case-insensitive-module-collision': 'error',
+        '@hosanna-eslint/no-console-api': 'warn',
+        '@hosanna-eslint/no-is-prototype-of-arity': 'warn',
+        '@hosanna-eslint/no-unsupported-spread-context': 'error',
+        '@hosanna-eslint/no-unsupported-delete-operator': 'error',
 
         // Tier 2: Type-aware rules (MEDIUM performance impact)
         '@hosanna-eslint/no-for-of-on-non-array': 'error',
@@ -279,6 +301,8 @@ const plugin = {
         '@hosanna-eslint/no-recursion-in-logical-expression': 'warn',
         '@hosanna-eslint/no-ternary-iife-slow-path': 'warn',
         '@hosanna-eslint/no-nullish-coalescing-iife-slow-path': 'warn',
+        '@hosanna-eslint/no-unsupported-update-non-number': 'error',
+        '@hosanna-eslint/no-ambiguous-array-method-call': 'error',
 
         // Tier 3: Cross-file / deep analysis rules (HIGH performance impact)
         '@hosanna-eslint/no-case-insensitive-class-collision': 'error',
