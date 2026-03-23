@@ -1,10 +1,14 @@
 import { Rule } from 'eslint';
+import { SUPPORTED_CONSOLE_METHOD_NAMES } from '@tantawowa/hosanna-supported-apis';
+
+const supportedConsoleMethods = new Set<string>(SUPPORTED_CONSOLE_METHOD_NAMES);
 
 const rule: Rule.RuleModule = {
   meta: {
     type: 'problem',
     docs: {
-      description: 'HS-1046: console APIs are not supported on Roku; avoid console.* calls.',
+      description:
+        'HS-1046: flag `console` methods the Hosanna transpiler does not implement (see SUPPORTED_CONSOLE_METHOD_NAMES).',
       category: 'Best Practices',
       recommended: true,
     },
@@ -31,7 +35,7 @@ const rule: Rule.RuleModule = {
     return {
       CallExpression(node) {
         const method = getConsoleMethodName(node.callee as Rule.Node);
-        if (!method) return;
+        if (!method || supportedConsoleMethods.has(method)) return;
         context.report({
           node: node.callee as Rule.Node,
           messageId: 'consoleNotSupported',
