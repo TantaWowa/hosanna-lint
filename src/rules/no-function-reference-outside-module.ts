@@ -1,4 +1,5 @@
 import { Rule } from 'eslint';
+import { hasExcludeFromPlatformRokuDirective } from '../utils/excludeFromPlatformRoku';
 
 const rule: Rule.RuleModule = {
   meta: {
@@ -15,12 +16,10 @@ const rule: Rule.RuleModule = {
     },
   },
   create: function (context) {
-    // Check if this file should be excluded from the rule
     const sourceCode = context.sourceCode.text;
     const trimmed = sourceCode.trimStart();
 
-    // Skip rule if file is excluded from platform roku
-    if (trimmed.startsWith('// hs:exclude-from-platform roku')) {
+    if (hasExcludeFromPlatformRokuDirective(sourceCode)) {
       return {};
     }
 

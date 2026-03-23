@@ -5,7 +5,8 @@ import * as ts from 'typescript';
  * HS-1042/1043/1044: The transpiler flags these only in specific ambiguous
  * scenarios. We only flag when the type checker provides clear evidence of
  * a mismatch (e.g. string literal key on a confirmed array type), or when
- * the receiver is explicitly `as any` / `as unknown` with a non-literal key (HS-1044).
+ * the receiver's **outermost** type assertion is `any` / `as unknown` with a non-literal key (HS-1044).
+ * Chains like `(x as unknown as Record<string, unknown>)[k]` are excluded — the compiler sees an index signature, not ambiguous unknown.
  */
 function unwrapToInnerExpression(node: Rule.Node): Rule.Node {
   let n: Rule.Node | undefined = node;
@@ -19,20 +20,14 @@ function unwrapToInnerExpression(node: Rule.Node): Rule.Node {
   return n ?? node;
 }
 
-/** True if peeling TSAsExpression / TSSatisfiesExpression hits any or unknown. */
-function isEffectivelyAnyOrUnknownCast(expr: Rule.Node | null | undefined): boolean {
-  let n: Rule.Node | null | undefined = expr ?? undefined;
-  while (n) {
-    const t = (n as { type?: string }).type;
-    if (t === 'TSAsExpression' || t === 'TSSatisfiesExpression') {
-      const ann = (n as { typeAnnotation?: { type?: string } }).typeAnnotation;
-      if (ann?.type === 'TSAnyKeyword' || ann?.type === 'TSUnknownKeyword') {
-        return true;
-      }
-      n = (n as { expression?: Rule.Node }).expression;
-      continue;
-    }
-    break;
+/** True only when the outermost TSAsExpression / TSSatisfiesExpression is asserted to `any` or `unknown`. */
+function isOutermostAssertionAnyOrUnknown(expr: Rule.Node | null | undefined): boolean {
+  if (expr == null) return false;
+  const n = unwrapToInnerExpression(expr);
+  const t = (n as { type?: string }).type;
+  if (t === 'TSAsExpression' || t === 'TSSatisfiesExpression') {
+    const ann = (n as { typeAnnotation?: { type?: string } }).typeAnnotation;
+    return ann?.type === 'TSAnyKeyword' || ann?.type === 'TSUnknownKeyword';
   }
   return false;
 }
@@ -49,7 +44,7 @@ const rule: Rule.RuleModule = {
     type: 'suggestion',
     docs: {
       description:
-        'HS-1042/HS-1044: Warn about ambiguous array/computed access (non-numeric string on arrays; any/unknown casts with dynamic keys).',
+        'HS-1042/HS-1044: Warn about ambiguous array/computed access (non-numeric string on arrays; outermost any/unknown assertion with dynamic keys).',
       category: 'Best Practices',
       recommended: true,
     },
@@ -75,9 +70,9 @@ const rule: Rule.RuleModule = {
 
         const innerObject = unwrapToInnerExpression(node.object as Rule.Node);
 
-        // HS-1044: (x as any|unknown)[non-literal] — AST-only, matches transpiler ambiguity
+        // HS-1044: outermost (x as any|unknown)[non-literal] — aligns with transpiler when type stays any/unknown
         if (!isStringOrNumberLiteralProperty(node.property as Rule.Node & { type?: string; value?: unknown })) {
-          if (isEffectivelyAnyOrUnknownCast(innerObject)) {
+          if (isOutermostAssertionAnyOrUnknown(innerObject)) {
             context.report({
               node,
               messageId: 'ambiguousAnyUnknownAccess',

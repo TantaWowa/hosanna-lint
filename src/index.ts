@@ -96,10 +96,10 @@ import noDuplicateClassName from './rules/no-duplicate-class-name';
 import noGetterSetterMismatch from './rules/no-getter-setter-mismatch';
 import noVagueStateFieldUsage from './rules/no-vague-state-field-usage';
 import noVagueComputedAccess from './rules/no-vague-computed-access';
+import { hasExcludeFromPlatformRokuDirective } from './utils/excludeFromPlatformRoku';
 
 const preprocess = (text: string, _filename: string) => {
-  const trimmed = text.trimStart();
-  if (trimmed.startsWith('// hs:exclude-from-platform')) {
+  if (hasExcludeFromPlatformRokuDirective(text)) {
     return [''];
   }
   return [text];

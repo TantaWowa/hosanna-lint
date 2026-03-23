@@ -158,4 +158,49 @@ describe('hs:disable directive support', () => {
       invalid: [],
     });
   });
+
+  it('should suppress entire file when hs:exclude-from-platform roku is in comment-only prefix (transpiler parity)', () => {
+    ruleTester.run('no-infinity-usage', wrappedRule, {
+      valid: [
+        {
+          code: `// hs:no-module
+// hs:exclude-from-platform roku
+const x = Infinity;`,
+        },
+        {
+          code: `/*
+ * hs:exclude-from-platform roku
+ */
+const x = Infinity;`,
+        },
+      ],
+      invalid: [],
+    });
+  });
+
+  it('should NOT suppress file for hs:exclude-from-platform web', () => {
+    ruleTester.run('no-infinity-usage', wrappedRule, {
+      valid: [],
+      invalid: [
+        {
+          code: `// hs:exclude-from-platform web
+const x = Infinity;`,
+          errors: [{ messageId: 'infinityNotSupported' }],
+        },
+      ],
+    });
+  });
+
+  it('should suppress statement when // hs:exclude-from-platform roku is on the previous line', () => {
+    ruleTester.run('no-infinity-usage', wrappedRule, {
+      valid: [
+        {
+          code: `const y = 1;
+// hs:exclude-from-platform roku
+const x = Infinity;`,
+        },
+      ],
+      invalid: [],
+    });
+  });
 });

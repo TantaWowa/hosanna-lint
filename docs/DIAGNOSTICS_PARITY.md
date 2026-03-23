@@ -50,7 +50,7 @@ The transpiler uses deep emit and type state for these. ESLint rules would dupli
 | `no-unsupported-update-non-number` | HS-1026 | |
 | `no-ambiguous-array-method-call` | HS-1069 | |
 | `no-suboptimal-array-access` | HS-1042, HS-1042_1, HS-1043, HS-1044 | HS-1044: `(x as any\|unknown)[dynamic]` |
-| `no-basic-type-binary-comparison` | HS-1019 | Recommended **warn** to match transpiler severity for `===`/`!==` paths it covers; object–object message documents `hs_equal` fallback |
+| `no-basic-type-binary-comparison` | HS-1019, HS-1054, HS-1058 | Recommended **warn**. ESLint often reports this rule on `unknown`/non-basic `===` while the transpiler may emit **HS-1054**/**HS-1058** for the same line; `eslint-disable` for this rule suppresses all three for parity. |
 | `no-ihs-identifiable-binary-comparison` | HS-1054, HS-1058 | **Warn**: both sides assignable to `IHsIdentifiable` (HS-1054 in transpiler). `eslint-disable` also suppresses HS-1058 (known-class `_hid` path) for a single disable story; ESLint may not report every HS-1058-only case. |
 | `no-mixed-brs-node-binary-comparison` | HS-1019 | **Error**: BRS/SG node type compared to a non-node type (transpiler error path); two node types are handled by `no-sgnode-equality-unsafe` (HS-1114) instead |
 | `no-vague-state-field-usage` | HS-1073 | Same-file `implements` + `@state` / `@observable` / `@injectobservable` / `@layoutstate` only |

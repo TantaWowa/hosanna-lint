@@ -15,6 +15,8 @@ describe('no-suboptimal-array-access', () => {
         'const x = (view as any)["fixed"];',
         'const x = view[key];',
         'const x = (obj as { a: number }).foo;',
+        'const key = "k"; const x = (node as unknown as Record<string, unknown>)[key];',
+        'const key = "k"; const x = (node as unknown as Record<string, string>)[key];',
       ],
       invalid: [
         {
