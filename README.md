@@ -1106,6 +1106,11 @@ BrightScript only supports `for...of` on arrays. Flags iteration over Map, Set, 
 
 Only basic types (string, number, boolean) are supported for binary comparisons in BrightScript. Comparing objects requires IHsIdentifiable or field comparison.
 
+#### `no-ihs-identifiable-binary-comparison` [MEDIUM]
+**Error level:** `warn` | **HS-1054** (and `eslint-disable` aligns with **HS-1058** known-class `_hid` path)
+
+Flags `===`/`!==`/`==`/`!=` when both operands are assignable to `IHsIdentifiable`, matching the transpiler’s `_hid` rewrite warning. Use `// eslint-disable-next-line @hosanna-eslint/no-ihs-identifiable-binary-comparison` to suppress HS-1054/HS-1058 in the compiler.
+
 #### `no-function-typed-as-any` [MEDIUM]
 **Error level:** `error` | **HS-1034**
 

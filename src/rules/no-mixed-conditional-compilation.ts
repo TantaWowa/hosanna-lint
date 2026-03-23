@@ -16,12 +16,12 @@ type Options = {
  */
 const rule: Rule.RuleModule = {
   meta: {
-    type: 'suggestion',
+    type: 'problem',
     docs: {
       description:
-        'HS-1011: Warn when an if-condition mixes __BUILD__ flags with runtime expressions so it cannot be resolved at build-time.',
+        'HS-1011: Error when an if-condition mixes __BUILD__ flags with runtime expressions so it cannot be resolved at build-time.',
       category: 'Best Practices',
-      recommended: false,
+      recommended: true,
     },
     schema: [
       {
@@ -35,7 +35,7 @@ const rule: Rule.RuleModule = {
     ],
     messages: {
       mixed:
-        "HS-1011: GeneralTranspilationWarning: [GENERAL WARNING]: 'Conditional contains debug flags mixed with runtime expressions; cannot be resolved at build-time'",
+        'HS-1011: MixedConditionalCompilation: Conditional contains debug flags mixed with runtime expressions; cannot be resolved at build-time.',
     },
   },
   create(context) {

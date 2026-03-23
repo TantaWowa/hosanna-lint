@@ -73,6 +73,7 @@ import noUnsupportedDeleteOperator from './rules/no-unsupported-delete-operator'
 // Tier 2: Type-aware rules (MEDIUM performance impact)
 import noForOfOnNonArray from './rules/no-for-of-on-non-array';
 import noBasicTypeBinaryComparison from './rules/no-basic-type-binary-comparison';
+import noIhsIdentifiableBinaryComparison from './rules/no-ihs-identifiable-binary-comparison';
 import noMixedBrsNodeBinaryComparison from './rules/no-mixed-brs-node-binary-comparison';
 import noFunctionTypedAsAny from './rules/no-function-typed-as-any';
 import noSuboptimalArrayAccess from './rules/no-suboptimal-array-access';
@@ -193,6 +194,10 @@ const plugin = {
     // Tier 2: Type-aware rules (MEDIUM performance impact)
     'no-for-of-on-non-array': w('no-for-of-on-non-array', noForOfOnNonArray),
     'no-basic-type-binary-comparison': w('no-basic-type-binary-comparison', noBasicTypeBinaryComparison),
+    'no-ihs-identifiable-binary-comparison': w(
+      'no-ihs-identifiable-binary-comparison',
+      noIhsIdentifiableBinaryComparison
+    ),
     'no-mixed-brs-node-binary-comparison': w(
       'no-mixed-brs-node-binary-comparison',
       noMixedBrsNodeBinaryComparison
@@ -263,6 +268,7 @@ const plugin = {
         '@hosanna-eslint/no-uint8array-declaration': 'warn',
         '@hosanna-eslint/no-this-in-non-arrow-closure': 'error',
         '@hosanna-eslint/no-conditional-compilation-else': 'error',
+        '@hosanna-eslint/no-mixed-conditional-compilation': 'error',
         '@hosanna-eslint/no-json-stringify-space': 'warn',
         '@hosanna-eslint/promise-static-polyfilled': 'warn',
         '@hosanna-eslint/no-unsupported-promise-methods': 'error',
@@ -296,6 +302,7 @@ const plugin = {
         // Tier 2: Type-aware rules (MEDIUM performance impact)
         '@hosanna-eslint/no-for-of-on-non-array': 'error',
         '@hosanna-eslint/no-basic-type-binary-comparison': 'warn',
+        '@hosanna-eslint/no-ihs-identifiable-binary-comparison': 'warn',
         '@hosanna-eslint/no-mixed-brs-node-binary-comparison': 'error',
         '@hosanna-eslint/no-function-typed-as-any': 'error',
         '@hosanna-eslint/no-suboptimal-array-access': 'warn',
@@ -320,11 +327,10 @@ const plugin = {
         '@hosanna-eslint/no-vague-computed-access': 'warn',
       },
     },
-    /** Merge with `recommended` for transpiler/editor parity (HS-1099, HS-1011 subset). */
+    /** Merge with `recommended` for transpiler/editor parity (HS-1099 on `new Date()`). */
     strict: {
       rules: {
         '@hosanna-eslint/no-date-usage': ['warn', { reportNewDateAsHs1099: true }],
-        '@hosanna-eslint/no-mixed-conditional-compilation': 'warn',
       },
     },
   },
