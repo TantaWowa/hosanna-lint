@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.25.0] - 2026-03-23
+
+### Added
+- Added `@tantawowa/hosanna-supported-apis` as a dependency and updated rules to utilize its methods.
+- Added documentation for shared metadata synchronization between `hosanna-lint` and `hosanna-compiler`.
+- Introduced new rules: `no-closure-captures-variable-before-assignment` and `no-native-function-closure-or-variadic-invocation`, along with corresponding tests.
+
 ## [1.24.0] - 2026-03-09
 
 ### Changed
@@ -231,6 +238,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
 
 
 
