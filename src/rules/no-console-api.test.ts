@@ -18,14 +18,28 @@ describe('no-console-api', () => {
         'console.warn("x");',
         'console.error("x");',
         "console['info']('y');",
-        'console.time("t"); console.timeEnd("t");',
+        'console.time("t"); console.timeLog("t"); console.timeEnd("t");',
         'console.trace(err);',
         'console.transpileError("a", "b");',
+        'console.clear();',
+        'console.assert(x, "m");',
+        'console.count(); console.countReset();',
+        'console.group(); console.groupEnd();',
+        'console.groupCollapsed("x");',
+        'console.timeStamp("x");',
       ],
       invalid: [
         {
-          code: 'console.clear();',
-          errors: [{ messageId: 'consoleNotSupported', data: { method: 'clear' } }],
+          code: 'console.dir({});',
+          errors: [{ messageId: 'consoleNotSupported', data: { method: 'dir' } }],
+        },
+        {
+          code: 'console.profile();',
+          errors: [{ messageId: 'consoleNotSupported', data: { method: 'profile' } }],
+        },
+        {
+          code: 'console.profileEnd();',
+          errors: [{ messageId: 'consoleNotSupported', data: { method: 'profileEnd' } }],
         },
         {
           code: "console['table']('y');",
