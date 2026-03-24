@@ -1,5 +1,8 @@
 import { Rule } from 'eslint';
 import { ESLINT_RULE_TO_HS_CODES_LOWER } from '@tantawowa/hosanna-supported-apis';
+import { hasExcludeFromPlatformRokuDirective } from './excludeFromPlatformRoku';
+
+const EXCLUDE_ROKU_IN_COMMENT = /hs:exclude-from-platform\s+roku/i;
 
 /**
  * Mapping from ESLint rule names to HS diagnostic codes (single source: @tantawowa/hosanna-supported-apis).
@@ -29,6 +32,14 @@ interface ParsedDisableDirectives {
  * Cached per filename to avoid re-parsing on every report call.
  */
 const directiveCache = new WeakMap<object, ParsedDisableDirectives>();
+const fileExcludedFromRokuCache = new WeakMap<object, boolean>();
+
+function getFullSourceText(sourceCode: Rule.RuleContext['sourceCode']): string {
+  if (typeof sourceCode.getText === 'function') {
+    return sourceCode.getText();
+  }
+  return (sourceCode as { text?: string }).text ?? '';
+}
 
 function parseDirectives(sourceCode: Rule.RuleContext['sourceCode']): ParsedDisableDirectives {
   const cached = directiveCache.get(sourceCode);
@@ -76,6 +87,40 @@ function parseDirectives(sourceCode: Rule.RuleContext['sourceCode']): ParsedDisa
   const result = { lineDisables, fileDisables };
   directiveCache.set(sourceCode, result);
   return result;
+}
+
+function isFileExcludedFromRoku(sourceCode: Rule.RuleContext['sourceCode']): boolean {
+  let v = fileExcludedFromRokuCache.get(sourceCode);
+  if (v !== undefined) return v;
+  v = hasExcludeFromPlatformRokuDirective(getFullSourceText(sourceCode));
+  fileExcludedFromRokuCache.set(sourceCode, v);
+  return v;
+}
+
+/**
+ * Match BabelProgram.isSkippingNode / transpiler diagnostics: leading comment on this node or any
+ * ancestor up to Program can exclude the subtree from Roku (covers export const ... etc.).
+ */
+function isExcludedFromRokuByLeadingComments(
+  sourceCode: Rule.RuleContext['sourceCode'],
+  node: Rule.Node | undefined
+): boolean {
+  let current: Rule.Node | undefined = node;
+  while (current) {
+    const comments = sourceCode.getCommentsBefore(current);
+    for (const c of comments) {
+      if (EXCLUDE_ROKU_IN_COMMENT.test(c.value)) return true;
+    }
+    const withLeading = current as Rule.Node & { leadingComments?: Array<{ value: string }> };
+    if (withLeading.leadingComments) {
+      for (const c of withLeading.leadingComments) {
+        if (EXCLUDE_ROKU_IN_COMMENT.test(c.value)) return true;
+      }
+    }
+    if (current.type === 'Program') break;
+    current = current.parent as Rule.Node | undefined;
+  }
+  return false;
 }
 
 /**
@@ -126,6 +171,10 @@ export function wrapRuleWithHsDisable(rule: Rule.RuleModule, ruleName: string): 
   return {
     ...rule,
     create(context: Rule.RuleContext) {
+      if (isFileExcludedFromRoku(context.sourceCode)) {
+        return {};
+      }
+
       const originalReport = context.report.bind(context);
 
       // Create an unfrozen delegate; property reads fall through to the frozen context.
@@ -134,8 +183,14 @@ export function wrapRuleWithHsDisable(rule: Rule.RuleModule, ruleName: string): 
       const delegate = Object.create(context) as Rule.RuleContext;
       Object.defineProperty(delegate, 'report', {
         value: function (descriptor: Parameters<Rule.RuleContext['report']>[0]) {
+          if (isFileExcludedFromRoku(context.sourceCode)) {
+            return;
+          }
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const node = (descriptor as any).node as Rule.Node | undefined;
+          if (node && isExcludedFromRokuByLeadingComments(context.sourceCode, node)) {
+            return;
+          }
           if (node && isDisabledByHsDirective(context.sourceCode, node, ruleName)) {
             return;
           }

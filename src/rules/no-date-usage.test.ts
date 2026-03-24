@@ -37,6 +37,22 @@ describe('no-date-usage', () => {
     });
   });
 
+  it('with reportNewDateAsHs1099, flags zero-arg new Date() as HS-1099', () => {
+    ruleTester.run('no-date-usage', rule, {
+      options: [{ reportNewDateAsHs1099: true }],
+      valid: [
+        "const specificDate = new Date('2023-10-04');",
+        "const timestamp = new Date(1696377600000);",
+      ],
+      invalid: [
+        {
+          code: 'const date = new Date();',
+          errors: [{ messageId: 'dateNewConvertedToHsDate' }],
+        },
+      ],
+    });
+  });
+
   it('should allow supported Date static methods (transpiler converts them)', () => {
     ruleTester.run('no-date-usage', rule, {
       valid: [
@@ -175,6 +191,18 @@ describe('no-date-usage', () => {
               messageId: 'dateTypeNotSupported',
             },
           ],
+        },
+      ],
+    });
+  });
+
+  it('should report HS-1084 for unsupported Date static used as a value (not a call)', () => {
+    ruleTester.run('no-date-usage', rule, {
+      valid: [],
+      invalid: [
+        {
+          code: 'const ref = Date.toISOString;',
+          errors: [{ messageId: 'dateStaticMemberNotSupported', data: { name: 'toISOString' } }],
         },
       ],
     });

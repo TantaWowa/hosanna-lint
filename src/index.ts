@@ -39,6 +39,7 @@ import noUnsupportedRegexFlags from './rules/no-unsupported-regex-flags';
 import noUint8ArrayDeclaration from './rules/no-uint8array-declaration';
 import noThisInNonArrowClosure from './rules/no-this-in-non-arrow-closure';
 import noConditionalCompilationElse from './rules/no-conditional-compilation-else';
+import noMixedConditionalCompilation from './rules/no-mixed-conditional-compilation';
 import noJsonStringifySpace from './rules/no-json-stringify-space';
 import promiseStaticPolyfilled from './rules/promise-static-polyfilled';
 import noUnsupportedPromiseMethods from './rules/no-unsupported-promise-methods';
@@ -63,10 +64,17 @@ import noForInOnArray from './rules/no-for-in-on-array';
 import noUnsupportedJsonFunctions from './rules/no-unsupported-json-functions';
 import noFindNodeMethod from './rules/no-find-node-method';
 import noUnsupportedDestructuringContext from './rules/no-unsupported-destructuring-context';
+import noCaseInsensitiveModuleCollision from './rules/no-case-insensitive-module-collision';
+import noConsoleApi from './rules/no-console-api';
+import noIsPrototypeOfArity from './rules/no-is-prototype-of-arity';
+import noUnsupportedSpreadContext from './rules/no-unsupported-spread-context';
+import noUnsupportedDeleteOperator from './rules/no-unsupported-delete-operator';
 
 // Tier 2: Type-aware rules (MEDIUM performance impact)
 import noForOfOnNonArray from './rules/no-for-of-on-non-array';
 import noBasicTypeBinaryComparison from './rules/no-basic-type-binary-comparison';
+import noIhsIdentifiableBinaryComparison from './rules/no-ihs-identifiable-binary-comparison';
+import noMixedBrsNodeBinaryComparison from './rules/no-mixed-brs-node-binary-comparison';
 import noFunctionTypedAsAny from './rules/no-function-typed-as-any';
 import noSuboptimalArrayAccess from './rules/no-suboptimal-array-access';
 import noStringMethodOnNonString from './rules/no-string-method-on-non-string';
@@ -79,6 +87,8 @@ import noSgnNodeMutation from './rules/no-sgn-node-mutation';
 import noRecursionInLogicalExpression from './rules/no-recursion-in-logical-expression';
 import noTernaryIifeSlowPath from './rules/no-ternary-iife-slow-path';
 import noNullishCoalescingIifeSlowPath from './rules/no-nullish-coalescing-iife-slow-path';
+import noUnsupportedUpdateNonNumber from './rules/no-unsupported-update-non-number';
+import noAmbiguousArrayMethodCall from './rules/no-ambiguous-array-method-call';
 
 // Tier 3: Cross-file / deep analysis rules (HIGH performance impact)
 import noCaseInsensitiveClassCollision from './rules/no-case-insensitive-class-collision';
@@ -86,10 +96,10 @@ import noDuplicateClassName from './rules/no-duplicate-class-name';
 import noGetterSetterMismatch from './rules/no-getter-setter-mismatch';
 import noVagueStateFieldUsage from './rules/no-vague-state-field-usage';
 import noVagueComputedAccess from './rules/no-vague-computed-access';
+import { hasExcludeFromPlatformRokuDirective } from './utils/excludeFromPlatformRoku';
 
 const preprocess = (text: string, _filename: string) => {
-  const trimmed = text.trimStart();
-  if (trimmed.startsWith('// hs:exclude-from-platform')) {
+  if (hasExcludeFromPlatformRokuDirective(text)) {
     return [''];
   }
   return [text];
@@ -147,6 +157,7 @@ const plugin = {
     'no-uint8array-declaration': w('no-uint8array-declaration', noUint8ArrayDeclaration),
     'no-this-in-non-arrow-closure': w('no-this-in-non-arrow-closure', noThisInNonArrowClosure),
     'no-conditional-compilation-else': w('no-conditional-compilation-else', noConditionalCompilationElse),
+    'no-mixed-conditional-compilation': w('no-mixed-conditional-compilation', noMixedConditionalCompilation),
     'no-json-stringify-space': w('no-json-stringify-space', noJsonStringifySpace),
     'promise-static-polyfilled': w('promise-static-polyfilled', promiseStaticPolyfilled),
     'no-unsupported-promise-methods': w('no-unsupported-promise-methods', noUnsupportedPromiseMethods),
@@ -171,10 +182,26 @@ const plugin = {
     'no-unsupported-json-functions': w('no-unsupported-json-functions', noUnsupportedJsonFunctions),
     'no-find-node-method': w('no-find-node-method', noFindNodeMethod),
     'no-unsupported-destructuring-context': w('no-unsupported-destructuring-context', noUnsupportedDestructuringContext),
+    'no-case-insensitive-module-collision': w(
+      'no-case-insensitive-module-collision',
+      noCaseInsensitiveModuleCollision
+    ),
+    'no-console-api': w('no-console-api', noConsoleApi),
+    'no-is-prototype-of-arity': w('no-is-prototype-of-arity', noIsPrototypeOfArity),
+    'no-unsupported-spread-context': w('no-unsupported-spread-context', noUnsupportedSpreadContext),
+    'no-unsupported-delete-operator': w('no-unsupported-delete-operator', noUnsupportedDeleteOperator),
 
     // Tier 2: Type-aware rules (MEDIUM performance impact)
     'no-for-of-on-non-array': w('no-for-of-on-non-array', noForOfOnNonArray),
     'no-basic-type-binary-comparison': w('no-basic-type-binary-comparison', noBasicTypeBinaryComparison),
+    'no-ihs-identifiable-binary-comparison': w(
+      'no-ihs-identifiable-binary-comparison',
+      noIhsIdentifiableBinaryComparison
+    ),
+    'no-mixed-brs-node-binary-comparison': w(
+      'no-mixed-brs-node-binary-comparison',
+      noMixedBrsNodeBinaryComparison
+    ),
     'no-function-typed-as-any': w('no-function-typed-as-any', noFunctionTypedAsAny),
     'no-suboptimal-array-access': w('no-suboptimal-array-access', noSuboptimalArrayAccess),
     'no-string-method-on-non-string': w('no-string-method-on-non-string', noStringMethodOnNonString),
@@ -187,6 +214,8 @@ const plugin = {
     'no-recursion-in-logical-expression': w('no-recursion-in-logical-expression', noRecursionInLogicalExpression),
     'no-ternary-iife-slow-path': w('no-ternary-iife-slow-path', noTernaryIifeSlowPath),
     'no-nullish-coalescing-iife-slow-path': w('no-nullish-coalescing-iife-slow-path', noNullishCoalescingIifeSlowPath),
+    'no-unsupported-update-non-number': w('no-unsupported-update-non-number', noUnsupportedUpdateNonNumber),
+    'no-ambiguous-array-method-call': w('no-ambiguous-array-method-call', noAmbiguousArrayMethodCall),
 
     // Tier 3: Cross-file / deep analysis rules (HIGH performance impact)
     'no-case-insensitive-class-collision': w('no-case-insensitive-class-collision', noCaseInsensitiveClassCollision),
@@ -239,6 +268,7 @@ const plugin = {
         '@hosanna-eslint/no-uint8array-declaration': 'warn',
         '@hosanna-eslint/no-this-in-non-arrow-closure': 'error',
         '@hosanna-eslint/no-conditional-compilation-else': 'error',
+        '@hosanna-eslint/no-mixed-conditional-compilation': 'error',
         '@hosanna-eslint/no-json-stringify-space': 'warn',
         '@hosanna-eslint/promise-static-polyfilled': 'warn',
         '@hosanna-eslint/no-unsupported-promise-methods': 'error',
@@ -263,10 +293,17 @@ const plugin = {
         '@hosanna-eslint/no-unsupported-json-functions': 'error',
         '@hosanna-eslint/no-find-node-method': 'warn',
         '@hosanna-eslint/no-unsupported-destructuring-context': 'error',
+        '@hosanna-eslint/no-case-insensitive-module-collision': 'error',
+        '@hosanna-eslint/no-console-api': 'warn',
+        '@hosanna-eslint/no-is-prototype-of-arity': 'warn',
+        '@hosanna-eslint/no-unsupported-spread-context': 'error',
+        '@hosanna-eslint/no-unsupported-delete-operator': 'error',
 
         // Tier 2: Type-aware rules (MEDIUM performance impact)
         '@hosanna-eslint/no-for-of-on-non-array': 'error',
-        '@hosanna-eslint/no-basic-type-binary-comparison': 'error',
+        '@hosanna-eslint/no-basic-type-binary-comparison': 'warn',
+        '@hosanna-eslint/no-ihs-identifiable-binary-comparison': 'warn',
+        '@hosanna-eslint/no-mixed-brs-node-binary-comparison': 'error',
         '@hosanna-eslint/no-function-typed-as-any': 'error',
         '@hosanna-eslint/no-suboptimal-array-access': 'warn',
         '@hosanna-eslint/no-string-method-on-non-string': 'warn',
@@ -279,6 +316,8 @@ const plugin = {
         '@hosanna-eslint/no-recursion-in-logical-expression': 'warn',
         '@hosanna-eslint/no-ternary-iife-slow-path': 'warn',
         '@hosanna-eslint/no-nullish-coalescing-iife-slow-path': 'warn',
+        '@hosanna-eslint/no-unsupported-update-non-number': 'error',
+        '@hosanna-eslint/no-ambiguous-array-method-call': 'error',
 
         // Tier 3: Cross-file / deep analysis rules (HIGH performance impact)
         '@hosanna-eslint/no-case-insensitive-class-collision': 'error',
@@ -286,6 +325,12 @@ const plugin = {
         '@hosanna-eslint/no-getter-setter-mismatch': 'error',
         '@hosanna-eslint/no-vague-state-field-usage': 'warn',
         '@hosanna-eslint/no-vague-computed-access': 'warn',
+      },
+    },
+    /** Merge with `recommended` for transpiler/editor parity (HS-1099 on `new Date()`). */
+    strict: {
+      rules: {
+        '@hosanna-eslint/no-date-usage': ['warn', { reportNewDateAsHs1099: true }],
       },
     },
   },

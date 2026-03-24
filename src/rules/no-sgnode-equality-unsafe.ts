@@ -1,7 +1,6 @@
 import { Rule } from 'eslint';
 import * as ts from 'typescript';
-
-const BRS_NODE_INTERFACES = new Set(['ISGROSGNode', 'IBrsNode', 'ISGNNode']);
+import { isBrsNodeType } from '../utils/is-brs-node-type';
 
 /**
  * HS-1114: Warn about SGNode instance equality (node === otherNode).
@@ -49,21 +48,5 @@ const rule: Rule.RuleModule = {
     };
   },
 };
-
-function isBrsNodeType(type: ts.Type): boolean {
-  const symbol = type.getSymbol();
-  if (symbol && BRS_NODE_INTERFACES.has(symbol.name)) return true;
-
-  if (type.isUnion()) {
-    return type.types.some((t) => isBrsNodeType(t));
-  }
-
-  const baseTypes = type.getBaseTypes?.();
-  if (baseTypes) {
-    return baseTypes.some((t) => isBrsNodeType(t));
-  }
-
-  return false;
-}
 
 export default rule;
