@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.26.0] - 2026-03-24
+
+### Added
+- Introduced `no-ihs-identifiable-binary-comparison` rule to prevent direct comparisons of `IHsIdentifiable` values, improving type safety and diagnostics.
+- Added new ESLint rules for mixed conditional compilation and mixed BRS node comparisons, with enhanced diagnostics and tests.
+- Implemented additional ESLint rules for improved diagnostics, accompanied by corresponding test cases.
+
+### Changed
+- Updated `@tantawowa/hosanna-supported-apis` to version 1.3.0 and enhanced the `no-console-api` rule to support additional console methods.
+- Adjusted `@tantawowa/hosanna-supported-apis` path to use a local package reference and updated version specification to allow minor updates.
+
+### Fixed
+- Enhanced `no-suboptimal-array-access` rule to clarify outermost type assertions, improve diagnostics, and added test cases for dynamic key access.
+
 ## [1.25.0] - 2026-03-23
 
 ### Added
@@ -238,6 +252,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
 
 
 
