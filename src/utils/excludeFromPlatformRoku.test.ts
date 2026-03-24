@@ -35,6 +35,13 @@ const x = 1;
 `;
       expect(hasExcludeFromPlatformRokuDirective(content)).toBe(false);
     });
+
+    it('returns true when UTF-8 BOM precedes the directive', () => {
+      const content = `\uFEFF// hs:exclude-from-platform roku
+const x = 1;
+`;
+      expect(hasExcludeFromPlatformRokuDirective(content)).toBe(true);
+    });
   });
 
   describe('line-level (directive after code - NOT file-level)', () => {

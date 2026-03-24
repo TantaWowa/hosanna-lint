@@ -91,4 +91,19 @@ describe('no-ihs-identifiable-binary-comparison', () => {
       invalid: [],
     });
   });
+
+  it('does NOT flag when both operands are assertions and an inner type is unknown (e.g. fragmentRoot?: unknown)', () => {
+    typeAwareRuleTester.run('no-ihs-identifiable-binary-comparison', rule, {
+      valid: [
+        `
+        interface IHsIdentifiable { _hid: string }
+        interface Box extends IHsIdentifiable { n: number }
+        declare const foundView: Box;
+        declare const ctx: { fragmentRoot?: unknown } | null;
+        (foundView as IHsIdentifiable) !== (ctx!.fragmentRoot as IHsIdentifiable);
+        `,
+      ],
+      invalid: [],
+    });
+  });
 });

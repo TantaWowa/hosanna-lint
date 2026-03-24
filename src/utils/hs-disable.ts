@@ -34,6 +34,13 @@ interface ParsedDisableDirectives {
 const directiveCache = new WeakMap<object, ParsedDisableDirectives>();
 const fileExcludedFromRokuCache = new WeakMap<object, boolean>();
 
+function getFullSourceText(sourceCode: Rule.RuleContext['sourceCode']): string {
+  if (typeof sourceCode.getText === 'function') {
+    return sourceCode.getText();
+  }
+  return (sourceCode as { text?: string }).text ?? '';
+}
+
 function parseDirectives(sourceCode: Rule.RuleContext['sourceCode']): ParsedDisableDirectives {
   const cached = directiveCache.get(sourceCode);
   if (cached) return cached;
@@ -85,7 +92,7 @@ function parseDirectives(sourceCode: Rule.RuleContext['sourceCode']): ParsedDisa
 function isFileExcludedFromRoku(sourceCode: Rule.RuleContext['sourceCode']): boolean {
   let v = fileExcludedFromRokuCache.get(sourceCode);
   if (v !== undefined) return v;
-  v = hasExcludeFromPlatformRokuDirective(sourceCode.text);
+  v = hasExcludeFromPlatformRokuDirective(getFullSourceText(sourceCode));
   fileExcludedFromRokuCache.set(sourceCode, v);
   return v;
 }
@@ -164,6 +171,10 @@ export function wrapRuleWithHsDisable(rule: Rule.RuleModule, ruleName: string): 
   return {
     ...rule,
     create(context: Rule.RuleContext) {
+      if (isFileExcludedFromRoku(context.sourceCode)) {
+        return {};
+      }
+
       const originalReport = context.report.bind(context);
 
       // Create an unfrozen delegate; property reads fall through to the frozen context.

@@ -4,7 +4,8 @@
  * (after code starts) are handled separately (see hs-disable.ts), matching BabelProgram.isSkippingNode.
  */
 export function hasExcludeFromPlatformRokuDirective(content: string): boolean {
-  const lines = content.split(/\r?\n/);
+  const normalized = content.replace(/^\uFEFF/, '');
+  const lines = normalized.split(/\r?\n/);
   const directiveRegex = /hs:exclude-from-platform\s+roku/i;
   let inBlockComment = false;
 
