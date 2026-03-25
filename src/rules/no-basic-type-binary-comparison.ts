@@ -6,6 +6,8 @@ import {
   classifyType,
   findInterfaceDeclaration,
   isTypeAssignableToChecker,
+  shouldDelegateBinaryComparisonFromBasicToAnyUnknown,
+  unionContainsObjectType,
 } from '../utils/binary-comparison-type-utils';
 
 /**
@@ -13,6 +15,7 @@ import {
  * against a primitive (string, number, boolean) that is NOT null/undefined.
  *
  * It does NOT fire when:
+ * - Either side's type includes `any` or `unknown` (HS-1118 via no-any-unknown-equality-unsafe for ===/!==; transpiler skips HS-1019 for weak-top types)
  * - Both sides are BRS/SG node types (HS-1114 via no-sgnode-equality-unsafe)
  * - One side is a BRS/SG node and the other is not (error via no-mixed-brs-node-binary-comparison)
  * - Either side is null/undefined
@@ -61,8 +64,13 @@ const rule: Rule.RuleModule = {
           if (isLeftBrs && isRightBrs) return;
           if (isLeftBrs !== isRightBrs) return;
 
+          if (shouldDelegateBinaryComparisonFromBasicToAnyUnknown(leftType, rightType, node.operator, checker)) {
+            return;
+          }
+
           // Only flag: one side is object, other side is primitive
-          // Don't flag: both objects (transpiler uses _hid comparison)
+          // Object-vs-object ===/!== uses unionContainsObjectType so `IFoo | undefined === this` is flagged
+          // (classifyType alone can yield `nullish` for mixed unions and skip reporting).
           // Don't flag: either side is nullish/any
           // Don't flag: both primitives
           const isMismatch =
@@ -84,11 +92,9 @@ const rule: Rule.RuleModule = {
 
           // Transpiler HS-1019 warning path: === / !== on two non-primitive objects that are not both IHsIdentifiable
           const isStrictEquality = node.operator === '===' || node.operator === '!==';
-          if (
-            isStrictEquality &&
-            leftClass === 'object' &&
-            rightClass === 'object'
-          ) {
+          const leftHasObject = unionContainsObjectType(leftType, checker);
+          const rightHasObject = unionContainsObjectType(rightType, checker);
+          if (isStrictEquality && leftHasObject && rightHasObject) {
             const program = parserServices!.program!;
             const ifaceDecl = findInterfaceDeclaration(program, 'IHsIdentifiable');
             if (!ifaceDecl) return;

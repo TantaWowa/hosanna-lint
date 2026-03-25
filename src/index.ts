@@ -84,6 +84,7 @@ import noStaticMemberAccessWithThis from './rules/no-static-member-access-with-t
 import noTypeofBrsNodeMethod from './rules/no-typeof-brs-node-method';
 import noComparisonBrsNodeMethod from './rules/no-comparison-brs-node-method';
 import noSgnodeEqualityUnsafe from './rules/no-sgnode-equality-unsafe';
+import noAnyUnknownEqualityUnsafe from './rules/no-any-unknown-equality-unsafe';
 import noSgnNodeMutation from './rules/no-sgn-node-mutation';
 import noRecursionInLogicalExpression from './rules/no-recursion-in-logical-expression';
 import noTernaryIifeSlowPath from './rules/no-ternary-iife-slow-path';
@@ -212,6 +213,7 @@ const plugin = {
     'no-typeof-brs-node-method': w('no-typeof-brs-node-method', noTypeofBrsNodeMethod),
     'no-comparison-brs-node-method': w('no-comparison-brs-node-method', noComparisonBrsNodeMethod),
     'no-sgnode-equality-unsafe': w('no-sgnode-equality-unsafe', noSgnodeEqualityUnsafe),
+    'no-any-unknown-equality-unsafe': w('no-any-unknown-equality-unsafe', noAnyUnknownEqualityUnsafe),
     'no-sgn-node-mutation': w('no-sgn-node-mutation', noSgnNodeMutation),
     'no-recursion-in-logical-expression': w('no-recursion-in-logical-expression', noRecursionInLogicalExpression),
     'no-ternary-iife-slow-path': w('no-ternary-iife-slow-path', noTernaryIifeSlowPath),
@@ -315,6 +317,7 @@ const plugin = {
         '@hosanna-eslint/no-typeof-brs-node-method': 'warn',
         '@hosanna-eslint/no-comparison-brs-node-method': 'warn',
         '@hosanna-eslint/no-sgnode-equality-unsafe': 'warn',
+        '@hosanna-eslint/no-any-unknown-equality-unsafe': 'warn',
         '@hosanna-eslint/no-sgn-node-mutation': 'warn',
         '@hosanna-eslint/no-recursion-in-logical-expression': 'warn',
         '@hosanna-eslint/no-ternary-iife-slow-path': 'warn',

@@ -73,6 +73,61 @@ describe('no-basic-type-binary-comparison', () => {
     });
   });
 
+  it('does NOT flag when a type includes unknown (compiler HS-1118; no-any-unknown-equality-unsafe)', () => {
+    typeAwareRuleTester.run('no-basic-type-binary-comparison', rule, {
+      valid: [
+        `
+        interface PlainObject { n: number }
+        function f(o: PlainObject, x: string | unknown) {
+          return x === o;
+        }
+        `,
+        `
+        declare const a: any;
+        declare const b: { id: string };
+        a === b;
+        `,
+      ],
+      invalid: [],
+    });
+  });
+
+  it('does NOT flag == or != when any/unknown is involved (transpiler skips HS-1019 for weak-top)', () => {
+    typeAwareRuleTester.run('no-basic-type-binary-comparison', rule, {
+      valid: [
+        `
+        declare const a: any;
+        declare const b: { id: string };
+        a == b;
+        `,
+      ],
+      invalid: [],
+    });
+  });
+
+  it('flags === when left is interface | undefined and right is this (union was classified nullish; HS-1019)', () => {
+    typeAwareRuleTester.run('no-basic-type-binary-comparison', rule, {
+      valid: [],
+      invalid: [
+        {
+          code: `
+        interface IHsIdentifiable { _hid: string }
+        interface IFocusable { id: string }
+        class ChannelView {
+          handle(): void {
+            const result: IFocusable | undefined = undefined;
+            if (result === this) {
+              return;
+            }
+          }
+        }
+        `,
+          errors: [{ messageId: 'objectEqualityHsEqualFallback' }],
+        },
+      ],
+    });
+  });
+
   it('flags === on two object types when IHsIdentifiable exists and neither side is assignable (HS-1019)', () => {
     typeAwareRuleTester.run('no-basic-type-binary-comparison', rule, {
       valid: [

@@ -74,6 +74,18 @@ export function classifyType(type: ts.Type, checker: ts.TypeChecker): 'primitive
   return 'object';
 }
 
+/**
+ * True if the type is an object type or a union that includes at least one object-typed member
+ * (e.g. `IFocusable | undefined` or `IFocusable | NextViewFocus | undefined`).
+ * Used so HS-1019 matches transpiler behavior when `classifyType` collapses mixed unions to `nullish`.
+ */
+export function unionContainsObjectType(type: ts.Type, checker: ts.TypeChecker): boolean {
+  if (type.isUnion()) {
+    return type.types.some((t) => unionContainsObjectType(t, checker));
+  }
+  return classifyType(type, checker) === 'object';
+}
+
 export function isTypeAssignableToChecker(checker: ts.TypeChecker, source: ts.Type, target: ts.Type): boolean {
   const fn = (checker as unknown as { isTypeAssignableTo(s: ts.Type, t: ts.Type): boolean }).isTypeAssignableTo;
   return fn.call(checker, source, target);
@@ -94,4 +106,56 @@ export function findInterfaceDeclaration(program: ts.Program, interfaceName: str
     if (found) return found;
   }
   return undefined;
+}
+
+/**
+ * Matches transpiler `typeHasAnyOrUnknown` (TypeUtils): any/unknown, including inside unions (e.g. `string | unknown`).
+ */
+export function typeHasAnyOrUnknown(type: ts.Type): boolean {
+  if (type.flags & ts.TypeFlags.Any) return true;
+  if (type.flags & ts.TypeFlags.Unknown) return true;
+  if (type.isUnion()) {
+    return type.types.some((t) => typeHasAnyOrUnknown(t));
+  }
+  return false;
+}
+
+/** True when the type is only null / undefined / void (possibly a union of those). */
+export function isNullishOnlyType(type: ts.Type): boolean {
+  if (type.flags & ts.TypeFlags.Undefined) return true;
+  if (type.flags & ts.TypeFlags.Null) return true;
+  if (type.flags & ts.TypeFlags.Void) return true;
+  if (type.isUnion()) {
+    return type.types.every((t) => isNullishOnlyType(t));
+  }
+  return false;
+}
+
+/**
+ * When true, the transpiler does not emit HS-1019 for this comparison; strict `===`/`!==` use HS-1118 instead.
+ * `no-basic-type-binary-comparison` should not report — use `no-any-unknown-equality-unsafe` for `===`/`!==`.
+ */
+export function shouldDelegateBinaryComparisonFromBasicToAnyUnknown(
+  leftType: ts.Type,
+  rightType: ts.Type,
+  operator: string,
+  checker: ts.TypeChecker
+): boolean {
+  if (!typeHasAnyOrUnknown(leftType) && !typeHasAnyOrUnknown(rightType)) {
+    return false;
+  }
+  if (isNullishOnlyType(leftType) || isNullishOnlyType(rightType)) {
+    return true;
+  }
+  if (operator === '===' || operator === '!==') {
+    const leftW = typeHasAnyOrUnknown(leftType);
+    const rightW = typeHasAnyOrUnknown(rightType);
+    const oneWeakOnePrimitive =
+      (leftW && !rightW && classifyType(rightType, checker) === 'primitive') ||
+      (rightW && !leftW && classifyType(leftType, checker) === 'primitive');
+    if (oneWeakOnePrimitive) {
+      return true;
+    }
+  }
+  return true;
 }
