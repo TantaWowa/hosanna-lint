@@ -16,6 +16,7 @@ import {
  *
  * It does NOT fire when:
  * - Either side's type includes `any` or `unknown` (HS-1118 via no-any-unknown-equality-unsafe for ===/!==; transpiler skips HS-1019 for weak-top types)
+ * - Object-vs-object `===`/`!==` and either side is assignable to `IHsIdentifiable` when that interface exists in the program (transpiler uses _hid; see no-ihs-identifiable-binary-comparison)
  * - Both sides are BRS/SG node types (HS-1114 via no-sgnode-equality-unsafe)
  * - One side is a BRS/SG node and the other is not (error via no-mixed-brs-node-binary-comparison)
  * - Either side is null/undefined
@@ -97,14 +98,15 @@ const rule: Rule.RuleModule = {
           if (isStrictEquality && leftHasObject && rightHasObject) {
             const program = parserServices!.program!;
             const ifaceDecl = findInterfaceDeclaration(program, 'IHsIdentifiable');
-            if (!ifaceDecl) return;
-
-            const ifaceSym = checker.getSymbolAtLocation(ifaceDecl.name);
-            if (!ifaceSym) return;
-            const ifaceType = checker.getDeclaredTypeOfSymbol(ifaceSym);
-
-            if (isTypeAssignableToChecker(checker, leftType, ifaceType)) return;
-            if (isTypeAssignableToChecker(checker, rightType, ifaceType)) return;
+            if (ifaceDecl) {
+              const ifaceSym = checker.getSymbolAtLocation(ifaceDecl.name);
+              if (ifaceSym) {
+                const ifaceType = checker.getDeclaredTypeOfSymbol(ifaceSym);
+                if (isTypeAssignableToChecker(checker, leftType, ifaceType)) return;
+                if (isTypeAssignableToChecker(checker, rightType, ifaceType)) return;
+              }
+            }
+            // No IHsIdentifiable in the program (e.g. sample apps): cannot prove _hid path; still report to match transpiler HS-1019.
 
             context.report({
               node,

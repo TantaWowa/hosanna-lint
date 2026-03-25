@@ -64,12 +64,15 @@ describe('no-basic-type-binary-comparison', () => {
     });
   });
 
-  it('does NOT flag comparing two objects when IHsIdentifiable is not in the program (false negative ok)', () => {
+  it('flags === on two object types when IHsIdentifiable is not in the program (matches transpiler)', () => {
     typeAwareRuleTester.run('no-basic-type-binary-comparison', rule, {
-      valid: [
-        'const a: {id: string} = {id: "a"}; const b: {id: string} = {id: "b"}; a === b;',
+      valid: [],
+      invalid: [
+        {
+          code: 'const a: {id: string} = {id: "a"}; const b: {id: string} = {id: "b"}; a === b;',
+          errors: [{ messageId: 'objectEqualityHsEqualFallback' }],
+        },
       ],
-      invalid: [],
     });
   });
 
