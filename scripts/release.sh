@@ -2,6 +2,7 @@
 set -euo pipefail
 
 # Manual release script - replicates .github/workflows/release.yml for local execution
+# Runs npm login right after pre-flight (browser opens at launch); then install, lint, build, test, git, publish.
 # Usage: ./scripts/release.sh [version] [npmTag] [otp]
 #   version: major|minor|patch or specific semver (e.g. 1.2.3, 1.2.3-rc.1). Default: minor
 #   npmTag:  npm dist-tag (e.g. latest, next). Default: latest
@@ -29,6 +30,11 @@ if ! npm whoami &>/dev/null; then
 fi
 npm whoami &>/dev/null || die "Not logged in to npm after npm login."
 command -v gh &>/dev/null || info "gh CLI not found - GitHub Release will be skipped."
+
+# npm login first so the browser opens at startup; complete sign-in before the long build below.
+info "npm login — finish sign-in in the browser or terminal when it opens; the script continues after."
+npm login
+npm whoami &>/dev/null || die "Not logged in to npm after npm login."
 
 # --- Calculate new version ---
 info "Calculating new version..."
