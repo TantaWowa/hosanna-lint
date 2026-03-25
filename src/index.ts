@@ -42,6 +42,7 @@ import noConditionalCompilationElse from './rules/no-conditional-compilation-els
 import noMixedConditionalCompilation from './rules/no-mixed-conditional-compilation';
 import noJsonStringifySpace from './rules/no-json-stringify-space';
 import promiseStaticPolyfilled from './rules/promise-static-polyfilled';
+import symbolBasicSupportRoku from './rules/symbol-basic-support-roku';
 import noUnsupportedPromiseMethods from './rules/no-unsupported-promise-methods';
 
 // Tier 1: Pure AST rules (LOW performance impact)
@@ -160,6 +161,7 @@ const plugin = {
     'no-mixed-conditional-compilation': w('no-mixed-conditional-compilation', noMixedConditionalCompilation),
     'no-json-stringify-space': w('no-json-stringify-space', noJsonStringifySpace),
     'promise-static-polyfilled': w('promise-static-polyfilled', promiseStaticPolyfilled),
+    'symbol-basic-support-roku': w('symbol-basic-support-roku', symbolBasicSupportRoku),
     'no-unsupported-promise-methods': w('no-unsupported-promise-methods', noUnsupportedPromiseMethods),
 
     // Tier 1: Pure AST rules (LOW performance impact)
@@ -271,6 +273,7 @@ const plugin = {
         '@hosanna-eslint/no-mixed-conditional-compilation': 'error',
         '@hosanna-eslint/no-json-stringify-space': 'warn',
         '@hosanna-eslint/promise-static-polyfilled': 'warn',
+        '@hosanna-eslint/symbol-basic-support-roku': 'warn',
         '@hosanna-eslint/no-unsupported-promise-methods': 'error',
 
         // Tier 1: Pure AST rules (LOW performance impact)
