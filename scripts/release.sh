@@ -21,7 +21,13 @@ info() { echo "==> $*"; }
 info "Pre-flight checks..."
 [[ -n "$(git status --porcelain)" ]] && die "Working directory is not clean. Commit or stash changes first."
 [[ -z "${XAI_API_KEY:-}" ]] && die "XAI_API_KEY must be set for changelog generation."
-npm whoami &>/dev/null || die "Not logged in to npm. Run 'npm login' first."
+
+# npm login opens a browser (or prompts) for authentication when needed
+if ! npm whoami &>/dev/null; then
+  info "Not logged in to npm. Starting npm login (browser may open)..."
+  npm login
+fi
+npm whoami &>/dev/null || die "Not logged in to npm after npm login."
 command -v gh &>/dev/null || info "gh CLI not found - GitHub Release will be skipped."
 
 # --- Calculate new version ---
