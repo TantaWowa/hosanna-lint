@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.29.0] - 2026-03-25
+
+### Added
+- New ESLint rule `no-any-unknown-equality-unsafe` to prevent strict equality checks with `any` or `unknown` types for safer code practices.
+- Tests for the new rule to validate functionality and edge cases.
+
+### Changed
+- Updated package dependencies to version 1.6.0 for `@tantawowa/hosanna-supported-apis`.
+
+### Fixed
+- Updated `no-basic-type-binary-comparison` rule to flag object equality checks when `IHsIdentifiable` is absent.
+- Modified test cases and rule logic to align with transpiler behavior for accurate type checking.
+
 ## [1.27.0] - 2026-03-25
 
 ### Added
@@ -257,6 +270,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
 
 
 

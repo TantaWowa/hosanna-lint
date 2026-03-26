@@ -6,7 +6,8 @@ set -euo pipefail
 # Usage: ./scripts/release.sh [version] [npmTag] [otp]
 #   version: major|minor|patch or specific semver (e.g. 1.2.3, 1.2.3-rc.1). Default: minor
 #   npmTag:  npm dist-tag (e.g. latest, next). Default: latest
-#   otp:     npm 2FA one-time password (required if npm account has 2FA). Use NPM_OTP env var instead if preferred.
+#   otp:     npm 2FA one-time password for publish (required if your account uses 2FA for publishing).
+#            Pass as 3rd arg or set NPM_OTP. npm login (browser) does not replace publish OTP.
 
 VERSION_INPUT="${1:-minor}"
 NPM_TAG="${2:-latest}"
@@ -22,13 +23,6 @@ info() { echo "==> $*"; }
 info "Pre-flight checks..."
 [[ -n "$(git status --porcelain)" ]] && die "Working directory is not clean. Commit or stash changes first."
 [[ -z "${XAI_API_KEY:-}" ]] && die "XAI_API_KEY must be set for changelog generation."
-
-# npm login opens a browser (or prompts) for authentication when needed
-if ! npm whoami &>/dev/null; then
-  info "Not logged in to npm. Starting npm login (browser may open)..."
-  npm login
-fi
-npm whoami &>/dev/null || die "Not logged in to npm after npm login."
 command -v gh &>/dev/null || info "gh CLI not found - GitHub Release will be skipped."
 
 # npm login first so the browser opens at startup; complete sign-in before the long build below.
@@ -111,7 +105,10 @@ info "Pushing branch and tag..."
 git push origin "$RELEASE_BRANCH"
 git push origin "v$NEW_VERSION"
 
-# --- Publish to npm ---
+# --- npm: sign in (browser / terminal), then publish ---
+info "npm login — complete authentication in the browser or terminal when prompted, then this script continues."
+npm login
+npm whoami &>/dev/null || die "Still not logged in to npm after npm login."
 info "Publishing to npm (tag: $NPM_TAG)..."
 if [[ -n "$NPM_OTP" ]]; then
   npm publish --access public --tag "$NPM_TAG" --otp "$NPM_OTP"
