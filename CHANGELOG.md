@@ -1,5 +1,16 @@
 # Changelog
 
+## [1.30.0] - 2026-03-28
+
+### Added
+- Introduced `no-unsigned-right-shift` rule to flag usage of the `>>>` operator (HS-1119).
+- Added tests for the new rule, including suppression scenarios with `hs:disable-next-line`.
+- Updated plugin configuration to include the new rule.
+
+### Changed
+- Updated release script to clarify npm 2FA one-time password usage in documentation.
+- Removed automatic npm login check in release script and added manual authentication instructions.
+
 ## [1.29.0] - 2026-03-25
 
 ### Added
@@ -270,6 +281,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
 
 
 
