@@ -91,6 +91,7 @@ import noTernaryIifeSlowPath from './rules/no-ternary-iife-slow-path';
 import noNullishCoalescingIifeSlowPath from './rules/no-nullish-coalescing-iife-slow-path';
 import noUnsignedRightShift from './rules/no-unsigned-right-shift';
 import noCallfuncTooManyArguments from './rules/no-callfunc-too-many-arguments';
+import noMemberAssignmentOnCallableReference from './rules/no-member-assignment-on-callable-reference';
 import noUnsupportedUpdateNonNumber from './rules/no-unsupported-update-non-number';
 import noAmbiguousArrayMethodCall from './rules/no-ambiguous-array-method-call';
 
@@ -222,6 +223,10 @@ const plugin = {
     'no-nullish-coalescing-iife-slow-path': w('no-nullish-coalescing-iife-slow-path', noNullishCoalescingIifeSlowPath),
     'no-unsigned-right-shift': w('no-unsigned-right-shift', noUnsignedRightShift),
     'no-callfunc-too-many-arguments': w('no-callfunc-too-many-arguments', noCallfuncTooManyArguments),
+    'no-member-assignment-on-callable-reference': w(
+      'no-member-assignment-on-callable-reference',
+      noMemberAssignmentOnCallableReference
+    ),
     'no-unsupported-update-non-number': w('no-unsupported-update-non-number', noUnsupportedUpdateNonNumber),
     'no-ambiguous-array-method-call': w('no-ambiguous-array-method-call', noAmbiguousArrayMethodCall),
 
@@ -328,6 +333,7 @@ const plugin = {
         '@hosanna-eslint/no-nullish-coalescing-iife-slow-path': 'warn',
         '@hosanna-eslint/no-unsigned-right-shift': 'warn',
         '@hosanna-eslint/no-callfunc-too-many-arguments': 'error',
+        '@hosanna-eslint/no-member-assignment-on-callable-reference': 'error',
         '@hosanna-eslint/no-unsupported-update-non-number': 'error',
         '@hosanna-eslint/no-ambiguous-array-method-call': 'error',
 
