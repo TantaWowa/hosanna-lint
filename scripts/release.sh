@@ -9,8 +9,9 @@
 #   npm run release:patch:dry          # Dry run (no changes)
 #
 # Options (passed after --):
-#   --dry-run       Preview without making changes
-#   --skip-tests    Skip lint and test steps
+#   --dry-run         Preview without making changes
+#   --skip-tests      Skip lint and test steps
+#   --allow-branch    Allow releasing from a non-main branch (hotfixes)
 #
 # Prerequisites:
 #   - On main branch with clean working directory
@@ -28,6 +29,7 @@ cd "$REPO_ROOT"
 BUMP_TYPE=""
 DRY_RUN=""
 SKIP_TESTS=""
+ALLOW_BRANCH=""
 
 for arg in "$@"; do
   case "$arg" in
@@ -40,6 +42,9 @@ for arg in "$@"; do
     --skip-tests)
       SKIP_TESTS="1"
       ;;
+    --allow-branch)
+      ALLOW_BRANCH="1"
+      ;;
   esac
 done
 
@@ -50,8 +55,9 @@ fi
 
 # --- Validate branch ---
 BRANCH=$(git branch --show-current)
-if [ "$BRANCH" != "main" ]; then
+if [ "$BRANCH" != "main" ] && [ -z "$ALLOW_BRANCH" ]; then
   echo "ERROR: Must be on main branch. Current branch: $BRANCH"
+  echo "       For hotfix releases, use: npm run release:patch -- --allow-branch"
   exit 1
 fi
 
@@ -66,8 +72,13 @@ if [ -n "$SKIP_TESTS" ]; then
   echo "==> Skipping lint and tests"
 fi
 
-echo "==> Starting $BUMP_TYPE release from main"
-git pull origin main
+echo "==> Starting $BUMP_TYPE release from $BRANCH"
+if [ "$BRANCH" = "main" ]; then
+  git pull origin main
+else
+  echo "==> Releasing from non-main branch: $BRANCH (--allow-branch)"
+  echo "    Note: version will NOT be bumped to -next on main after release."
+fi
 
 # --- Strip -next suffix so release-it can bump cleanly ---
 CURRENT_VERSION=$(node -p "require('./package.json').version")

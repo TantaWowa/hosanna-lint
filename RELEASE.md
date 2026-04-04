@@ -66,11 +66,33 @@ Pass extra flags after `--`:
 ```bash
 # Skip lint and tests (use with caution)
 npm run release:patch -- --skip-tests
+
+# Release from a non-main branch (hotfix)
+npm run release:patch -- --allow-branch
 ```
+
+## Hotfix Releases
+
+To release from a non-main branch (e.g., a hotfix branch), use `--allow-branch`:
+
+```bash
+# 1. Create hotfix branch from the release tag
+git checkout -b hotfix/1.31.1 v1.31.0
+
+# 2. Apply your fix, commit
+
+# 3. Release from the hotfix branch
+npm run release:patch -- --allow-branch
+
+# 4. Merge the fix back to main
+git checkout main && git merge hotfix/1.31.1
+```
+
+When releasing from a non-main branch, the post-release `-next` version bump is skipped.
 
 ## Troubleshooting
 
-**"Must be on main branch"** — Switch to main: `git checkout main`
+**"Must be on main branch"** — Switch to main (`git checkout main`) or use `--allow-branch` for hotfix releases.
 
 **"Not logged in to npm"** — Run `npm login` first.
 

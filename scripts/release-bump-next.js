@@ -19,9 +19,13 @@ fs.writeFileSync(packagePath, JSON.stringify(pkg, null, 2) + '\n');
 
 console.log(`==> Bumped to ${nextVersion} for next development cycle`);
 
-// Commit and push
-execSync('git add package.json', { stdio: 'inherit' });
-execSync(`git commit -m "chore: bump version to ${nextVersion}"`, { stdio: 'inherit' });
-execSync('git push origin main', { stdio: 'inherit' });
-
-console.log(`==> Main branch updated to ${nextVersion}`);
+// Only commit and push -next version when releasing from main
+const branch = execSync('git branch --show-current', { encoding: 'utf8' }).trim();
+if (branch === 'main') {
+  execSync('git add package.json', { stdio: 'inherit' });
+  execSync(`git commit -m "chore: bump version to ${nextVersion}"`, { stdio: 'inherit' });
+  execSync('git push origin main', { stdio: 'inherit' });
+  console.log(`==> Main branch updated to ${nextVersion}`);
+} else {
+  console.log(`==> Skipping -next bump commit (not on main, current branch: ${branch})`);
+}
