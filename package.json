@@ -19,7 +19,13 @@
     "dev:watch": "nodemon --watch src --watch scripts --exec \"npm run build\" --ext ts,js,json",
     "changelog": "npx ai-changelog-generator --write",
     "changelog:dry": "npx ai-changelog-generator --dry-run",
-    "release": "./scripts/release.sh"
+    "release:patch": "bash scripts/release.sh patch",
+    "release:minor": "bash scripts/release.sh minor",
+    "release:major": "bash scripts/release.sh major",
+    "release:patch:dry": "bash scripts/release.sh patch --dry-run",
+    "release:minor:dry": "bash scripts/release.sh minor --dry-run",
+    "release:major:dry": "bash scripts/release.sh major --dry-run",
+    "release:bump-next": "node scripts/release-bump-next.js"
   },
   "keywords": [
     "eslint",
@@ -35,6 +41,7 @@
     "@types/node": "^24.5.2",
     "@typescript-eslint/parser": "^8.45.0",
     "ai-changelog-generator": "^0.2.0",
+    "release-it": "^19.2.4",
     "eslint": "^9.17.0",
     "eslint-formatter-compact": "^8.40.0",
     "eslint-plugin-unused-imports": "^4.1.4",
