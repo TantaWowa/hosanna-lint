@@ -15,8 +15,9 @@
 # Prerequisites:
 #   - On main branch with clean working directory
 #   - npm logged in (npm login)
-#   - XAI_API_KEY env var (optional, for AI changelog)
 #   - gh CLI authenticated (for GitHub release)
+# npm 2FA: do not use release-it --ci locally (blocks OTP). This script omits --ci so
+#   release-it can prompt for OTP, or set NPM_OTP to pass it non-interactively.
 
 set -e
 
@@ -93,6 +94,10 @@ if [ "$CURRENT_VERSION" != "$BASE_VERSION" ]; then
   "
 fi
 
-# --- Run release-it ---
+# --- Run release-it (no --ci: allows npm OTP prompt when 2FA is enabled) ---
+REL_OTP=()
+if [ -n "${NPM_OTP:-}" ]; then
+  REL_OTP=(--npm.otp="$NPM_OTP")
+fi
 echo "==> Running release-it $BUMP_TYPE $DRY_RUN"
-npx release-it "$BUMP_TYPE" --ci $DRY_RUN
+npx release-it "$BUMP_TYPE" $DRY_RUN "${REL_OTP[@]}"

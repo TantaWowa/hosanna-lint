@@ -29,7 +29,7 @@ When you run a release command, the following steps execute automatically in ord
 5. **Build** — `npm run build`
 6. **Lint** — `npm run lint`
 7. **Test** — `npm run test`
-8. **Generate changelog** — AI-powered changelog via `ai-changelog-generator`
+8. **Generate changelog** — conventional changelog (`@release-it/conventional-changelog`, angular preset)
 9. **Commit & tag** — `chore(release): vX.Y.Z`
 10. **Publish to npm** — `npm publish --access public`
 11. **Push** — pushes commit and tag to origin
@@ -48,12 +48,13 @@ npm login
 
 You must be logged in to npm with publish access to `@tantawowa/hosanna-eslint-plugin`.
 
+If your npm account uses **2FA** for publishes, the release script does **not** pass `--ci` to release-it so you can be prompted for a one-time password at publish time. To pass the code without a prompt (e.g. automation): `NPM_OTP=123456 npm run release -- patch` (code expires quickly).
+
+Run `npm pkg fix` if npm warns about `repository` during publish; the repo uses the canonical `git+https://…` form.
+
 ### Environment Variables
 
 ```bash
-# Optional: AI changelog generation
-XAI_API_KEY=your-xai-key
-
 # Required: GitHub CLI must be authenticated
 # Run: gh auth login
 ```
