@@ -16,7 +16,7 @@
     "publishArgs": ["--access public"]
   },
   "hooks": {
-    "after:bump": "npm run build && npm run lint && npm run test && npm run changelog",
+    "after:bump": "npm run build && npm run lint && npm run test && (npm run changelog || echo 'WARNING: changelog generation failed (non-fatal)')",
     "before:release": "git add CHANGELOG.md",
     "after:release": "npm run release:bump-next ${version}"
   }
