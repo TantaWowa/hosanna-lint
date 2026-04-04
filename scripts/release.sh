@@ -2,14 +2,13 @@
 #
 # Release script for hosanna-eslint-plugin.
 #
-# Usage:
-#   npm run release:patch              # Patch release
-#   npm run release:minor              # Minor release
-#   npm run release:major              # Major release
-#   npm run release:patch:dry          # Dry run (no changes)
+# Usage (npm forwards args after --):
+#   npm run release -- patch
+#   npm run release -- minor --dry-run
+#   npm run release -- major --dry
 #
-# Options (passed after --):
-#   --dry-run         Preview without making changes
+# Options:
+#   --dry-run | --dry Preview without making changes
 #   --skip-tests      Skip lint and test steps
 #   --allow-branch    Allow releasing from a non-main branch (hotfixes)
 #
@@ -36,7 +35,7 @@ for arg in "$@"; do
     major|minor|patch)
       BUMP_TYPE="$arg"
       ;;
-    --dry-run)
+    --dry-run|--dry)
       DRY_RUN="--dry-run"
       ;;
     --skip-tests)
@@ -49,7 +48,7 @@ for arg in "$@"; do
 done
 
 if [ -z "$BUMP_TYPE" ]; then
-  echo "Usage: $0 <major|minor|patch> [--dry-run] [--skip-tests]"
+  echo "Usage: npm run release -- <major|minor|patch> [--dry-run|--dry] [--skip-tests] [--allow-branch]"
   exit 1
 fi
 
@@ -57,7 +56,7 @@ fi
 BRANCH=$(git branch --show-current)
 if [ "$BRANCH" != "main" ] && [ -z "$ALLOW_BRANCH" ]; then
   echo "ERROR: Must be on main branch. Current branch: $BRANCH"
-  echo "       For hotfix releases, use: npm run release:patch -- --allow-branch"
+  echo "       For hotfix releases, use: npm run release -- patch --allow-branch"
   exit 1
 fi
 

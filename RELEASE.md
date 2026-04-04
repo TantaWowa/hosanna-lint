@@ -3,15 +3,20 @@
 ## Quick Start
 
 ```bash
-npm run release:patch          # 1.31.0-next → 1.31.1
-npm run release:minor          # 1.31.0-next → 1.32.0
-npm run release:major          # 1.31.0-next → 2.0.0
+npm run release -- patch         # 1.31.0-next → 1.31.1
+npm run release -- minor         # 1.31.0-next → 1.32.0
+npm run release -- major         # 1.31.0-next → 2.0.0
 ```
 
 Dry run (preview without making changes):
+
 ```bash
-npm run release:patch:dry
+npm run release -- patch --dry-run
+# or
+npm run release -- patch --dry
 ```
+
+Use `--` after `release` so npm passes bump and flags to the script. If you write `npm run release patch --dry`, npm does not forward `--dry` to the script.
 
 ## What Happens
 
@@ -65,10 +70,10 @@ Pass extra flags after `--`:
 
 ```bash
 # Skip lint and tests (use with caution)
-npm run release:patch -- --skip-tests
+npm run release -- patch --skip-tests
 
 # Release from a non-main branch (hotfix)
-npm run release:patch -- --allow-branch
+npm run release -- patch --allow-branch
 ```
 
 ## Hotfix Releases
@@ -82,7 +87,7 @@ git checkout -b hotfix/1.31.1 v1.31.0
 # 2. Apply your fix, commit
 
 # 3. Release from the hotfix branch
-npm run release:patch -- --allow-branch
+npm run release -- patch --allow-branch
 
 # 4. Merge the fix back to main
 git checkout main && git merge hotfix/1.31.1
@@ -98,4 +103,4 @@ When releasing from a non-main branch, the post-release `-next` version bump is 
 
 **Build/test failure** — The release aborts before publishing. Fix the issue and re-run.
 
-**Dry run shows unexpected version** — The script strips `-next` then bumps. If current version is `1.31.0-next` and you run `release:patch`, the result is `1.31.1` (strips to `1.31.0`, bumps patch).
+**Dry run shows unexpected version** — The script strips `-next` then bumps. If current version is `1.31.0-next` and you run `npm run release -- patch`, the result is `1.31.1` (strips to `1.31.0`, bumps patch).

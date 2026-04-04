@@ -16,8 +16,14 @@
     "publishArgs": ["--access public"]
   },
   "hooks": {
-    "after:bump": "npm run build && npm run lint && npm run test && (npm run changelog || echo 'WARNING: changelog generation failed (non-fatal)')",
-    "before:release": "git add CHANGELOG.md",
-    "after:release": "npm run release:bump-next ${version}"
+    "after:bump": "npm run build && npm run lint && npm run test",
+    "after:release": "node scripts/release-bump-next.js ${version}"
+  },
+  "plugins": {
+    "@release-it/conventional-changelog": {
+      "preset": "angular",
+      "infile": "CHANGELOG.md",
+      "header": "# Changelog"
+    }
   }
 }
