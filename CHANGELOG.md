@@ -1,10 +1,16 @@
 # Changelog
 
-# [1.35.0](https://github.com/TantaWowa/hosanna-lint/compare/v1.30.0...v1.35.0) (2026-04-04)
+## [1.35.0] - 2026-04-04
 
-# [1.34.0](https://github.com/TantaWowa/hosanna-lint/compare/v1.30.0...v1.34.0) (2026-04-04)
+### Changed
 
-# [1.33.0](https://github.com/TantaWowa/hosanna-lint/compare/v1.30.0...v1.33.0) (2026-04-04)
+- Migrated releases to release-it with `@release-it/conventional-changelog` and aligned peer dependency versions with `release-it` 19.
+- Release scripts: npm 2FA supported via interactive OTP or `NPM_OTP`; `repository` metadata normalized for npm (`git+https://…`).
+- Updated `@tantawowa/hosanna-supported-apis` to 1.8.0 and related ESLint rule changes (see git history since v1.30.0).
+
+### Notes
+
+- Automated changelog entries were empty for some releases because the **angular** preset omits `chore` commits, and several npm versions were published **without matching `v*` git tags**, so compare links fell back to `v1.30.0`. From **v1.35.0** onward, tags are present; future generated notes use `conventionalcommits` and include `chore` where relevant.
 
 ## [1.30.0] - 2026-03-28
 

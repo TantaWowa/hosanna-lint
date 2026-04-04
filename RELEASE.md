@@ -29,7 +29,7 @@ When you run a release command, the following steps execute automatically in ord
 5. **Build** — `npm run build`
 6. **Lint** — `npm run lint`
 7. **Test** — `npm run test`
-8. **Generate changelog** — conventional changelog (`@release-it/conventional-changelog`, angular preset)
+8. **Generate changelog** — `@release-it/conventional-changelog` with the **conventionalcommits** preset (includes `chore`, `feat`, `fix`, etc.). **Git tags** (`vX.Y.Z`) must exist for each release or compare links span the wrong range.
 9. **Commit & tag** — `chore(release): vX.Y.Z`
 10. **Publish to npm** — `npm publish --access public`
 11. **Push** — pushes commit and tag to origin
