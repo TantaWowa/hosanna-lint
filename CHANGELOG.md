@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.36.0](https://github.com/TantaWowa/hosanna-lint/compare/v1.35.0...v1.36.0) (2026-04-21)
+
+### Features
+
+* add new ESLint rules for for...in usage ([3d5eaaf](https://github.com/TantaWowa/hosanna-lint/commit/3d5eaafa3c3f5c0b83f042d3ef9fd8d6f1df2989))
+* add tests for no-for-in ESLint rules ([3befca9](https://github.com/TantaWowa/hosanna-lint/commit/3befca9568cfd91ffa8dbf2c3bed7a92ecf875c3))
+* implement no-for-in-unsupported-rhs ESLint rule ([9336401](https://github.com/TantaWowa/hosanna-lint/commit/9336401a1145eb77efe8fda6aa9fcab539ff71a7))
+
 ## [1.35.0] - 2026-04-04
 
 ### Changed
