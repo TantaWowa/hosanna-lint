@@ -1075,6 +1075,16 @@ fn.bind(this);
 
 `for...in` is discouraged in BrightScript. Use `for...of` for values or a numeric `for` loop for indices.
 
+#### `no-for-in-over-scenegraph-node` [LOW]
+**Error level:** `warn` | **HS-1122**
+
+Matches the transpiler warning when `for...in` is used on SceneGraph node types: lowering uses `getFields()` on Roku, which may not match JavaScript `for...in` semantics.
+
+#### `no-for-in-unsupported-rhs` [LOW]
+**Error level:** `warn` | **HS-1123**
+
+Matches the transpiler warning when the `for...in` right-hand side is not a supported plain object/string pattern (runtime uses `hs_for_in_rhs()`; unsupported values iterate zero times).
+
 #### `no-find-node-method` [LOW]
 **Error level:** `warn` | **HS-1076**
 

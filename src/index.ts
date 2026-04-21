@@ -62,6 +62,8 @@ import noUnsupportedNumberStaticMethods from './rules/no-unsupported-number-stat
 import noInterfaceComputedProperty from './rules/no-interface-computed-property';
 import noArgumentBinding from './rules/no-argument-binding';
 import noForInOnArray from './rules/no-for-in-on-array';
+import noForInOverScenegraphNode from './rules/no-for-in-over-scenegraph-node';
+import noForInUnsupportedRhs from './rules/no-for-in-unsupported-rhs';
 import noUnsupportedJsonFunctions from './rules/no-unsupported-json-functions';
 import noFindNodeMethod from './rules/no-find-node-method';
 import noUnsupportedDestructuringContext from './rules/no-unsupported-destructuring-context';
@@ -185,6 +187,8 @@ const plugin = {
     'no-interface-computed-property': w('no-interface-computed-property', noInterfaceComputedProperty),
     'no-argument-binding': w('no-argument-binding', noArgumentBinding),
     'no-for-in-on-array': w('no-for-in-on-array', noForInOnArray),
+    'no-for-in-over-scenegraph-node': w('no-for-in-over-scenegraph-node', noForInOverScenegraphNode),
+    'no-for-in-unsupported-rhs': w('no-for-in-unsupported-rhs', noForInUnsupportedRhs),
     'no-unsupported-json-functions': w('no-unsupported-json-functions', noUnsupportedJsonFunctions),
     'no-find-node-method': w('no-find-node-method', noFindNodeMethod),
     'no-unsupported-destructuring-context': w('no-unsupported-destructuring-context', noUnsupportedDestructuringContext),
@@ -304,6 +308,8 @@ const plugin = {
         '@hosanna-eslint/no-interface-computed-property': 'error',
         '@hosanna-eslint/no-argument-binding': 'error',
         '@hosanna-eslint/no-for-in-on-array': 'warn',
+        '@hosanna-eslint/no-for-in-over-scenegraph-node': 'warn',
+        '@hosanna-eslint/no-for-in-unsupported-rhs': 'warn',
         '@hosanna-eslint/no-unsupported-json-functions': 'error',
         '@hosanna-eslint/no-find-node-method': 'warn',
         '@hosanna-eslint/no-unsupported-destructuring-context': 'error',
