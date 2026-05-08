@@ -93,7 +93,7 @@ export default tseslint.config(
 
 ## Rules
 
-This plugin provides **67 specialized ESLint rules** organized by category to ensure Hosanna UI code quality and platform compatibility.
+This plugin provides **68 specialized ESLint rules** organized by category to ensure Hosanna UI code quality and platform compatibility.
 
 ### Performance Impact Key
 
@@ -1084,6 +1084,11 @@ Matches the transpiler warning when `for...in` is used on SceneGraph node types:
 **Error level:** `warn` | **HS-1123**
 
 Matches the transpiler warning when the `for...in` right-hand side is not a supported plain object/string pattern (runtime uses `hs_for_in_rhs()`; unsupported values iterate zero times).
+
+#### `no-typeof-roku-global-functions` [LOW]
+**Error level:** `error` | **HS-1124**
+
+Disallows `typeof` guards for Roku global functions such as `GetGlobalAA`, `SetGlobalAA`, and `CreateObject`. These globals are always available on Roku; call them directly or isolate non-Roku behavior behind platform-specific code.
 
 #### `no-find-node-method` [LOW]
 **Error level:** `warn` | **HS-1076**

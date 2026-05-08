@@ -47,6 +47,7 @@ The transpiler uses deep emit and type state for these. ESLint rules would dupli
 | `no-is-prototype-of-arity` | HS-1049 | |
 | `no-unsupported-spread-context` | HS-1093, HS-1005 | |
 | `no-unsupported-delete-operator` | HS-1016, HS-1001 | Dot-`delete` with non-identifier property → HS-1001 |
+| `no-typeof-roku-global-functions` | HS-1124 | Roku globals such as `GetGlobalAA` / `CreateObject` are always available on Roku; do not guard them with `typeof` |
 | `no-unsupported-update-non-number` | HS-1026 | |
 | `no-ambiguous-array-method-call` | HS-1069 | |
 | `no-suboptimal-array-access` | HS-1042, HS-1042_1, HS-1043, HS-1044 | HS-1044: `(x as any\|unknown)[dynamic]` |
