@@ -96,6 +96,7 @@ import noCallfuncTooManyArguments from './rules/no-callfunc-too-many-arguments';
 import noMemberAssignmentOnCallableReference from './rules/no-member-assignment-on-callable-reference';
 import noUnsupportedUpdateNonNumber from './rules/no-unsupported-update-non-number';
 import noAmbiguousArrayMethodCall from './rules/no-ambiguous-array-method-call';
+import noTypeofRokuGlobalFunctions from './rules/no-typeof-roku-global-functions';
 
 // Tier 3: Cross-file / deep analysis rules (HIGH performance impact)
 import noCaseInsensitiveClassCollision from './rules/no-case-insensitive-class-collision';
@@ -200,6 +201,7 @@ const plugin = {
     'no-is-prototype-of-arity': w('no-is-prototype-of-arity', noIsPrototypeOfArity),
     'no-unsupported-spread-context': w('no-unsupported-spread-context', noUnsupportedSpreadContext),
     'no-unsupported-delete-operator': w('no-unsupported-delete-operator', noUnsupportedDeleteOperator),
+    'no-typeof-roku-global-functions': w('no-typeof-roku-global-functions', noTypeofRokuGlobalFunctions),
 
     // Tier 2: Type-aware rules (MEDIUM performance impact)
     'no-for-of-on-non-array': w('no-for-of-on-non-array', noForOfOnNonArray),
@@ -318,6 +320,7 @@ const plugin = {
         '@hosanna-eslint/no-is-prototype-of-arity': 'warn',
         '@hosanna-eslint/no-unsupported-spread-context': 'error',
         '@hosanna-eslint/no-unsupported-delete-operator': 'error',
+        '@hosanna-eslint/no-typeof-roku-global-functions': 'error',
 
         // Tier 2: Type-aware rules (MEDIUM performance impact)
         '@hosanna-eslint/no-for-of-on-non-array': 'error',
