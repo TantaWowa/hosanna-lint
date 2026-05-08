@@ -2,6 +2,17 @@
 
 ## [1.38.0](https://github.com/TantaWowa/hosanna-lint/compare/v1.36.0...v1.38.0) (2026-05-08)
 
+### Added
+
+- Added `no-typeof-roku-global-functions` (`HS-1124`) to reject `typeof` guards around Roku global functions such as `GetGlobalAA`, `SetGlobalAA`, `CreateObject`, `GetPlatform`, and `WriteAsciiFile`.
+- Registered the new rule in the recommended Hosanna ESLint config and documented its diagnostic mapping for compiler/linter parity.
+- Added focused rule tests for direct globals, `globalThis`/`global` member access, alias patterns, and ordinary object-property false positives.
+
+### Changed
+
+- Updated `@tantawowa/hosanna-supported-apis` to `1.10.0` so lint diagnostics stay aligned with compiler diagnostic code mappings.
+- Pinned ESLint parser/tooling versions used by the release build after a package update exposed stricter upstream typings in older rules.
+
 ## [1.36.0](https://github.com/TantaWowa/hosanna-lint/compare/v1.35.0...v1.36.0) (2026-04-21)
 
 ### Features
