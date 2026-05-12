@@ -47,18 +47,25 @@ export function resolveAppConfigFromFile(filePath: string): ResolvedAppConfig {
   return { config, selectedFile, dependencyFiles };
 }
 
-function resolveAppConfigFile(filePath: string, stack: string[], dependencies: string[]): JsonObject {
+export function resolveAppConfigFromParsedFile(filePath: string, parsedConfig: JsonObject): ResolvedAppConfig {
+  const dependencyFiles: string[] = [];
+  const selectedFile = path.normalize(filePath);
+  const config = resolveAppConfigFile(selectedFile, [], dependencyFiles, parsedConfig);
+  return { config, selectedFile, dependencyFiles };
+}
+
+function resolveAppConfigFile(filePath: string, stack: string[], dependencies: string[], parsedOverride?: JsonObject): JsonObject {
   const normalizedFilePath = path.normalize(filePath);
   if (stack.includes(normalizedFilePath)) {
     throw new Error(`Circular app config inheritance detected: ${[...stack, normalizedFilePath].join(' -> ')}`);
   }
-  if (!fs.existsSync(normalizedFilePath)) {
+  if (!parsedOverride && !fs.existsSync(normalizedFilePath)) {
     throw new Error(`App config file not found: ${normalizedFilePath}`);
   }
 
   let parsed: unknown;
   try {
-    parsed = JSON.parse(fs.readFileSync(normalizedFilePath, 'utf-8'));
+    parsed = parsedOverride ?? JSON.parse(fs.readFileSync(normalizedFilePath, 'utf-8'));
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     throw new Error(`Failed to parse app config ${normalizedFilePath}: ${message}`);

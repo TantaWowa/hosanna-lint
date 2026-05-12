@@ -1,5 +1,5 @@
 import { Rule } from 'eslint';
-import { isAppConfigFileName, resolveAppConfigFromFile } from '../utils/app-config-resolver';
+import { isAppConfigFileName, resolveAppConfigFromParsedFile } from '../utils/app-config-resolver';
 import {
   CollectionViewRowSettingsFields,
   CollectionViewFocusSettingsFields,
@@ -496,7 +496,7 @@ const rule: Rule.RuleModule = {
         }
         if (jsonObj && typeof jsonObj === 'object' && jsonObj.$extendFile !== undefined) {
           try {
-            jsonObj = resolveAppConfigFromFile(filename).config;
+            jsonObj = resolveAppConfigFromParsedFile(filename, jsonObj).config;
           } catch {
             // Resolution errors are handled by app-config-json-valid rule.
             return;

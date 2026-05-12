@@ -2,7 +2,7 @@ import { Rule } from 'eslint';
 import * as fs from 'fs';
 import * as path from 'path';
 import { jsonPathExists } from '../utils/app-config-loader';
-import { isAppConfigFileName, resolveAppConfigFromFile, validateExtendFileUsage } from '../utils/app-config-resolver';
+import { isAppConfigFileName, resolveAppConfigFromParsedFile, validateExtendFileUsage } from '../utils/app-config-resolver';
 
 interface Cache {
   fileExistence: Map<string, boolean>;
@@ -484,7 +484,7 @@ const rule: Rule.RuleModule = {
         try {
           validateExtendFileUsage(jsonObj, filename);
           if (jsonObj.$extendFile !== undefined) {
-            resolvedJsonObj = resolveAppConfigFromFile(filename).config;
+            resolvedJsonObj = resolveAppConfigFromParsedFile(filename, jsonObj).config;
           }
         } catch (error) {
           const message = error instanceof Error ? error.message : String(error);

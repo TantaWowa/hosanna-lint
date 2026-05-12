@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import * as fs from 'fs';
 import * as path from 'path';
 import { tmpdir } from 'os';
-import { resolveAppConfigFromFile, resolveAppConfigInput, validateExtendFileUsage } from './app-config-resolver';
+import { resolveAppConfigFromFile, resolveAppConfigFromParsedFile, resolveAppConfigInput, validateExtendFileUsage } from './app-config-resolver';
 
 describe('app-config-resolver', () => {
   let tempDir: string;
@@ -45,6 +45,25 @@ describe('app-config-resolver', () => {
       rows: { base: { a: true }, phone: { b: true } },
       theme: { colors: { white: '#eee', black: '#000' }, fonts: { body: 'Medium,20' } },
       cells: ['phone'],
+    });
+  });
+
+  it('uses the parsed child config instead of re-reading the child file', () => {
+    const child = path.join(metaDir, 'app.config.phone.json');
+    writeConfig('app.config.json', {
+      rows: { base: true },
+      theme: { colors: { white: '#fff' } },
+    });
+
+    const result = resolveAppConfigFromParsedFile(child, {
+      $extendFile: './app.config.json',
+      rows: { phone: true },
+      theme: { colors: 'disabled' },
+    });
+
+    expect(result.config).toEqual({
+      rows: { base: true, phone: true },
+      theme: { colors: 'disabled' },
     });
   });
 
