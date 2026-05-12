@@ -1,4 +1,5 @@
 import { Rule } from 'eslint';
+import { isAppConfigFileName, resolveAppConfigFromFile } from '../utils/app-config-resolver';
 import {
   CollectionViewRowSettingsFields,
   CollectionViewFocusSettingsFields,
@@ -468,14 +469,14 @@ const rule: Rule.RuleModule = {
       invalidPropertyKey: 'Invalid property key "{{key}}" in {{context}} context. Valid keys include: {{validKeys}}...',
       invalidPropertyValue: 'Invalid value for property "{{key}}": {{error}}',
       missingRequiredField: 'Missing required field "{{field}}" in {{context}}',
-      invalidSubType: 'Invalid subType "{{subType}}". Must be one of: Poster, Rectangle, Group, Label, MaskGroup',
+    invalidSubType: 'Invalid subType "{{subType}}". Must be one of: Poster, Rectangle, Group, Label, MaskGroup',
       invalidViewIdReference: 'State override references invalid viewId "{{viewId}}"',
     },
   },
   create: function (context) {
     // Only process app.config.json files
     const filename = context.filename || '';
-    if (!filename.includes('assets/meta/app.config.json') && !filename.endsWith('app.config.json')) {
+    if (!isAppConfigFileName(filename)) {
       return {};
     }
 
@@ -492,6 +493,14 @@ const rule: Rule.RuleModule = {
         } catch {
           // JSON parse errors are handled by app-config-json-valid rule
           return;
+        }
+        if (jsonObj && typeof jsonObj === 'object' && jsonObj.$extendFile !== undefined) {
+          try {
+            jsonObj = resolveAppConfigFromFile(filename).config;
+          } catch {
+            // Resolution errors are handled by app-config-json-valid rule.
+            return;
+          }
         }
 
         // Only validate if rows and cells exist

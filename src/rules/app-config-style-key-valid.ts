@@ -57,7 +57,10 @@ function validateFontKeyFormat(value: string): { valid: boolean; error?: string 
     };
   }
 
-  // Validate font part: either pkg:/assets/fonts/... path OR valid Roku system font name
+  // Validate font part: either pkg:/assets/fonts/... path, hsbundle:// logical path, OR valid Roku system font name
+  if (fontPart.includes('hsbundle://')) {
+    return { valid: true };
+  }
   if (fontPart.includes('pkg:/')) {
     // If it's a pkg path, validate it starts with pkg:/assets/fonts/
     if (!fontPart.trim().startsWith('pkg:/assets/fonts/')) {
@@ -278,4 +281,3 @@ const rule: Rule.RuleModule = {
 };
 
 export default rule;
-
