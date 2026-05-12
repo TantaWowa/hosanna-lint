@@ -53,6 +53,25 @@ describe('app-config-loader', () => {
       expect(result).toEqual(config);
     });
 
+    it('should resolve $extendFile inheritance from app.config.json', () => {
+      const base = {
+        rows: { base: true },
+        translations: { en: {} },
+        cells: {},
+        theme: { colors: { white: '#fff' }, fonts: {} },
+        controls: {},
+      };
+      fs.writeFileSync(path.join(path.dirname(configPath), 'base.json'), JSON.stringify(base));
+      fs.writeFileSync(configPath, JSON.stringify({
+        $extendFile: './base.json',
+        rows: { child: true },
+      }));
+
+      const result = getAppConfig(context as unknown as Rule.RuleContext);
+      expect(result?.rows).toEqual({ base: true, child: true });
+      expect(result?.theme).toEqual(base.theme);
+    });
+
     it('should return null if file does not exist', () => {
       const result = getAppConfig(context as unknown as Rule.RuleContext);
       expect(result).toBeNull();
@@ -177,4 +196,3 @@ describe('app-config-loader', () => {
     });
   });
 });
-

@@ -1,6 +1,5 @@
 import { Rule } from 'eslint';
-import * as fs from 'fs';
-import * as path from 'path';
+import { resolveAppConfig } from './app-config-resolver';
 
 interface AppConfigCache {
   config: Record<string, unknown> | null;
@@ -43,19 +42,7 @@ export function getAppConfig(context: Rule.RuleContext): Record<string, unknown>
   cache.loaded = true;
 
   try {
-    const projectRoot = context.getCwd();
-    const configPath = path.join(projectRoot, 'assets', 'meta', 'app.config.json');
-
-    // Check if file exists
-    if (!fs.existsSync(configPath)) {
-      cache.fileNotFound = true;
-      cache.config = null;
-      return null;
-    }
-
-    // Read and parse JSON
-    const fileContent = fs.readFileSync(configPath, 'utf-8');
-    const config = JSON.parse(fileContent);
+    const config = resolveAppConfig(context.getCwd()).config;
 
     cache.config = config;
     cache.fileNotFound = false;
@@ -127,4 +114,3 @@ export function jsonPathExists(config: Record<string, unknown> | null | undefine
   
   return getJsonValueByPath(config, pathStr) !== undefined;
 }
-

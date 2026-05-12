@@ -2,6 +2,7 @@ import { Rule } from 'eslint';
 import * as fs from 'fs';
 import * as path from 'path';
 import { jsonPathExists } from '../utils/app-config-loader';
+import { isAppConfigFileName, resolveAppConfigFromParsedFile, validateExtendFileUsage } from '../utils/app-config-resolver';
 
 interface Cache {
   fileExistence: Map<string, boolean>;
@@ -137,7 +138,10 @@ function validateFontKeyFormat(value: string): { valid: boolean; error?: string 
     };
   }
 
-  // Validate font part: either pkg:/assets/fonts/... path OR valid Roku system font name
+  // Validate font part: either pkg:/assets/fonts/... path, hsbundle:// logical path, OR valid Roku system font name
+  if (fontPart.includes('hsbundle://')) {
+    return { valid: true };
+  }
   if (fontPart.includes('pkg:/')) {
     // If it's a pkg path, validate it starts with pkg:/assets/fonts/
     if (!fontPart.trim().startsWith('pkg:/assets/fonts/')) {
@@ -445,12 +449,13 @@ const rule: Rule.RuleModule = {
       jsonParseError: 'Failed to parse JSON: {{error}}',
       extendsWithTilde: '$extends values should not start with ~',
       invalidFontKeyFormat: '{{error}}',
+      appConfigResolveError: '{{error}}',
     },
   },
   create: function (context) {
     // Only process app.config.json files
     const filename = context.filename || '';
-    if (!filename.includes('assets/meta/app.config.json') && !filename.endsWith('app.config.json')) {
+    if (!isAppConfigFileName(filename)) {
       return {};
     }
 
@@ -475,8 +480,24 @@ const rule: Rule.RuleModule = {
           return;
         }
 
+        let resolvedJsonObj = jsonObj;
+        try {
+          validateExtendFileUsage(jsonObj, filename);
+          if (jsonObj.$extendFile !== undefined) {
+            resolvedJsonObj = resolveAppConfigFromParsedFile(filename, jsonObj).config;
+          }
+        } catch (error) {
+          const message = error instanceof Error ? error.message : String(error);
+          context.report({
+            node,
+            messageId: 'appConfigResolveError',
+            data: { error: message },
+          });
+          return;
+        }
+
         // Validate required sections (use type assertion for nested access)
-        const json = jsonObj as Record<string, unknown> & { translations?: { en?: unknown }; theme?: { colors?: unknown; fonts?: unknown } };
+        const json = resolvedJsonObj as Record<string, unknown> & { translations?: { en?: unknown }; theme?: { colors?: unknown; fonts?: unknown } };
         if (!json.rows || typeof json.rows !== 'object') {
           context.report({
             node,
@@ -536,7 +557,7 @@ const rule: Rule.RuleModule = {
         }
 
         // Traverse JSON to find all paths and references
-        const traversal = traverseJson(jsonObj);
+        const traversal = traverseJson(resolvedJsonObj);
 
         // Validate pkg:/ paths
         for (const pkgPath of traversal.pkgPaths) {
@@ -572,7 +593,7 @@ const rule: Rule.RuleModule = {
 
         // Validate ~ references
         for (const jsonRef of traversal.jsonRefs) {
-          const validation = validateJsonReference(jsonRef.ref, jsonObj, jsonRef.jsonPath, jsonRef.key);
+          const validation = validateJsonReference(jsonRef.ref, resolvedJsonObj, jsonRef.jsonPath, jsonRef.key);
           if (!validation.valid) {
             const lines = text.split('\n');
             let line = 1;
@@ -685,7 +706,7 @@ const rule: Rule.RuleModule = {
             continue;
           }
 
-          const validation = validateExtendsReference(extendsRef.path, jsonObj, extendsRef.jsonPath);
+          const validation = validateExtendsReference(extendsRef.path, resolvedJsonObj, extendsRef.jsonPath);
           if (!validation.valid) {
             const lines = text.split('\n');
             let line = 1;
@@ -719,4 +740,3 @@ const rule: Rule.RuleModule = {
 };
 
 export default rule;
-

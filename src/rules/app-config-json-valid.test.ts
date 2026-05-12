@@ -76,6 +76,61 @@ describe('app-config-json-valid', () => {
     expect(validJson.controls).toBeDefined();
   });
 
+  it('should validate a partial variant against its resolved parent config', () => {
+    const basePath = path.join(tempDir, 'assets', 'meta', 'app.config.json');
+    const variantPath = path.join(tempDir, 'assets', 'meta', 'app.config.phone.json');
+    fs.mkdirSync(path.dirname(basePath), { recursive: true });
+    fs.writeFileSync(basePath, JSON.stringify({
+      rows: {},
+      translations: { en: {} },
+      cells: {},
+      theme: { colors: {}, fonts: {} },
+      controls: {},
+    }));
+
+    ruleTester.run('app-config-json-valid', rule, {
+      valid: [
+        {
+          code: JSON.stringify({ $extendFile: './app.config.json', appSettings: { configVariant: 'phone' } }),
+          filename: variantPath,
+        },
+      ],
+      invalid: [],
+    });
+  });
+
+  it('should report invalid $extendFile usage', () => {
+    const variantPath = path.join(tempDir, 'assets', 'meta', 'app.config.phone.json');
+    ruleTester.run('app-config-json-valid', rule, {
+      valid: [],
+      invalid: [
+        {
+          code: JSON.stringify({ nested: { $extendFile: './app.config.json' } }),
+          filename: variantPath,
+          errors: [{ messageId: 'appConfigResolveError' }],
+        },
+      ],
+    });
+  });
+
+  it('should allow hsbundle font keys without file existence validation', () => {
+    ruleTester.run('app-config-json-valid', rule, {
+      valid: [
+        {
+          code: JSON.stringify({
+            rows: {},
+            translations: { en: {} },
+            cells: {},
+            theme: { colors: {}, fonts: { heading: 'hsbundle://assets/fonts/Inter.ttf, 24' } },
+            controls: {},
+          }),
+          filename: path.join(tempDir, 'assets', 'meta', 'app.config.json'),
+        },
+      ],
+      invalid: [],
+    });
+  });
+
   it('should detect missing rows section', () => {
     const invalidJson: any = {
       translations: { en: {} },
@@ -1601,4 +1656,3 @@ describe('app-config-json-valid', () => {
     });
   });
 });
-
