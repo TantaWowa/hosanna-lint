@@ -8,13 +8,12 @@ const ruleTester = new RuleTester({
 });
 
 describe('no-object-prototype', () => {
-  it('should pass valid code - direct method on object is fine', () => {
+  it('should pass valid code that avoids Object.prototype methods', () => {
     ruleTester.run('no-object-prototype', rule, {
       valid: [
-        'obj.hasOwnProperty("a");',
-        'obj.hasOwnProperty("key");',
         'Object.keys(obj);',
         'Object.values(obj);',
+        'Object.keys(obj).includes("key");',
       ],
       invalid: [],
     });
@@ -39,6 +38,14 @@ describe('no-object-prototype', () => {
         {
           code: 'Object.prototype.toString.call(obj);',
           errors: [{ messageId: 'objectPrototypeNotSupported' }],
+        },
+        {
+          code: 'obj.hasOwnProperty("a");',
+          errors: [{ messageId: 'hasOwnPropertyNotSupported' }],
+        },
+        {
+          code: 'record.hasOwnProperty("key");',
+          errors: [{ messageId: 'hasOwnPropertyNotSupported' }],
         },
       ],
     });
