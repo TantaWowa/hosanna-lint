@@ -93,6 +93,8 @@ import noRecursionInLogicalExpression from './rules/no-recursion-in-logical-expr
 import noTernaryIifeSlowPath from './rules/no-ternary-iife-slow-path';
 import noNullishCoalescingIifeSlowPath from './rules/no-nullish-coalescing-iife-slow-path';
 import noUnsignedRightShift from './rules/no-unsigned-right-shift';
+import bitwiseOperatorPolyfill from './rules/bitwise-operator-polyfill';
+import logicalCompoundAssignmentLowered from './rules/logical-compound-assignment-lowered';
 import noCallfuncTooManyArguments from './rules/no-callfunc-too-many-arguments';
 import noMemberAssignmentOnCallableReference from './rules/no-member-assignment-on-callable-reference';
 import noUnsupportedUpdateNonNumber from './rules/no-unsupported-update-non-number';
@@ -230,6 +232,8 @@ const plugin = {
     'no-ternary-iife-slow-path': w('no-ternary-iife-slow-path', noTernaryIifeSlowPath),
     'no-nullish-coalescing-iife-slow-path': w('no-nullish-coalescing-iife-slow-path', noNullishCoalescingIifeSlowPath),
     'no-unsigned-right-shift': w('no-unsigned-right-shift', noUnsignedRightShift),
+    'bitwise-operator-polyfill': w('bitwise-operator-polyfill', bitwiseOperatorPolyfill),
+    'logical-compound-assignment-lowered': w('logical-compound-assignment-lowered', logicalCompoundAssignmentLowered),
     'no-callfunc-too-many-arguments': w('no-callfunc-too-many-arguments', noCallfuncTooManyArguments),
     'no-member-assignment-on-callable-reference': w(
       'no-member-assignment-on-callable-reference',
@@ -344,6 +348,8 @@ const plugin = {
         '@hosanna-eslint/no-ternary-iife-slow-path': 'warn',
         '@hosanna-eslint/no-nullish-coalescing-iife-slow-path': 'warn',
         '@hosanna-eslint/no-unsigned-right-shift': 'warn',
+        '@hosanna-eslint/bitwise-operator-polyfill': 'warn',
+        '@hosanna-eslint/logical-compound-assignment-lowered': 'warn',
         '@hosanna-eslint/no-callfunc-too-many-arguments': 'error',
         '@hosanna-eslint/no-member-assignment-on-callable-reference': 'error',
         '@hosanna-eslint/no-unsupported-update-non-number': 'error',

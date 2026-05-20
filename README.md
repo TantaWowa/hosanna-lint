@@ -93,7 +93,7 @@ export default tseslint.config(
 
 ## Rules
 
-This plugin provides **68 specialized ESLint rules** organized by category to ensure Hosanna UI code quality and platform compatibility.
+This plugin provides **70 specialized ESLint rules** organized by category to ensure Hosanna UI code quality and platform compatibility.
 
 ### Performance Impact Key
 
@@ -951,6 +951,21 @@ x -= 1;
 x *= 2;
 x /= 2;
 ```
+
+#### `no-unsigned-right-shift` [LOW]
+**Error level:** `warn` | **HS-1119**
+
+Warns when `>>>` or `>>>=` is used. Hosanna lowers these through `hs_unsigned_right_shift` to preserve JavaScript zero-fill shift behavior on Roku.
+
+#### `bitwise-operator-polyfill` [LOW]
+**Error level:** `warn` | **HS-1126**
+
+Warns when `&`, `|`, `^`, `~`, `&=`, `|=`, or `^=` is used. Hosanna lowers these through helper functions to preserve JavaScript `ToInt32` behavior; this is slower than native BrightScript operators, so avoid it in hot paths.
+
+#### `logical-compound-assignment-lowered` [LOW]
+**Error level:** `warn` | **HS-1127**
+
+Warns when `&&=`, `||=`, or `??=` is used. Hosanna lowers these to if-statements that preserve short-circuiting, but complex assignment targets can be evaluated again when the write occurs.
 
 ### 🆕 API Restriction Rules
 
