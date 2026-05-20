@@ -937,17 +937,15 @@ const x = !!!value;
 #### `no-unsupported-compound-assignment` [LOW]
 **Error level:** `error` | **HS-1039**
 
-BrightScript only supports `=`, `+=`, `-=`, `*=`, `/=` assignment operators.
+Hosanna supports JavaScript compound assignment operators by lowering unsupported BrightScript forms to equivalent Roku-safe code.
 
 ```typescript
-// ❌ Bad
+// ✅ Good
 x ||= 1;
 x &&= true;
 x ??= 'default';
 x **= 2;
 x %= 3;
-
-// ✅ Good
 x += 1;
 x -= 1;
 x *= 2;

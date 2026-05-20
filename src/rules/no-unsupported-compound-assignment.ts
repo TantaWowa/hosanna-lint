@@ -7,14 +7,14 @@ const rule: Rule.RuleModule = {
   meta: {
     type: 'problem',
     docs: {
-      description: 'HS-1039: Disallow unsupported compound assignment operators. BrightScript only supports =, +=, -=, *=, /=.',
+      description: 'HS-1039: Disallow unsupported compound assignment operators.',
       category: 'Best Practices',
       recommended: true,
     },
     schema: [],
     messages: {
       unsupportedCompoundAssignment:
-        'HS-1039: The compound assignment operator "{{operator}}" is not supported in BrightScript. Only =, +=, -=, *=, /= are supported.',
+        'HS-1039: The compound assignment operator "{{operator}}" is not supported in BrightScript.',
     },
   },
   create: function (context) {

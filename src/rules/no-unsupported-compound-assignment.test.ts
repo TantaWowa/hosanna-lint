@@ -16,56 +16,19 @@ describe('no-unsupported-compound-assignment', () => {
         'x -= 1;',
         'x *= 2;',
         'x /= 2;',
+        'x %= 2;',
+        'x **= 2;',
+        'x <<= 1;',
+        'x >>= 1;',
+        'x >>>= 1;',
+        'x &= 0xff;',
+        'x |= 0xff;',
+        'x ^= 0xff;',
+        'x &&= 1;',
+        'x ||= 1;',
+        'x ??= 1;',
       ],
       invalid: [],
-    });
-  });
-
-  it('should report unsupported compound assignment operators', () => {
-    ruleTester.run('no-unsupported-compound-assignment', rule, {
-      valid: [],
-      invalid: [
-        {
-          code: 'x ||= 1;',
-          errors: [{ messageId: 'unsupportedCompoundAssignment', data: { operator: '||=' } }],
-        },
-        {
-          code: 'x &&= 1;',
-          errors: [{ messageId: 'unsupportedCompoundAssignment', data: { operator: '&&=' } }],
-        },
-        {
-          code: 'x ??= 1;',
-          errors: [{ messageId: 'unsupportedCompoundAssignment', data: { operator: '??=' } }],
-        },
-        {
-          code: 'x **= 2;',
-          errors: [{ messageId: 'unsupportedCompoundAssignment', data: { operator: '**=' } }],
-        },
-        {
-          code: 'x %= 2;',
-          errors: [{ messageId: 'unsupportedCompoundAssignment', data: { operator: '%=' } }],
-        },
-        {
-          code: 'x <<= 1;',
-          errors: [{ messageId: 'unsupportedCompoundAssignment', data: { operator: '<<=' } }],
-        },
-        {
-          code: 'x >>= 1;',
-          errors: [{ messageId: 'unsupportedCompoundAssignment', data: { operator: '>>=' } }],
-        },
-        {
-          code: 'x &= 0xff;',
-          errors: [{ messageId: 'unsupportedCompoundAssignment', data: { operator: '&=' } }],
-        },
-        {
-          code: 'x |= 0xff;',
-          errors: [{ messageId: 'unsupportedCompoundAssignment', data: { operator: '|=' } }],
-        },
-        {
-          code: 'x ^= 0xff;',
-          errors: [{ messageId: 'unsupportedCompoundAssignment', data: { operator: '^=' } }],
-        },
-      ],
     });
   });
 });
