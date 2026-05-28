@@ -45,7 +45,7 @@ describe('arrow-assigned-to-method-signature-member', () => {
     });
   });
 
-  it('does NOT flag the safe patterns (property-of-function-type, untyped, method shorthand, class method)', () => {
+  it('does NOT flag the safe patterns (property-of-function-type, untyped, method shorthand, class method, fn declaration)', () => {
     ruleTester.run('arrow-assigned-to-method-signature-member', rule, {
       valid: [
         // Property-of-function-type member — the recommended fix shape (call sites emit .call).
@@ -62,8 +62,81 @@ describe('arrow-assigned-to-method-signature-member', () => {
           }
           function makeGreeter(): IGreeter { return new Greeter(); }
         `,
+        // Identifier resolving to a module-level FUNCTION DECLARATION (raw function, works).
+        `
+          interface Deps { make(): string; }
+          function makeImpl(): string { return 'hi'; }
+          function createDeps(): Deps { return { make: makeImpl }; }
+        `,
       ],
       invalid: [],
+    });
+  });
+
+  // Copilot review (PR #9, #206 — parity with transpiler): the rule flags BOTH
+  // ArrowFunctionExpression and FunctionExpression. Lock in the function-expression branch.
+  it('flags HS-1128 when the value is a function expression (not an arrow)', () => {
+    ruleTester.run('arrow-assigned-to-method-signature-member', rule, {
+      valid: [],
+      invalid: [
+        {
+          code: `function createDeps(): { make(): string } { return { make: function () { return 'hi'; } }; }`,
+          errors: [{ messageId: 'arrowAssignedToMethodSignatureMember' }],
+        },
+      ],
+    });
+  });
+
+  // Copilot review (#206 c1 — parity): identifier-backed property value resolving to a local
+  // arrow `const` declaration. Same closure-object value, same crash.
+  it('flags HS-1128 when the value is an identifier resolving to a local arrow const', () => {
+    ruleTester.run('arrow-assigned-to-method-signature-member', rule, {
+      valid: [],
+      invalid: [
+        {
+          code: `
+            interface Deps { make(): string; }
+            function createDeps(): Deps {
+              const makeImpl = () => 'hi';
+              return { make: makeImpl };
+            }
+          `,
+          errors: [{ messageId: 'arrowAssignedToMethodSignatureMember' }],
+        },
+      ],
+    });
+  });
+
+  // Copilot review (#206 c1 — parity): shorthand `{ make }` where `make` is a local arrow const.
+  it('flags HS-1128 for shorthand property whose name resolves to a local arrow const', () => {
+    ruleTester.run('arrow-assigned-to-method-signature-member', rule, {
+      valid: [],
+      invalid: [
+        {
+          code: `
+            interface Deps { make(): string; }
+            function createDeps(): Deps {
+              const make = () => 'hi';
+              return { make };
+            }
+          `,
+          errors: [{ messageId: 'arrowAssignedToMethodSignatureMember' }],
+        },
+      ],
+    });
+  });
+
+  // Copilot review (#206 c2 — parity): literal computed property names (`['make']`, `[0]`) are
+  // statically resolvable and must be flagged.
+  it('flags HS-1128 for a literal computed property name with an arrow value', () => {
+    ruleTester.run('arrow-assigned-to-method-signature-member', rule, {
+      valid: [],
+      invalid: [
+        {
+          code: `function createDeps(): { make(): string } { return { ['make']: () => 'hi' }; }`,
+          errors: [{ messageId: 'arrowAssignedToMethodSignatureMember' }],
+        },
+      ],
     });
   });
 
