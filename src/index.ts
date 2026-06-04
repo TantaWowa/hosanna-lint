@@ -73,6 +73,7 @@ import noIsPrototypeOfArity from './rules/no-is-prototype-of-arity';
 import noUnsupportedSpreadContext from './rules/no-unsupported-spread-context';
 import noUnsupportedDeleteOperator from './rules/no-unsupported-delete-operator';
 import statementVoidExpressionErased from './rules/statement-void-expression-erased';
+import noSatisfiesExpression from './rules/no-satisfies-expression';
 
 // Tier 2: Type-aware rules (MEDIUM performance impact)
 import noForOfOnNonArray from './rules/no-for-of-on-non-array';
@@ -204,6 +205,7 @@ const plugin = {
     'no-unsupported-delete-operator': w('no-unsupported-delete-operator', noUnsupportedDeleteOperator),
     'no-typeof-roku-global-functions': w('no-typeof-roku-global-functions', noTypeofRokuGlobalFunctions),
     'statement-void-expression-erased': w('statement-void-expression-erased', statementVoidExpressionErased),
+    'no-satisfies-expression': w('no-satisfies-expression', noSatisfiesExpression),
 
     // Tier 2: Type-aware rules (MEDIUM performance impact)
     'no-for-of-on-non-array': w('no-for-of-on-non-array', noForOfOnNonArray),
@@ -324,6 +326,7 @@ const plugin = {
         '@hosanna-eslint/no-unsupported-delete-operator': 'error',
         '@hosanna-eslint/no-typeof-roku-global-functions': 'error',
         '@hosanna-eslint/statement-void-expression-erased': 'warn',
+        '@hosanna-eslint/no-satisfies-expression': 'warn',
 
         // Tier 2: Type-aware rules (MEDIUM performance impact)
         '@hosanna-eslint/no-for-of-on-non-array': 'error',
