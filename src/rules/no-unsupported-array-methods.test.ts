@@ -20,6 +20,7 @@ describe('no-unsupported-array-methods', () => {
         'const arr = [1, 2, 3]; arr.shift();',
         'const arr = [1, 2, 3]; arr.unshift(0);',
         'const arr = [1, 2, 3]; arr.splice(1, 1);',
+        'const arr = [1, 2, 3]; arr.copyWithin(0, 1);',
         'const arr = [1, 2, 3]; arr.slice(0, 2);',
         'const arr = [1, 2, 3]; arr.join(",");',
         'const arr = [1, 2, 3]; arr.sort();',
@@ -31,6 +32,7 @@ describe('no-unsupported-array-methods', () => {
         'const arr = [1, 2, 3]; arr.map(item => item * 2);',
         'const arr = [1, 2, 3]; arr.filter(item => item > 2);',
         'const arr = [1, 2, 3]; arr.reduce((sum, item) => sum + item, 0);',
+        'const arr = [1, 2, 3]; arr.reduceRight((sum, item) => sum + item, 0);',
         'const arr = [1, 2, 3]; arr.find(item => item > 2);',
         'const arr = [1, 2, 3]; arr.findIndex(item => item > 2);',
         'const arr = [1, 2, 3]; arr.includes(2);',
@@ -41,8 +43,12 @@ describe('no-unsupported-array-methods', () => {
         'const arr = [1, 2, 3]; arr.keys();',
         'const arr = [1, 2, 3]; arr.values();',
         'const arr = [1, 2, 3]; arr.entries();',
+        'const arr = [1, 2, 3]; arr.fill(0);',
+        'const arr = [1, 2, 3]; arr.toString();',
         '[1, 2, 3].find(item => item > 2);',
         '[1, 2, 3].every(item => item > 0);',
+        '[1, 2, 3].copyWithin(0, 1);',
+        '[1, 2, 3].fill(0);',
       ],
       invalid: [],
     });
@@ -74,20 +80,16 @@ describe('no-unsupported-array-methods', () => {
       valid: [],
       invalid: [
         {
-          code: 'const arr = [1, 2, 3]; arr.copyWithin(0, 1);',
-          errors: [{ messageId: 'unsupportedArrayInstanceMethod', data: { method: 'copyWithin' } }],
+          code: 'const arr = [1, 2, 3]; arr.at(0);',
+          errors: [{ messageId: 'unsupportedArrayInstanceMethod', data: { method: 'at' } }],
         },
         {
-          code: 'const arr = [1, 2, 3]; arr.fill(0);',
-          errors: [{ messageId: 'unsupportedArrayInstanceMethod', data: { method: 'fill' } }],
+          code: '[1, 2, 3].with(0, 9);',
+          errors: [{ messageId: 'unsupportedArrayInstanceMethod', data: { method: 'with' } }],
         },
         {
-          code: '[1, 2, 3].copyWithin(0, 1);',
-          errors: [{ messageId: 'unsupportedArrayInstanceMethod', data: { method: 'copyWithin' } }],
-        },
-        {
-          code: 'const arr: number[] = [1, 2, 3]; arr.fill(0);',
-          errors: [{ messageId: 'unsupportedArrayInstanceMethod', data: { method: 'fill' } }],
+          code: 'const arr: number[] = [1, 2, 3]; arr.toReversed();',
+          errors: [{ messageId: 'unsupportedArrayInstanceMethod', data: { method: 'toReversed' } }],
         },
       ],
     });
