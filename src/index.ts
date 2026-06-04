@@ -99,6 +99,7 @@ import noMemberAssignmentOnCallableReference from './rules/no-member-assignment-
 import noUnsupportedUpdateNonNumber from './rules/no-unsupported-update-non-number';
 import noAmbiguousArrayMethodCall from './rules/no-ambiguous-array-method-call';
 import noTypeofRokuGlobalFunctions from './rules/no-typeof-roku-global-functions';
+import noTopLevelRuntimeInNoModule from './rules/no-top-level-runtime-in-no-module';
 
 // Tier 3: Cross-file / deep analysis rules (HIGH performance impact)
 import noCaseInsensitiveClassCollision from './rules/no-case-insensitive-class-collision';
@@ -204,6 +205,7 @@ const plugin = {
     'no-unsupported-spread-context': w('no-unsupported-spread-context', noUnsupportedSpreadContext),
     'no-unsupported-delete-operator': w('no-unsupported-delete-operator', noUnsupportedDeleteOperator),
     'no-typeof-roku-global-functions': w('no-typeof-roku-global-functions', noTypeofRokuGlobalFunctions),
+    'no-top-level-runtime-in-no-module': w('no-top-level-runtime-in-no-module', noTopLevelRuntimeInNoModule),
     'statement-void-expression-erased': w('statement-void-expression-erased', statementVoidExpressionErased),
     'no-satisfies-expression': w('no-satisfies-expression', noSatisfiesExpression),
 
@@ -325,6 +327,7 @@ const plugin = {
         '@hosanna-eslint/no-unsupported-spread-context': 'error',
         '@hosanna-eslint/no-unsupported-delete-operator': 'error',
         '@hosanna-eslint/no-typeof-roku-global-functions': 'error',
+        '@hosanna-eslint/no-top-level-runtime-in-no-module': 'error',
         '@hosanna-eslint/statement-void-expression-erased': 'warn',
         '@hosanna-eslint/no-satisfies-expression': 'warn',
 

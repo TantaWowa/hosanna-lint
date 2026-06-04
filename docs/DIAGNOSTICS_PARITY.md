@@ -48,6 +48,7 @@ The transpiler uses deep emit and type state for these. ESLint rules would dupli
 | `no-unsupported-spread-context` | HS-1093, HS-1005 | |
 | `no-unsupported-delete-operator` | HS-1016, HS-1001 | Dot-`delete` with non-identifier property → HS-1001 |
 | `no-typeof-roku-global-functions` | HS-1124 | Roku globals such as `GetGlobalAA` / `CreateObject` are always available on Roku; do not guard them with `typeof` |
+| `no-top-level-runtime-in-no-module` | HS-1133 | `hs:no-module` files cannot contain top-level runtime statements such as initialized constants or expression statements |
 | `statement-void-expression-erased` | HS-1125 | Statement-position `void` is erased in BrightScript output; value-position `void` remains on the existing compiler path |
 | `no-unsupported-update-non-number` | HS-1026 | |
 | `no-ambiguous-array-method-call` | HS-1069 | |

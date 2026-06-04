@@ -1,5 +1,12 @@
 # Changelog
 
+## [Unreleased]
+
+### Added
+
+- Added `no-top-level-runtime-in-no-module` (`HS-1133`) to reject top-level runtime statements in `hs:no-module` files before they emit invalid BrightScript file-scope code.
+- Registered the new rule in the recommended Hosanna ESLint config and shared diagnostic mapping.
+
 ## [1.38.0](https://github.com/TantaWowa/hosanna-lint/compare/v1.36.0...v1.38.0) (2026-05-08)
 
 ### Added
