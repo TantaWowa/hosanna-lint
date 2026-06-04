@@ -1,5 +1,7 @@
 # Changelog
 
+## [1.39.0](https://github.com/TantaWowa/hosanna-lint/compare/v1.38.0...v1.39.0) (2026-06-04)
+
 ## [Unreleased]
 
 ### Added
