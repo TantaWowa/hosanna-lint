@@ -105,6 +105,7 @@ import noTopLevelRuntimeInNoModule from './rules/no-top-level-runtime-in-no-modu
 import noCaseInsensitiveClassCollision from './rules/no-case-insensitive-class-collision';
 import noDuplicateClassName from './rules/no-duplicate-class-name';
 import noGetterSetterMismatch from './rules/no-getter-setter-mismatch';
+import arrowAssignedToMethodSignatureMember from './rules/arrow-assigned-to-method-signature-member';
 import noVagueStateFieldUsage from './rules/no-vague-state-field-usage';
 import noVagueComputedAccess from './rules/no-vague-computed-access';
 import { hasExcludeFromPlatformRokuDirective } from './utils/excludeFromPlatformRoku';
@@ -246,6 +247,10 @@ const plugin = {
     'no-case-insensitive-class-collision': w('no-case-insensitive-class-collision', noCaseInsensitiveClassCollision),
     'no-duplicate-class-name': w('no-duplicate-class-name', noDuplicateClassName),
     'no-getter-setter-mismatch': w('no-getter-setter-mismatch', noGetterSetterMismatch),
+    'arrow-assigned-to-method-signature-member': w(
+      'arrow-assigned-to-method-signature-member',
+      arrowAssignedToMethodSignatureMember
+    ),
     'no-vague-state-field-usage': w('no-vague-state-field-usage', noVagueStateFieldUsage),
     'no-vague-computed-access': w('no-vague-computed-access', noVagueComputedAccess),
   },
@@ -359,6 +364,7 @@ const plugin = {
         '@hosanna-eslint/no-case-insensitive-class-collision': 'error',
         '@hosanna-eslint/no-duplicate-class-name': 'error',
         '@hosanna-eslint/no-getter-setter-mismatch': 'error',
+        '@hosanna-eslint/arrow-assigned-to-method-signature-member': 'error',
         '@hosanna-eslint/no-vague-state-field-usage': 'warn',
         '@hosanna-eslint/no-vague-computed-access': 'warn',
       },
