@@ -21,6 +21,10 @@ describe('no-unsigned-right-shift', () => {
           code: 'const x = a >>> b;',
           errors: [{ messageId: 'unsignedRightShift' }],
         },
+        {
+          code: 'x >>>= b;',
+          errors: [{ messageId: 'unsignedRightShift' }],
+        },
       ],
     });
   });
