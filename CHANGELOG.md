@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.40.0](https://github.com/TantaWowa/hosanna-lint/compare/v1.39.0...v1.40.0) (2026-06-11)
+
+### Features
+
+* expand BrightScript reserved words + flag reserved class names ([#10](https://github.com/TantaWowa/hosanna-lint/issues/10)) ([0a469f4](https://github.com/TantaWowa/hosanna-lint/commit/0a469f4cd5c3a85cbe93d898ca166443b600f09d))
+* no-hot-path-allocation — enforce zero allocation in [@hot](https://github.com/hot)Path functions ([#12](https://github.com/TantaWowa/hosanna-lint/issues/12)) ([ccb842a](https://github.com/TantaWowa/hosanna-lint/commit/ccb842a18ce92ff509abbc8776b548ecbf5f22d1))
+
 ## [1.39.0](https://github.com/TantaWowa/hosanna-lint/compare/v1.38.0...v1.39.0) (2026-06-04)
 
 ## [Unreleased]
