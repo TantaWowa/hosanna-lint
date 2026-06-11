@@ -7,6 +7,7 @@ import noAwaitExpression from './rules/no-await-expression';
 import noNestedFunctions from './rules/no-nested-functions';
 import noInlineClasses from './rules/no-inline-classes';
 import computedPropertyInObjectLiteral from './rules/computed-property-in-object-literal';
+import noHotPathAllocation from './rules/no-hot-path-allocation';
 import noDateUsage from './rules/no-date-usage';
 import noReservedWords from './rules/no-reserved-words';
 import noUnsupportedArrayMethods from './rules/no-unsupported-array-methods';
@@ -73,6 +74,7 @@ import noIsPrototypeOfArity from './rules/no-is-prototype-of-arity';
 import noUnsupportedSpreadContext from './rules/no-unsupported-spread-context';
 import noUnsupportedDeleteOperator from './rules/no-unsupported-delete-operator';
 import statementVoidExpressionErased from './rules/statement-void-expression-erased';
+import noSatisfiesExpression from './rules/no-satisfies-expression';
 
 // Tier 2: Type-aware rules (MEDIUM performance impact)
 import noForOfOnNonArray from './rules/no-for-of-on-non-array';
@@ -100,11 +102,13 @@ import noMemberAssignmentOnCallableReference from './rules/no-member-assignment-
 import noUnsupportedUpdateNonNumber from './rules/no-unsupported-update-non-number';
 import noAmbiguousArrayMethodCall from './rules/no-ambiguous-array-method-call';
 import noTypeofRokuGlobalFunctions from './rules/no-typeof-roku-global-functions';
+import noTopLevelRuntimeInNoModule from './rules/no-top-level-runtime-in-no-module';
 
 // Tier 3: Cross-file / deep analysis rules (HIGH performance impact)
 import noCaseInsensitiveClassCollision from './rules/no-case-insensitive-class-collision';
 import noDuplicateClassName from './rules/no-duplicate-class-name';
 import noGetterSetterMismatch from './rules/no-getter-setter-mismatch';
+import arrowAssignedToMethodSignatureMember from './rules/arrow-assigned-to-method-signature-member';
 import noVagueStateFieldUsage from './rules/no-vague-state-field-usage';
 import noVagueComputedAccess from './rules/no-vague-computed-access';
 import { hasExcludeFromPlatformRokuDirective } from './utils/excludeFromPlatformRoku';
@@ -136,6 +140,7 @@ const plugin = {
     'no-nested-functions': w('no-nested-functions', noNestedFunctions),
     'no-inline-classes': w('no-inline-classes', noInlineClasses),
     'computed-property-in-object-literal': w('computed-property-in-object-literal', computedPropertyInObjectLiteral),
+    'no-hot-path-allocation': w('no-hot-path-allocation', noHotPathAllocation),
     'no-date-usage': w('no-date-usage', noDateUsage),
     'no-reserved-words': w('no-reserved-words', noReservedWords),
     'no-unsupported-array-methods': w('no-unsupported-array-methods', noUnsupportedArrayMethods),
@@ -205,7 +210,9 @@ const plugin = {
     'no-unsupported-spread-context': w('no-unsupported-spread-context', noUnsupportedSpreadContext),
     'no-unsupported-delete-operator': w('no-unsupported-delete-operator', noUnsupportedDeleteOperator),
     'no-typeof-roku-global-functions': w('no-typeof-roku-global-functions', noTypeofRokuGlobalFunctions),
+    'no-top-level-runtime-in-no-module': w('no-top-level-runtime-in-no-module', noTopLevelRuntimeInNoModule),
     'statement-void-expression-erased': w('statement-void-expression-erased', statementVoidExpressionErased),
+    'no-satisfies-expression': w('no-satisfies-expression', noSatisfiesExpression),
 
     // Tier 2: Type-aware rules (MEDIUM performance impact)
     'no-for-of-on-non-array': w('no-for-of-on-non-array', noForOfOnNonArray),
@@ -246,6 +253,10 @@ const plugin = {
     'no-case-insensitive-class-collision': w('no-case-insensitive-class-collision', noCaseInsensitiveClassCollision),
     'no-duplicate-class-name': w('no-duplicate-class-name', noDuplicateClassName),
     'no-getter-setter-mismatch': w('no-getter-setter-mismatch', noGetterSetterMismatch),
+    'arrow-assigned-to-method-signature-member': w(
+      'arrow-assigned-to-method-signature-member',
+      arrowAssignedToMethodSignatureMember
+    ),
     'no-vague-state-field-usage': w('no-vague-state-field-usage', noVagueStateFieldUsage),
     'no-vague-computed-access': w('no-vague-computed-access', noVagueComputedAccess),
   },
@@ -261,6 +272,7 @@ const plugin = {
         '@hosanna-eslint/no-nested-functions': 'error',
         '@hosanna-eslint/no-inline-classes': 'error',
         '@hosanna-eslint/computed-property-in-object-literal': 'warn',
+        '@hosanna-eslint/no-hot-path-allocation': 'error',
         '@hosanna-eslint/no-date-usage': 'error',
         '@hosanna-eslint/no-reserved-words': 'error',
         '@hosanna-eslint/no-unsupported-array-methods': 'error',
@@ -327,7 +339,9 @@ const plugin = {
         '@hosanna-eslint/no-unsupported-spread-context': 'error',
         '@hosanna-eslint/no-unsupported-delete-operator': 'error',
         '@hosanna-eslint/no-typeof-roku-global-functions': 'error',
+        '@hosanna-eslint/no-top-level-runtime-in-no-module': 'error',
         '@hosanna-eslint/statement-void-expression-erased': 'warn',
+        '@hosanna-eslint/no-satisfies-expression': 'warn',
 
         // Tier 2: Type-aware rules (MEDIUM performance impact)
         '@hosanna-eslint/no-for-of-on-non-array': 'error',
@@ -359,6 +373,7 @@ const plugin = {
         '@hosanna-eslint/no-case-insensitive-class-collision': 'error',
         '@hosanna-eslint/no-duplicate-class-name': 'error',
         '@hosanna-eslint/no-getter-setter-mismatch': 'error',
+        '@hosanna-eslint/arrow-assigned-to-method-signature-member': 'error',
         '@hosanna-eslint/no-vague-state-field-usage': 'warn',
         '@hosanna-eslint/no-vague-computed-access': 'warn',
       },

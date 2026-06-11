@@ -1103,6 +1103,11 @@ Matches the transpiler warning when the `for...in` right-hand side is not a supp
 
 Disallows `typeof` guards for Roku global functions such as `GetGlobalAA`, `SetGlobalAA`, and `CreateObject`. These globals are always available on Roku; call them directly or isolate non-Roku behavior behind platform-specific code.
 
+#### `no-top-level-runtime-in-no-module` [LOW]
+**Error level:** `error` | **HS-1133**
+
+Disallows top-level runtime statements in `hs:no-module` files. BrightScript file scope only accepts declarations that emit function-like code, so initialized constants or expression statements must move inside a function or the file must stop using `hs:no-module`.
+
 #### `no-find-node-method` [LOW]
 **Error level:** `warn` | **HS-1076**
 

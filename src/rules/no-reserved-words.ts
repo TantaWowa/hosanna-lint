@@ -3,6 +3,7 @@ import { Rule } from 'eslint';
 // BrightScript reserved words that cannot be used as variable or function names
 const BRIGHTSCRIPT_RESERVED_WORDS = new Set([
   'and',
+  'box',
   'createobject',
   'dim',
   'each',
@@ -14,17 +15,23 @@ const BRIGHTSCRIPT_RESERVED_WORDS = new Set([
   'endfunction',
   'endsub',
   'endwhile',
+  'eval',
   'exit',
   'exitwhile',
   'false',
   'for',
   'function',
+  'getglobalaa',
+  'getlastruncompileerror',
+  'getlastrunruntimeerror',
   'goto',
   'if',
+  'interface',
   'invalid',
   'let',
   'line_num',
   'm',
+  'mod',
   'next',
   'not',
   'objfun',
@@ -34,6 +41,7 @@ const BRIGHTSCRIPT_RESERVED_WORDS = new Set([
   'rem',
   'return',
   'rnd',
+  'run',
   'step',
   'stop',
   'sub',
@@ -77,6 +85,18 @@ const rule: Rule.RuleModule = {
 
       // Check function declarations
       FunctionDeclaration: function (node) {
+        if (node.id && BRIGHTSCRIPT_RESERVED_WORDS.has(node.id.name.toLowerCase())) {
+          context.report({
+            node: node.id,
+            messageId: 'reservedWordUsed',
+            data: { word: node.id.name },
+          });
+        }
+      },
+
+      // Check class declarations - classes transpile to `function ClassName(...)`
+      // factories, so reserved class names (e.g. Sub, Box) are device compile errors
+      ClassDeclaration: function (node) {
         if (node.id && BRIGHTSCRIPT_RESERVED_WORDS.has(node.id.name.toLowerCase())) {
           context.report({
             node: node.id,

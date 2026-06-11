@@ -164,6 +164,28 @@ describe('no-reserved-words', () => {
     });
   });
 
+  it('should report errors for reserved words as class names', () => {
+    ruleTester.run('no-reserved-words', rule, {
+      valid: [
+        "class MyResolver {}",
+      ],
+      invalid: [
+        {
+          code: "class Sub {}",
+          errors: [{ messageId: 'reservedWordUsed', data: { word: 'Sub' } }],
+        },
+        {
+          code: "class Box { value = 1; }",
+          errors: [{ messageId: 'reservedWordUsed', data: { word: 'Box' } }],
+        },
+        {
+          code: "class Eval {}",
+          errors: [{ messageId: 'reservedWordUsed', data: { word: 'Eval' } }],
+        },
+      ],
+    });
+  });
+
   it('should allow reserved words as class members', () => {
     ruleTester.run('no-reserved-words', rule, {
       valid: [
