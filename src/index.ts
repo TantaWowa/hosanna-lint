@@ -75,6 +75,8 @@ import noUnsupportedSpreadContext from './rules/no-unsupported-spread-context';
 import noUnsupportedDeleteOperator from './rules/no-unsupported-delete-operator';
 import statementVoidExpressionErased from './rules/statement-void-expression-erased';
 import noSatisfiesExpression from './rules/no-satisfies-expression';
+import noArrayMethodInHotPath from './rules/no-array-method-in-hot-path';
+import noRepeatedFieldReadsInLoop from './rules/no-repeated-field-reads-in-loop';
 
 // Tier 2: Type-aware rules (MEDIUM performance impact)
 import noForOfOnNonArray from './rules/no-for-of-on-non-array';
@@ -213,6 +215,8 @@ const plugin = {
     'no-top-level-runtime-in-no-module': w('no-top-level-runtime-in-no-module', noTopLevelRuntimeInNoModule),
     'statement-void-expression-erased': w('statement-void-expression-erased', statementVoidExpressionErased),
     'no-satisfies-expression': w('no-satisfies-expression', noSatisfiesExpression),
+    'no-array-method-in-hot-path': w('no-array-method-in-hot-path', noArrayMethodInHotPath),
+    'no-repeated-field-reads-in-loop': w('no-repeated-field-reads-in-loop', noRepeatedFieldReadsInLoop),
 
     // Tier 2: Type-aware rules (MEDIUM performance impact)
     'no-for-of-on-non-array': w('no-for-of-on-non-array', noForOfOnNonArray),
@@ -342,6 +346,9 @@ const plugin = {
         '@hosanna-eslint/no-top-level-runtime-in-no-module': 'error',
         '@hosanna-eslint/statement-void-expression-erased': 'warn',
         '@hosanna-eslint/no-satisfies-expression': 'warn',
+        '@hosanna-eslint/no-array-method-in-hot-path': 'warn',
+        // perf suggestion for hot-path code; enable per-directory where loops are per-frame
+        '@hosanna-eslint/no-repeated-field-reads-in-loop': 'off',
 
         // Tier 2: Type-aware rules (MEDIUM performance impact)
         '@hosanna-eslint/no-for-of-on-non-array': 'error',
