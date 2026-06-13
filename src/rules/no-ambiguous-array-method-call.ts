@@ -1,6 +1,11 @@
 import { Rule } from 'eslint';
 import * as ts from 'typescript';
 import { SUPPORTED_ARRAY_INSTANCE_METHODS } from '@tantawowa/hosanna-supported-apis';
+import {
+  getCachedTypeAtLocation,
+  getCachedTypeChecker,
+  getTypeAwareParserServices,
+} from '../utils/type-aware-cache';
 
 const ARRAY_METHODS = new Set<string>(SUPPORTED_ARRAY_INSTANCE_METHODS as readonly string[]);
 
@@ -20,16 +25,11 @@ const rule: Rule.RuleModule = {
     },
   },
   create(context) {
-    const parserServices = context.sourceCode?.parserServices as
-      | { program?: ts.Program; getTypeAtLocation?: (node: Rule.Node) => ts.Type }
-      | undefined;
-
-    const hasTypeInfo =
-      parserServices?.program && typeof parserServices.getTypeAtLocation === 'function';
+    const parserServices = getTypeAwareParserServices(context);
 
     return {
       CallExpression(node) {
-        if (!hasTypeInfo) return;
+        if (!parserServices) return;
         if (
           node.callee.type !== 'MemberExpression' ||
           node.callee.property.type !== 'Identifier' ||
@@ -41,8 +41,8 @@ const rule: Rule.RuleModule = {
         if (!ARRAY_METHODS.has(methodName)) return;
 
         try {
-          const objectType = parserServices!.getTypeAtLocation!(node.callee.object as Rule.Node);
-          const checker = parserServices!.program!.getTypeChecker();
+          const objectType = getCachedTypeAtLocation(context.sourceCode, parserServices, node.callee.object as Rule.Node);
+          const checker = getCachedTypeChecker(parserServices.program);
 
           if (!(objectType.flags & ts.TypeFlags.Any) && !(objectType.flags & ts.TypeFlags.Unknown)) {
             return;

@@ -1,6 +1,10 @@
 import { Rule } from 'eslint';
 import * as ts from 'typescript';
-import { isBrsNodeType } from '../utils/is-brs-node-type';
+import {
+  getCachedBinaryExpressionTypes,
+  getTypeAwareParserServices,
+  isCachedBrsNodeType,
+} from '../utils/type-aware-cache';
 
 const COMPARISON_OPERATORS = new Set(['===', '!==', '==', '!=', '<', '>', '<=', '>=']);
 
@@ -25,25 +29,22 @@ const rule: Rule.RuleModule = {
     },
   },
   create: function (context) {
-    const parserServices = context.sourceCode?.parserServices as
-      | { program?: ts.Program; getTypeAtLocation?: (node: Rule.Node) => ts.Type }
-      | undefined;
-
-    const hasTypeInfo =
-      parserServices?.program && typeof parserServices.getTypeAtLocation === 'function';
+    const parserServices = getTypeAwareParserServices(context);
 
     return {
       BinaryExpression: function (node) {
-        if (!hasTypeInfo) return;
+        if (!parserServices) return;
         if (!COMPARISON_OPERATORS.has(node.operator)) return;
 
         try {
-          const checker = parserServices!.program!.getTypeChecker();
-          const leftType = parserServices!.getTypeAtLocation!(node.left as Rule.Node);
-          const rightType = parserServices!.getTypeAtLocation!(node.right as Rule.Node);
+          const { checker, leftType, rightType } = getCachedBinaryExpressionTypes(
+            context.sourceCode,
+            parserServices,
+            node as unknown as Rule.Node & { left: Rule.Node; right: Rule.Node }
+          );
 
-          const isLeftBrs = isBrsNodeType(leftType);
-          const isRightBrs = isBrsNodeType(rightType);
+          const isLeftBrs = isCachedBrsNodeType(leftType);
+          const isRightBrs = isCachedBrsNodeType(rightType);
 
           if (!isLeftBrs && !isRightBrs) return;
           if (isLeftBrs && isRightBrs) return;

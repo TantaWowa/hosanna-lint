@@ -1,12 +1,17 @@
 import { Rule } from 'eslint';
 import * as ts from 'typescript';
-import { isBrsNodeType } from '../utils/is-brs-node-type';
 import {
   COMPARISON_OPERATORS,
   classifyType,
   findInterfaceDeclaration,
   isTypeAssignableToChecker,
 } from '../utils/binary-comparison-type-utils';
+import {
+  getCachedBinaryExpressionTypes,
+  getCachedTypeAtLocation,
+  getTypeAwareParserServices,
+  isCachedBrsNodeType,
+} from '../utils/type-aware-cache';
 
 function stripOuterParensAndNonNull(node: Rule.Node): Rule.Node {
   let n: Rule.Node = node;
@@ -62,34 +67,31 @@ const rule: Rule.RuleModule = {
     },
   },
   create: function (context) {
-    const parserServices = context.sourceCode?.parserServices as
-      | { program?: ts.Program; getTypeAtLocation?: (node: Rule.Node) => ts.Type }
-      | undefined;
-
-    const hasTypeInfo =
-      parserServices?.program && typeof parserServices.getTypeAtLocation === 'function';
+    const parserServices = getTypeAwareParserServices(context);
 
     return {
       BinaryExpression: function (node) {
-        if (!hasTypeInfo) return;
+        if (!parserServices) return;
         if (!COMPARISON_OPERATORS.has(node.operator)) return;
 
         try {
-          const checker = parserServices!.program!.getTypeChecker();
-          const leftType = parserServices!.getTypeAtLocation!(node.left as Rule.Node);
-          const rightType = parserServices!.getTypeAtLocation!(node.right as Rule.Node);
+          const { checker, leftType, rightType } = getCachedBinaryExpressionTypes(
+            context.sourceCode,
+            parserServices,
+            node as unknown as Rule.Node & { left: Rule.Node; right: Rule.Node }
+          );
+
+          const isLeftBrs = isCachedBrsNodeType(leftType);
+          const isRightBrs = isCachedBrsNodeType(rightType);
+          if (isLeftBrs && isRightBrs) return;
+          if (isLeftBrs !== isRightBrs) return;
 
           const leftClass = classifyType(leftType, checker);
           const rightClass = classifyType(rightType, checker);
 
-          const isLeftBrs = isBrsNodeType(leftType);
-          const isRightBrs = isBrsNodeType(rightType);
-          if (isLeftBrs && isRightBrs) return;
-          if (isLeftBrs !== isRightBrs) return;
-
           if (leftClass !== 'object' || rightClass !== 'object') return;
 
-          const program = parserServices!.program!;
+          const program = parserServices.program;
           const ifaceDecl = findInterfaceDeclaration(program, 'IHsIdentifiable');
           if (!ifaceDecl) return;
 
@@ -107,8 +109,8 @@ const rule: Rule.RuleModule = {
           const leftInner = getOperandInsideTypeAssertion(node.left as Rule.Node);
           const rightInner = getOperandInsideTypeAssertion(node.right as Rule.Node);
           if (leftInner && rightInner) {
-            const leftInnerType = parserServices!.getTypeAtLocation!(leftInner);
-            const rightInnerType = parserServices!.getTypeAtLocation!(rightInner);
+            const leftInnerType = getCachedTypeAtLocation(context.sourceCode, parserServices, leftInner);
+            const rightInnerType = getCachedTypeAtLocation(context.sourceCode, parserServices, rightInner);
             if (typeIsAnyOrUnknown(leftInnerType) || typeIsAnyOrUnknown(rightInnerType)) {
               return;
             }

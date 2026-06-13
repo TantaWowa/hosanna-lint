@@ -1,6 +1,10 @@
 import { Rule } from 'eslint';
-import * as ts from 'typescript';
 import { shouldReportUndeclaredMemberWriteOnCallableReference } from '../utils/callable-member-assignment-utils';
+import {
+  getCachedTypeAtLocation,
+  getCachedTypeChecker,
+  getTypeAwareParserServices,
+} from '../utils/type-aware-cache';
 
 /**
  * HS-1121: Assigning to a property on a function pointer or constructor reference is invalid on Roku
@@ -23,19 +27,14 @@ const rule: Rule.RuleModule = {
     },
   },
   create: function (context) {
-    const parserServices = context.sourceCode?.parserServices as
-      | { program?: ts.Program; getTypeAtLocation?: (node: Rule.Node) => ts.Type }
-      | undefined;
-
-    const hasTypeInfo =
-      parserServices?.program && typeof parserServices.getTypeAtLocation === 'function';
+    const parserServices = getTypeAwareParserServices(context);
 
     function checkMemberWrite(memberNode: Rule.Node): void {
-      if (!hasTypeInfo || memberNode.type !== 'MemberExpression') return;
+      if (!parserServices || memberNode.type !== 'MemberExpression') return;
       const me = memberNode as Rule.Node & { computed: boolean; object: Rule.Node; property: Rule.Node };
       try {
-        const checker = parserServices!.program!.getTypeChecker();
-        const objectType = parserServices!.getTypeAtLocation!(me.object);
+        const checker = getCachedTypeChecker(parserServices.program);
+        const objectType = getCachedTypeAtLocation(context.sourceCode, parserServices, me.object);
         if (
           !shouldReportUndeclaredMemberWriteOnCallableReference(checker, objectType, {
             computed: me.computed,

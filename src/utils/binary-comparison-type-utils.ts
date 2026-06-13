@@ -24,7 +24,28 @@ function isNullishOrAny(type: ts.Type): boolean {
   return false;
 }
 
-export function classifyType(type: ts.Type, checker: ts.TypeChecker): 'primitive' | 'nullish' | 'object' {
+type TypeClassification = 'primitive' | 'nullish' | 'object';
+
+const classifyTypeCache = new WeakMap<ts.TypeChecker, WeakMap<ts.Type, TypeClassification>>();
+
+export function classifyType(type: ts.Type, checker: ts.TypeChecker): TypeClassification {
+  let checkerCache = classifyTypeCache.get(checker);
+  if (!checkerCache) {
+    checkerCache = new WeakMap();
+    classifyTypeCache.set(checker, checkerCache);
+  }
+
+  const cached = checkerCache.get(type);
+  if (cached) {
+    return cached;
+  }
+
+  const result = classifyTypeUncached(type, checker);
+  checkerCache.set(type, result);
+  return result;
+}
+
+function classifyTypeUncached(type: ts.Type, checker: ts.TypeChecker): TypeClassification {
   if (isNullishOrAny(type)) return 'nullish';
   if (isPrimitive(type)) return 'primitive';
 
@@ -86,12 +107,45 @@ export function unionContainsObjectType(type: ts.Type, checker: ts.TypeChecker):
   return classifyType(type, checker) === 'object';
 }
 
+const assignabilityCache = new WeakMap<ts.TypeChecker, WeakMap<ts.Type, WeakMap<ts.Type, boolean>>>();
+
 export function isTypeAssignableToChecker(checker: ts.TypeChecker, source: ts.Type, target: ts.Type): boolean {
+  let checkerCache = assignabilityCache.get(checker);
+  if (!checkerCache) {
+    checkerCache = new WeakMap();
+    assignabilityCache.set(checker, checkerCache);
+  }
+
+  let sourceCache = checkerCache.get(source);
+  if (!sourceCache) {
+    sourceCache = new WeakMap();
+    checkerCache.set(source, sourceCache);
+  }
+
+  const cached = sourceCache.get(target);
+  if (cached !== undefined) {
+    return cached;
+  }
+
   const fn = (checker as unknown as { isTypeAssignableTo(s: ts.Type, t: ts.Type): boolean }).isTypeAssignableTo;
-  return fn.call(checker, source, target);
+  const result = fn.call(checker, source, target);
+  sourceCache.set(target, result);
+  return result;
 }
 
+const interfaceDeclarationCache = new WeakMap<ts.Program, Map<string, ts.InterfaceDeclaration | null>>();
+
 export function findInterfaceDeclaration(program: ts.Program, interfaceName: string): ts.InterfaceDeclaration | undefined {
+  let programCache = interfaceDeclarationCache.get(program);
+  if (!programCache) {
+    programCache = new Map();
+    interfaceDeclarationCache.set(program, programCache);
+  }
+
+  if (programCache.has(interfaceName)) {
+    return programCache.get(interfaceName) ?? undefined;
+  }
+
   let found: ts.InterfaceDeclaration | undefined;
   function visit(n: ts.Node): void {
     if (found) return;
@@ -103,8 +157,12 @@ export function findInterfaceDeclaration(program: ts.Program, interfaceName: str
   }
   for (const sf of program.getSourceFiles()) {
     visit(sf);
-    if (found) return found;
+    if (found) {
+      programCache.set(interfaceName, found);
+      return found;
+    }
   }
+  programCache.set(interfaceName, null);
   return undefined;
 }
 

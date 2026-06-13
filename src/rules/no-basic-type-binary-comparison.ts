@@ -1,6 +1,4 @@
 import { Rule } from 'eslint';
-import * as ts from 'typescript';
-import { isBrsNodeType } from '../utils/is-brs-node-type';
 import {
   COMPARISON_OPERATORS,
   classifyType,
@@ -9,6 +7,11 @@ import {
   shouldDelegateBinaryComparisonFromBasicToAnyUnknown,
   unionContainsObjectType,
 } from '../utils/binary-comparison-type-utils';
+import {
+  getCachedBinaryExpressionTypes,
+  getTypeAwareParserServices,
+  isCachedBrsNodeType,
+} from '../utils/type-aware-cache';
 
 /**
  * The transpiler's HS-1019 fires when comparing an object/interface type
@@ -40,34 +43,31 @@ const rule: Rule.RuleModule = {
     },
   },
   create: function (context) {
-    const parserServices = context.sourceCode?.parserServices as
-      | { program?: ts.Program; getTypeAtLocation?: (node: Rule.Node) => ts.Type }
-      | undefined;
-
-    const hasTypeInfo =
-      parserServices?.program && typeof parserServices.getTypeAtLocation === 'function';
+    const parserServices = getTypeAwareParserServices(context);
 
     return {
       BinaryExpression: function (node) {
-        if (!hasTypeInfo) return;
+        if (!parserServices) return;
         if (!COMPARISON_OPERATORS.has(node.operator)) return;
 
         try {
-          const checker = parserServices!.program!.getTypeChecker();
-          const leftType = parserServices!.getTypeAtLocation!(node.left as Rule.Node);
-          const rightType = parserServices!.getTypeAtLocation!(node.right as Rule.Node);
+          const { checker, leftType, rightType } = getCachedBinaryExpressionTypes(
+            context.sourceCode,
+            parserServices,
+            node as unknown as Rule.Node & { left: Rule.Node; right: Rule.Node }
+          );
 
-          const leftClass = classifyType(leftType, checker);
-          const rightClass = classifyType(rightType, checker);
-
-          const isLeftBrs = isBrsNodeType(leftType);
-          const isRightBrs = isBrsNodeType(rightType);
+          const isLeftBrs = isCachedBrsNodeType(leftType);
+          const isRightBrs = isCachedBrsNodeType(rightType);
           if (isLeftBrs && isRightBrs) return;
           if (isLeftBrs !== isRightBrs) return;
 
           if (shouldDelegateBinaryComparisonFromBasicToAnyUnknown(leftType, rightType, node.operator, checker)) {
             return;
           }
+
+          const leftClass = classifyType(leftType, checker);
+          const rightClass = classifyType(rightType, checker);
 
           // Only flag: one side is object, other side is primitive
           // Object-vs-object ===/!== uses unionContainsObjectType so `IFoo | undefined === this` is flagged
@@ -96,7 +96,7 @@ const rule: Rule.RuleModule = {
           const leftHasObject = unionContainsObjectType(leftType, checker);
           const rightHasObject = unionContainsObjectType(rightType, checker);
           if (isStrictEquality && leftHasObject && rightHasObject) {
-            const program = parserServices!.program!;
+            const program = parserServices.program;
             const ifaceDecl = findInterfaceDeclaration(program, 'IHsIdentifiable');
             if (ifaceDecl) {
               const ifaceSym = checker.getSymbolAtLocation(ifaceDecl.name);
