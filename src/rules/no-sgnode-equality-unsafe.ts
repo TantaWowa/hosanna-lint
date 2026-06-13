@@ -1,6 +1,9 @@
 import { Rule } from 'eslint';
-import * as ts from 'typescript';
-import { isBrsNodeType } from '../utils/is-brs-node-type';
+import {
+  getCachedBinaryExpressionTypes,
+  getTypeAwareParserServices,
+  isCachedBrsNodeType,
+} from '../utils/type-aware-cache';
 
 /**
  * HS-1114: Warn about SGNode instance equality (node === otherNode).
@@ -22,23 +25,21 @@ const rule: Rule.RuleModule = {
     },
   },
   create: function (context) {
-    const parserServices = context.sourceCode?.parserServices as
-      | { program?: ts.Program; getTypeAtLocation?: (node: Rule.Node) => ts.Type }
-      | undefined;
-
-    const hasTypeInfo =
-      parserServices?.program && typeof parserServices.getTypeAtLocation === 'function';
+    const parserServices = getTypeAwareParserServices(context);
 
     return {
       BinaryExpression: function (node) {
-        if (!hasTypeInfo) return;
+        if (!parserServices) return;
         if (!['===', '!==', '==', '!='].includes(node.operator)) return;
 
         try {
-          const leftType = parserServices!.getTypeAtLocation!(node.left as Rule.Node);
-          const rightType = parserServices!.getTypeAtLocation!(node.right as Rule.Node);
+          const { leftType, rightType } = getCachedBinaryExpressionTypes(
+            context.sourceCode,
+            parserServices,
+            node as unknown as Rule.Node & { left: Rule.Node; right: Rule.Node }
+          );
 
-          if (isBrsNodeType(leftType) && isBrsNodeType(rightType)) {
+          if (isCachedBrsNodeType(leftType) && isCachedBrsNodeType(rightType)) {
             context.report({ node, messageId: 'sgnodeEqualityUsesHsEqual' });
           }
         } catch {

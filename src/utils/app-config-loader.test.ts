@@ -24,7 +24,7 @@ describe('app-config-loader', () => {
   let context: MockContext;
 
   beforeEach(() => {
-    tempDir = path.join(tmpdir(), `hosanna-test-${Date.now()}`);
+    tempDir = fs.mkdtempSync(path.join(tmpdir(), 'hosanna-test-'));
     const assetsMetaDir = path.join(tempDir, 'assets', 'meta');
     fs.mkdirSync(assetsMetaDir, { recursive: true });
     configPath = path.join(assetsMetaDir, 'app.config.json');
@@ -100,7 +100,25 @@ describe('app-config-loader', () => {
       expect(result1).toEqual(config);
     });
 
-    it('should handle different contexts independently', () => {
+    it('should cache the config across contexts for the same unchanged cwd', () => {
+      const config = {
+        rows: {},
+        translations: { en: {} },
+        cells: {},
+        theme: { colors: {}, fonts: {} },
+        controls: {},
+      };
+      fs.writeFileSync(configPath, JSON.stringify(config));
+
+      const result1 = getAppConfig(context as unknown as Rule.RuleContext);
+      const context2 = new MockContext(tempDir);
+      const result2 = getAppConfig(context2 as unknown as Rule.RuleContext);
+
+      expect(result1).toBe(result2);
+      expect(result1).toEqual(config);
+    });
+
+    it('should invalidate the shared cwd cache when app.config.json changes', () => {
       const config1 = { rows: {}, translations: { en: {} }, cells: {}, theme: { colors: {}, fonts: {} }, controls: {} };
       const config2 = { rows: {}, translations: { en: {} }, cells: {}, theme: { colors: {}, fonts: {} }, controls: {}, extra: true };
 
@@ -109,6 +127,8 @@ describe('app-config-loader', () => {
 
       const context2 = new MockContext(tempDir);
       fs.writeFileSync(configPath, JSON.stringify(config2));
+      const nextMtime = new Date(Date.now() + 2000);
+      fs.utimesSync(configPath, nextMtime, nextMtime);
       const result2 = getAppConfig(context2 as unknown as Rule.RuleContext);
 
       expect(result1).not.toEqual(result2);

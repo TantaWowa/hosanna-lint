@@ -1,5 +1,6 @@
 import { Rule } from 'eslint';
 import * as ts from 'typescript';
+import { getCachedTypeChecker } from '../utils/type-aware-cache';
 
 /**
  * HS-1128: an arrow function or function expression value assigned to an object-literal property
@@ -25,6 +26,14 @@ type ParserServicesWithTSBridge = {
   esTreeNodeToTSNodeMap?: { get(node: any): ts.Node | undefined };
 };
 
+type EstreePropertyLike = {
+  type?: string;
+  key?: { type?: string };
+  value?: { type?: string };
+  computed?: boolean;
+  method?: boolean;
+};
+
 /** True iff `decl` is a `const x = (arrow|funcExpr)` style declaration. */
 function isVariableDeclWithFunctionInitializer(decl: ts.Declaration | undefined): boolean {
   return (
@@ -33,6 +42,27 @@ function isVariableDeclWithFunctionInitializer(decl: ts.Declaration | undefined)
     !!decl.initializer &&
     (ts.isArrowFunction(decl.initializer) || ts.isFunctionExpression(decl.initializer))
   );
+}
+
+function hasStaticPropertyKey(prop: EstreePropertyLike): boolean {
+  if (prop.computed) {
+    return prop.key?.type === 'Literal';
+  }
+  return prop.key?.type === 'Identifier' || prop.key?.type === 'Literal';
+}
+
+function hasFunctionLikePropertyCandidate(node: Rule.Node): boolean {
+  const properties = (node as Rule.Node & { properties?: EstreePropertyLike[] }).properties ?? [];
+  for (const prop of properties) {
+    if (prop.type !== 'Property' || prop.method || !hasStaticPropertyKey(prop)) {
+      continue;
+    }
+    const valueType = prop.value?.type;
+    if (valueType === 'ArrowFunctionExpression' || valueType === 'FunctionExpression' || valueType === 'Identifier') {
+      return true;
+    }
+  }
+  return false;
 }
 
 const rule: Rule.RuleModule = {
@@ -62,8 +92,9 @@ const rule: Rule.RuleModule = {
     return {
       ObjectExpression: function (node) {
         if (!hasTypeInfo) return;
+        if (!hasFunctionLikePropertyCandidate(node as Rule.Node)) return;
         try {
-          const checker = parserServices!.program!.getTypeChecker();
+          const checker = getCachedTypeChecker(parserServices!.program!);
           const tsNode = parserServices!.esTreeNodeToTSNodeMap!.get(node);
           if (!tsNode || !ts.isObjectLiteralExpression(tsNode)) return;
           const contextualType = checker.getContextualType(tsNode);

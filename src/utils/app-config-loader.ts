@@ -1,29 +1,54 @@
 import { Rule } from 'eslint';
-import { resolveAppConfig } from './app-config-resolver';
+import * as fs from 'fs';
+import { resolveAppConfig, resolveAppConfigInput } from './app-config-resolver';
 
 interface AppConfigCache {
   config: Record<string, unknown> | null;
-  loaded: boolean;
   fileNotFound: boolean;
+  fileFingerprints: Map<string, FileFingerprint | null>;
 }
 
-// Cache per ESLint context
-const configCache = new WeakMap<Rule.RuleContext, AppConfigCache>();
+interface FileFingerprint {
+  mtimeMs: number;
+  ctimeMs: number;
+  size: number;
+}
 
-/**
- * Get or create cache for the given context
- */
-function getCache(context: Rule.RuleContext): AppConfigCache {
-  let cache = configCache.get(context);
-  if (!cache) {
-    cache = {
-      config: null,
-      loaded: false,
-      fileNotFound: false,
-    };
-    configCache.set(context, cache);
+// Cache per resolved app config path so every linted file in the same project
+// reuses one parsed config, while editor sessions still see file changes.
+const configCache = new Map<string, AppConfigCache>();
+
+function getFileFingerprint(filePath: string): FileFingerprint | null {
+  try {
+    const stat = fs.statSync(filePath);
+    return { mtimeMs: stat.mtimeMs, ctimeMs: stat.ctimeMs, size: stat.size };
+  } catch {
+    return null;
   }
-  return cache;
+}
+
+function captureFileFingerprints(filePaths: string[]): Map<string, FileFingerprint | null> {
+  const fingerprints = new Map<string, FileFingerprint | null>();
+  for (const filePath of filePaths) {
+    fingerprints.set(filePath, getFileFingerprint(filePath));
+  }
+  return fingerprints;
+}
+
+function sameFileFingerprint(a: FileFingerprint | null, b: FileFingerprint | null): boolean {
+  if (a === null || b === null) {
+    return a === b;
+  }
+  return a.mtimeMs === b.mtimeMs && a.ctimeMs === b.ctimeMs && a.size === b.size;
+}
+
+function isCacheFresh(cache: AppConfigCache): boolean {
+  for (const [filePath, cachedFingerprint] of cache.fileFingerprints) {
+    if (!sameFileFingerprint(getFileFingerprint(filePath), cachedFingerprint)) {
+      return false;
+    }
+  }
+  return true;
 }
 
 /**
@@ -31,26 +56,31 @@ function getCache(context: Rule.RuleContext): AppConfigCache {
  * Returns null if file doesn't exist or can't be parsed
  */
 export function getAppConfig(context: Rule.RuleContext): Record<string, unknown> | null {
-  const cache = getCache(context);
-
-  // Return cached config if already loaded
-  if (cache.loaded) {
+  const cwd = context.getCwd();
+  const selectedFile = resolveAppConfigInput(cwd);
+  const cache = configCache.get(selectedFile);
+  if (cache && isCacheFresh(cache)) {
     return cache.config;
   }
 
-  // Mark as loaded to prevent infinite loops
-  cache.loaded = true;
-
   try {
-    const config = resolveAppConfig(context.getCwd()).config;
+    const resolved = resolveAppConfig(cwd);
+    const dependencyFiles = Array.from(new Set([resolved.selectedFile, ...resolved.dependencyFiles]));
+    const nextCache = {
+      config: resolved.config,
+      fileNotFound: false,
+      fileFingerprints: captureFileFingerprints(dependencyFiles),
+    };
 
-    cache.config = config;
-    cache.fileNotFound = false;
-    return config;
+    configCache.set(selectedFile, nextCache);
+    return nextCache.config;
   } catch (_error) {
-    // If there's an error reading or parsing, return null
-    cache.config = null;
-    cache.fileNotFound = true;
+    const nextCache = {
+      config: null,
+      fileNotFound: true,
+      fileFingerprints: captureFileFingerprints([selectedFile]),
+    };
+    configCache.set(selectedFile, nextCache);
     return null;
   }
 }

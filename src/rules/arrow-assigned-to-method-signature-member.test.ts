@@ -1,5 +1,5 @@
-import { describe, it } from 'vitest';
-import { RuleTester } from 'eslint';
+import { describe, expect, it } from 'vitest';
+import { Rule, RuleTester } from 'eslint';
 import parser from '@typescript-eslint/parser';
 import { join } from 'path';
 import rule from './arrow-assigned-to-method-signature-member';
@@ -18,6 +18,46 @@ const ruleTester = new RuleTester({
 });
 
 describe('arrow-assigned-to-method-signature-member', () => {
+  it('skips object literals with no function-like property values before requesting the checker', () => {
+    let getTypeCheckerCalls = 0;
+    const listener = rule.create({
+      sourceCode: {
+        parserServices: {
+          program: {
+            getTypeChecker() {
+              getTypeCheckerCalls += 1;
+              throw new Error('checker should not be requested');
+            },
+          },
+          esTreeNodeToTSNodeMap: {
+            get() {
+              throw new Error('TS node map should not be requested');
+            },
+          },
+        },
+      },
+      report() {
+        throw new Error('should not report');
+      },
+    } as unknown as Parameters<typeof rule.create>[0]);
+
+    listener.ObjectExpression?.({
+      type: 'ObjectExpression',
+      properties: [
+        {
+          type: 'Property',
+          key: { type: 'Identifier', name: 'value' },
+          value: { type: 'Literal', value: 1 },
+          computed: false,
+          method: false,
+          shorthand: false,
+        },
+      ],
+    } as unknown as Rule.Node);
+
+    expect(getTypeCheckerCalls).toBe(0);
+  });
+
   it('flags HS-1128 for arrow assigned to a method-signature member (inline contextual type)', () => {
     ruleTester.run('arrow-assigned-to-method-signature-member', rule, {
       valid: [],

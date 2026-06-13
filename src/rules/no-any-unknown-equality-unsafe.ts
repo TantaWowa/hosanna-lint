@@ -1,11 +1,14 @@
 import { Rule } from 'eslint';
-import * as ts from 'typescript';
-import { isBrsNodeType } from '../utils/is-brs-node-type';
 import {
   classifyType,
   isNullishOnlyType,
   typeHasAnyOrUnknown,
 } from '../utils/binary-comparison-type-utils';
+import {
+  getCachedBinaryExpressionTypes,
+  getTypeAwareParserServices,
+  isCachedBrsNodeType,
+} from '../utils/type-aware-cache';
 
 /**
  * HS-1118: Strict equality (`===` / `!==`) with `any` or `unknown` on either side.
@@ -28,29 +31,26 @@ const rule: Rule.RuleModule = {
     },
   },
   create: function (context) {
-    const parserServices = context.sourceCode?.parserServices as
-      | { program?: ts.Program; getTypeAtLocation?: (node: Rule.Node) => ts.Type }
-      | undefined;
-
-    const hasTypeInfo =
-      parserServices?.program && typeof parserServices.getTypeAtLocation === 'function';
+    const parserServices = getTypeAwareParserServices(context);
 
     return {
       BinaryExpression: function (node) {
-        if (!hasTypeInfo) return;
+        if (!parserServices) return;
         if (node.operator !== '===' && node.operator !== '!==') return;
 
         try {
-          const checker = parserServices!.program!.getTypeChecker();
-          const leftType = parserServices!.getTypeAtLocation!(node.left as Rule.Node);
-          const rightType = parserServices!.getTypeAtLocation!(node.right as Rule.Node);
+          const { checker, leftType, rightType } = getCachedBinaryExpressionTypes(
+            context.sourceCode,
+            parserServices,
+            node as unknown as Rule.Node & { left: Rule.Node; right: Rule.Node }
+          );
 
           const leftWeak = typeHasAnyOrUnknown(leftType);
           const rightWeak = typeHasAnyOrUnknown(rightType);
           if (!leftWeak && !rightWeak) return;
 
           // SGNode+SGNode is HS-1114 (no-sgnode-equality-unsafe)
-          if (isBrsNodeType(leftType) && isBrsNodeType(rightType)) return;
+          if (isCachedBrsNodeType(leftType) && isCachedBrsNodeType(rightType)) return;
 
           // Transpiler: no hs_equal when comparing to null / undefined / void-only types
           if (isNullishOnlyType(leftType) || isNullishOnlyType(rightType)) return;

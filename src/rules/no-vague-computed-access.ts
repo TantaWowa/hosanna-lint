@@ -1,5 +1,10 @@
 import { Rule } from 'eslint';
 import * as ts from 'typescript';
+import {
+  getCachedTypeAtLocation,
+  getCachedTypeChecker,
+  getTypeAwareParserServices,
+} from '../utils/type-aware-cache';
 
 const rule: Rule.RuleModule = {
   meta: {
@@ -16,21 +21,16 @@ const rule: Rule.RuleModule = {
     },
   },
   create: function (context) {
-    const parserServices = context.sourceCode?.parserServices as
-      | { program?: ts.Program; getTypeAtLocation?: (node: Rule.Node) => ts.Type }
-      | undefined;
-
-    const hasTypeInfo =
-      parserServices?.program && typeof parserServices.getTypeAtLocation === 'function';
+    const parserServices = getTypeAwareParserServices(context);
 
     return {
       MemberExpression: function (node) {
-        if (!hasTypeInfo || !node.computed) return;
+        if (!parserServices || !node.computed) return;
         if (node.property.type === 'Literal') return;
 
         try {
-          const objectType = parserServices!.getTypeAtLocation!(node.object as Rule.Node);
-          const checker = parserServices!.program!.getTypeChecker();
+          const objectType = getCachedTypeAtLocation(context.sourceCode, parserServices, node.object as Rule.Node);
+          const checker = getCachedTypeChecker(parserServices.program);
 
           if (objectType.flags & ts.TypeFlags.Any) return;
           if (checker.isArrayType(objectType)) return;
