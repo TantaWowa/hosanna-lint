@@ -2,9 +2,22 @@
 
 ## [1.41.0](https://github.com/TantaWowa/hosanna-lint/compare/v1.40.0...v1.41.0) (2026-06-16)
 
-### Features
+### Added
 
-* hot-path perf rules (array methods, repeated field reads) ([c220df1](https://github.com/TantaWowa/hosanna-lint/commit/c220df1b65241419113cb91b9a2a547449f4272a))
+- Added `no-array-method-in-hot-path` to warn on array iteration helpers such as `forEach`, `map`, `filter`, and `reduce` inside loop bodies or `@hotPath` functions. These lower to runtime helper calls on Roku; hot paths should use plain loops.
+- Added `no-repeated-field-reads-in-loop` as an opt-in performance rule for hot-path code. It suggests hoisting repeated `this.<field>` reads out of loop bodies so Roku does not repeatedly pay associative-array lookup cost.
+- Added `bitwise-operator-polyfill` (`HS-1126`) to warn when JavaScript bitwise operators lower through helper functions on Roku.
+- Added `logical-compound-assignment-lowered` (`HS-1127`) to warn when `&&=`, `||=`, or `??=` lowers to an expanded conditional assignment.
+
+### Changed
+
+- Updated `no-unsupported-compound-assignment` to use shared supported-API metadata, allowing compound assignment forms the transpiler now lowers safely instead of blocking them in ESLint.
+- Improved performance of type-aware comparison rules by sharing binary-comparison type helpers and caching repeated type lookups.
+- Added `run` reserved-word test coverage.
+
+### Fixed
+
+- Removed the stale `no-object-prototype` rule and recommended-config entry. Direct `obj.hasOwnProperty(key)` is valid Hosanna input because the transpiler lowers it to `.doesExist(key)`; unsupported `Object.prototype` forms remain a compiler diagnostic concern.
 
 ## [1.40.0](https://github.com/TantaWowa/hosanna-lint/compare/v1.39.0...v1.40.0) (2026-06-11)
 
