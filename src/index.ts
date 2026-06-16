@@ -53,7 +53,6 @@ import noTooManySwitchCases from './rules/no-too-many-switch-cases';
 import noLogicalExpressionLimit from './rules/no-logical-expression-limit';
 import noTooManyNots from './rules/no-too-many-nots';
 import noUnsupportedCompoundAssignment from './rules/no-unsupported-compound-assignment';
-import noObjectPrototype from './rules/no-object-prototype';
 import noBufferApi from './rules/no-buffer-api';
 import noCryptoApi from './rules/no-crypto-api';
 import noJsonStringifyReplacer from './rules/no-json-stringify-replacer';
@@ -188,7 +187,6 @@ const plugin = {
     'no-logical-expression-limit': w('no-logical-expression-limit', noLogicalExpressionLimit),
     'no-too-many-nots': w('no-too-many-nots', noTooManyNots),
     'no-unsupported-compound-assignment': w('no-unsupported-compound-assignment', noUnsupportedCompoundAssignment),
-    'no-object-prototype': w('no-object-prototype', noObjectPrototype),
     'no-buffer-api': w('no-buffer-api', noBufferApi),
     'no-crypto-api': w('no-crypto-api', noCryptoApi),
     'no-json-stringify-replacer': w('no-json-stringify-replacer', noJsonStringifyReplacer),
@@ -322,7 +320,6 @@ const plugin = {
         '@hosanna-eslint/no-logical-expression-limit': 'error',
         '@hosanna-eslint/no-too-many-nots': 'error',
         '@hosanna-eslint/no-unsupported-compound-assignment': 'error',
-        '@hosanna-eslint/no-object-prototype': 'error',
         '@hosanna-eslint/no-buffer-api': 'error',
         '@hosanna-eslint/no-crypto-api': 'error',
         '@hosanna-eslint/no-json-stringify-replacer': 'error',

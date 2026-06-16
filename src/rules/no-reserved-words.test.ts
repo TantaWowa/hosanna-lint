@@ -81,6 +81,15 @@ describe('no-reserved-words', () => {
             },
           ],
         },
+        {
+          code: "const run = 42;",
+          errors: [
+            {
+              messageId: 'reservedWordUsed',
+              data: { word: 'run' },
+            },
+          ],
+        },
       ],
     });
   });
@@ -125,6 +134,15 @@ describe('no-reserved-words', () => {
             },
           ],
         },
+        {
+          code: "function run() { return 42; }",
+          errors: [
+            {
+              messageId: 'reservedWordUsed',
+              data: { word: 'run' },
+            },
+          ],
+        },
       ],
     });
   });
@@ -157,6 +175,15 @@ describe('no-reserved-words', () => {
             {
               messageId: 'reservedWordUsed',
               data: { word: 'm' },
+            },
+          ],
+        },
+        {
+          code: "function test(run) { return run; }",
+          errors: [
+            {
+              messageId: 'reservedWordUsed',
+              data: { word: 'run' },
             },
           ],
         },

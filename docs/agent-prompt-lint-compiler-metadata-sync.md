@@ -11,7 +11,7 @@ Hosanna targets Roku/BrightScript via a TypeScript-like compiler and an ESLint p
 Today those lists live **separately** in each project. The **compiler** uses full **type information** and reliably reports diagnostics such as:
 
 - **HS-1109** — `StringInstanceMethodNotSupported` (e.g. `localeCompare` not supported on Roku)
-- Related families: array instance/static (**HS-1110** / **HS-1047**), string static (**HS-1048**), promise methods (**HS-1101** / **HS-1102**), unsupported `Object` statics (**HS-1050** / **HS-1051**), `Object.prototype` (**HS-1077**), etc.
+- Related families: array instance/static (**HS-1110** / **HS-1047**), string static (**HS-1048**), promise methods (**HS-1101** / **HS-1102**), unsupported `Object` statics (**HS-1050** / **HS-1051**), etc.
 
 The **linter** implements overlapping rules (e.g. `@hosanna-eslint/no-unsupported-string-methods` with messages labeled HS-1048/1109) but often uses **heuristic** “is this probably a string/array?” checks (`isLikelyString` / `isLikelyArray` on identifiers and simple initializers). So **ESLint can stay green while the compiler still errors**—for example `someExpr.localeCompare(...)` when `someExpr` is typed as `string` but is not a “likely string” AST pattern.
 

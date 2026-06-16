@@ -969,19 +969,6 @@ Warns when `&&=`, `||=`, or `??=` is used. Hosanna lowers these to if-statements
 
 ### 🆕 API Restriction Rules
 
-#### `no-object-prototype` [LOW]
-**Error level:** `error` | **HS-1077**
-
-Object.prototype functions and fields are not supported in BrightScript.
-
-```typescript
-// ❌ Bad
-Object.prototype.hasOwnProperty.call(obj, 'key');
-
-// ✅ Good
-obj.hasOwnProperty('key');
-```
-
 #### `no-buffer-api` [LOW]
 **Error level:** `error` | **HS-1085**
 
