@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.41.0](https://github.com/TantaWowa/hosanna-lint/compare/v1.40.0...v1.41.0) (2026-06-16)
+
+### Features
+
+* hot-path perf rules (array methods, repeated field reads) ([c220df1](https://github.com/TantaWowa/hosanna-lint/commit/c220df1b65241419113cb91b9a2a547449f4272a))
+
 ## [1.40.0](https://github.com/TantaWowa/hosanna-lint/compare/v1.39.0...v1.40.0) (2026-06-11)
 
 ### Features
