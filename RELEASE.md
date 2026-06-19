@@ -61,7 +61,7 @@ Run `npm pkg fix` if npm warns about `repository` during publish; the repo uses 
 
 ### Tools
 
-- Node 18+
+- Node.js 24.17.0
 - GitHub CLI (`gh`) — authenticated via `gh auth login`
 - `npm install` completed (installs `release-it` and other deps)
 
