@@ -1,5 +1,11 @@
 # AGENTS.md
 
+## Git Branch Naming
+
+Agents may create sensible, semantic feature branch names when a task needs a
+branch or worktree. Do not include `codex`, `codex/`, `codex-`, or any other
+automatic agent prefix in branch names.
+
 ## Overview
 
 This repo owns `@tantawowa/hosanna-eslint-plugin`, the ESLint rule package used by Hosanna UI app repos. It is the right place to add editor/lint diagnostics for TypeScript patterns that should not reach the Roku compiler.
