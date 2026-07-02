@@ -68,3 +68,7 @@ Merge with `recommended` for editor/transpiler parity extras:
 ### HS-1099 and editor noise
 
 By default `no-date-usage` does not report `new Date()` (transpiler still emits HS-1099). Enable parity via the rule option or `strict` config; the mapping always lists HS-1099 for `hs:disable` alignment.
+
+## Legacy-toolchain compat rules (no HS code)
+
+`no-nullish-coalescing-bare-local-capture`, `no-ternary-bare-local-capture`, `no-ctor-param-property-closure-capture`, and `no-bare-optional-parameter-property` guard against shapes that were **silently miscompiled** by hsc < 1.29.0 / < 1.32.0 (fixed by transpiler commits `64c1997`, `a354b70`, `b10442f`) and crashed at runtime on device. The transpiler never emitted a diagnostic for them — the failure was wrong codegen, not a rejected input — so there is no HS code to map and no entry in `ESLINT_RULE_TO_HS_CODES`. They are `warn` in `recommended` as protection for repos pinned to older toolchains; disable them once every consumer builds with a fixed transpiler.
