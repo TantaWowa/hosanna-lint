@@ -31,6 +31,15 @@ describe('no-nullish-coalescing-bare-local-capture', () => {
         'function f() { return { a: getFoo() ?? "x" }; }',
         // Unresolved globals were never capture candidates
         'doThing(window ?? getDefault());',
+        // No calls: pre-fix a bare operand contributed nothing to the name sets, so the
+        // right-references-left overlap never fired — these lowered to hs_coalesce (safe)
+        'function f(a: number | undefined) { doThing(a ?? a + 1); }',
+        'function f(a: number | undefined) { doThing(a ?? a); }',
+        'class C { viewStatus = 0; f(viewStatus?: number) { return { v: viewStatus ?? this.viewStatus }; } }',
+        // Bare operand whose name also appears (as a bound reference) in the other operand
+        // is already in the capture list — no crash even though a call forces the IIFE
+        'function f(foo: string | undefined) { return foo ?? bar(foo); }',
+        'function f(path?: string) { return getFileSystem()?.resolveUri(path) ?? path; }',
       ],
       invalid: [],
     });
@@ -61,11 +70,6 @@ describe('no-nullish-coalescing-bare-local-capture', () => {
           errors: [{ messageId: 'bareLocalNullishCapture', data: { name: 'fallback' } }],
         },
         {
-          // Right references left → IIFE even without calls
-          code: 'function f(a: number | undefined) { doThing(a ?? a + 1); }',
-          errors: [{ messageId: 'bareLocalNullishCapture', data: { name: 'a' } }],
-        },
-        {
           // Result is consumed by a member access, not assigned to an identifier — still IIFE
           code: 'function f(foo: { p: number } | undefined) { const x = (foo ?? makeDefault()).p; }',
           errors: [{ messageId: 'bareLocalNullishCapture', data: { name: 'foo' } }],
@@ -76,12 +80,9 @@ describe('no-nullish-coalescing-bare-local-capture', () => {
           errors: [{ messageId: 'bareLocalNullishCapture', data: { name: 'foo' } }],
         },
         {
-          // Both operands bare with right-refs-left: both are flagged
-          code: 'function f(a: number | undefined) { doThing(a ?? a); }',
-          errors: [
-            { messageId: 'bareLocalNullishCapture', data: { name: 'a' } },
-            { messageId: 'bareLocalNullishCapture', data: { name: 'a' } },
-          ],
+          // Both operands bare with a call in the right: only shapes with calls crashed
+          code: 'function f(a: number | undefined, b: () => number) { doThing(a ?? b()); }',
+          errors: [{ messageId: 'bareLocalNullishCapture', data: { name: 'a' } }],
         },
       ],
     });

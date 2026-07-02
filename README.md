@@ -93,7 +93,7 @@ export default tseslint.config(
 
 ## Rules
 
-This plugin provides **110 specialized ESLint rules** organized by category to ensure Hosanna UI code quality and platform compatibility.
+This plugin provides **111 specialized ESLint rules** organized by category to ensure Hosanna UI code quality and platform compatibility.
 
 ### Performance Impact Key
 
@@ -1121,7 +1121,7 @@ These rules flag TypeScript shapes that were **miscompiled by older `hsc` versio
 #### `no-nullish-coalescing-bare-local-capture` [LOW]
 **Error level:** `warn` | Fixed in hsc **1.29.0** (transpiler commit `64c1997`)
 
-When `??` lowers to the IIFE slow path (a call anywhere in either operand, or the right side referencing the left), hsc < 1.29.0 failed to add a **bare local identifier operand** to the IIFE's capture list — the lowering only collected descendants of each operand, never the operand root itself. The generated closure read an uninitialised variable and crashed on device (`&he9`).
+When `??` lowered to the IIFE slow path, hsc < 1.29.0 failed to add a **bare local identifier operand** to the IIFE's capture list — the lowering only collected descendants of each operand, never the operand root itself. The generated closure read an uninitialised variable and crashed on device (`&he9`). Because a bare operand contributed nothing to the pre-fix name sets, the only trigger that could enter the IIFE alongside a bare operand was a **call in either operand** — which is exactly what this rule requires.
 
 **Example violations:**
 ```typescript
@@ -1141,14 +1141,40 @@ return { clearColor };
 return { clearColor: this.skyClearColor ?? fallbackColor() };
 return { clearColor: config.skyClearColor ?? fallbackColor() };
 
-// ✅ Good - no call and no left-reference lowers to hs_coalesce (fast path)
+// ✅ Good - no calls: pre-fix these lowered to hs_coalesce, which needs no capture
 return { clearColor: skyClearColor ?? DEFAULT_COLOR };
+return { viewStatus: viewStatus ?? this.viewStatus };
 ```
 
-#### `no-super-arg-closure-ctor-param-capture` [LOW]
+#### `no-ternary-bare-local-capture` [LOW]
+**Error level:** `warn` | Fixed in hsc **1.29.0** (transpiler commit `64c1997`)
+
+The same root-identifier capture gap as `no-nullish-coalescing-bare-local-capture`, for ternaries: when a ternary lowered to the IIFE slow path, hsc < 1.29.0 failed to capture a **bare local identifier branch**, crashing on device (`&he9`). A bare branch contributed nothing to the pre-fix name sets, so the IIFE was entered alongside it only via a **call in either branch** or via the **other (non-bare) branch referencing the test's risky identifiers**. Test identifiers themselves are safe — the test is evaluated at the call site and passed in as `__hsCondition`.
+
+**Example violations:**
+```typescript
+// ❌ Bad - bare local branch + call in the other branch
+doThing(cond ? value : getDefault());
+
+// ❌ Bad - the other branch references the test identifier, bare branch is uncaptured
+doThing(logoImage ? path + logoImage : fallback);
+
+// ✅ Good - direct assignment to an identifier lowers to inline if/else (no IIFE)
+const v = cond ? value : getDefault();
+
+// ✅ Good - no calls; bare branches never fired the pre-fix trigger (hs_ternary)
+doThing(typeof value === 'number' ? value : fallback);
+
+// ✅ Good - a call in the test alone does not force the IIFE
+doThing(check() ? a : b);
+```
+
+#### `no-ctor-param-property-closure-capture` [LOW]
 **Error level:** `warn` | Fixed in hsc **1.32.0** (transpiler commit `a354b70`)
 
-Babel registers no scope binding for constructor **parameter properties** (`constructor(private x: T)`), so on hsc < 1.32.0 closures passed as `super(...)` arguments never captured them — the bare identifier leaked into BrightScript and was `invalid` when the closure ran. Plain (unmodified) constructor parameters always had bindings and are not flagged.
+Babel registers no scope binding for constructor **parameter properties** (`constructor(private x: T)`), so on hsc < 1.32.0 closures created anywhere inside the constructor — most visibly in `super(...)` arguments — never captured them: the bare identifier leaked into BrightScript and was `invalid` when the closure ran. Plain (unmodified) constructor parameters always had bindings and are not flagged.
+
+**Suggestion:** for closures after `super()` (where parameter properties are already assigned), rewrites the bare reference to `this.x` when the closure chain is all arrow functions.
 
 **Example violations:**
 ```typescript
@@ -1159,6 +1185,13 @@ class LevelScene extends Scene {
   }
 }
 
+// ❌ Bad - closure in the constructor body referencing a parameter property
+class Widget {
+  constructor(private name: string) {
+    this.describe = () => name; // use this.name instead
+  }
+}
+
 // ✅ Good - plain constructor parameter (always captured correctly)
 class LevelScene extends Scene {
   constructor(context: SceneContext) {
@@ -1166,8 +1199,8 @@ class LevelScene extends Scene {
   }
 }
 
-// ✅ Good - this-reference, if the closure only runs after construction
-super({ onReady: () => this.context.refresh() });
+// ✅ Good - this-reference after super(); parameter properties are already assigned
+this.describe = () => this.name;
 ```
 
 #### `no-bare-optional-parameter-property` [LOW]
