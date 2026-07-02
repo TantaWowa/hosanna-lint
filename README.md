@@ -93,7 +93,7 @@ export default tseslint.config(
 
 ## Rules
 
-This plugin provides **70 specialized ESLint rules** organized by category to ensure Hosanna UI code quality and platform compatibility.
+This plugin provides **110 specialized ESLint rules** organized by category to ensure Hosanna UI code quality and platform compatibility.
 
 ### Performance Impact Key
 
@@ -1112,6 +1112,85 @@ Destructuring is only supported in function parameters and variable declarations
 // ✅ Good
 const { a, b } = obj;
 function foo({ a, b }) {}
+```
+
+### 🕰️ Legacy Toolchain Compat Rules
+
+These rules flag TypeScript shapes that were **miscompiled by older `hsc` versions** and crashed on device. Current transpilers compile them correctly, so they are `warn` (not `error`) in `recommended`: they protect repos pinned to older toolchains and act as regression tripwires for shapes that historically shipped broken BrightScript. If every consumer of your code builds with a transpiler at or above the noted fix version, it is safe to turn the corresponding rule off.
+
+#### `no-nullish-coalescing-bare-local-capture` [LOW]
+**Error level:** `warn` | Fixed in hsc **1.29.0** (transpiler commit `64c1997`)
+
+When `??` lowers to the IIFE slow path (a call anywhere in either operand, or the right side referencing the left), hsc < 1.29.0 failed to add a **bare local identifier operand** to the IIFE's capture list — the lowering only collected descendants of each operand, never the operand root itself. The generated closure read an uninitialised variable and crashed on device (`&he9`).
+
+**Example violations:**
+```typescript
+// ❌ Bad - bare local + call fallback in an object literal (the original device crash)
+function build(skyClearColor: Color | undefined) {
+  return { clearColor: skyClearColor ?? fallbackColor() };
+}
+
+// ❌ Bad - bare local on the right when the left has a call
+const label = { text: getTitle() ?? fallback };
+
+// ✅ Good - direct assignment to an identifier lowers to inline if/else (no IIFE)
+const clearColor = skyClearColor ?? fallbackColor();
+return { clearColor };
+
+// ✅ Good - this-captures and member expressions were always collected
+return { clearColor: this.skyClearColor ?? fallbackColor() };
+return { clearColor: config.skyClearColor ?? fallbackColor() };
+
+// ✅ Good - no call and no left-reference lowers to hs_coalesce (fast path)
+return { clearColor: skyClearColor ?? DEFAULT_COLOR };
+```
+
+#### `no-super-arg-closure-ctor-param-capture` [LOW]
+**Error level:** `warn` | Fixed in hsc **1.32.0** (transpiler commit `a354b70`)
+
+Babel registers no scope binding for constructor **parameter properties** (`constructor(private x: T)`), so on hsc < 1.32.0 closures passed as `super(...)` arguments never captured them — the bare identifier leaked into BrightScript and was `invalid` when the closure ran. Plain (unmodified) constructor parameters always had bindings and are not flagged.
+
+**Example violations:**
+```typescript
+// ❌ Bad - closure in super args referencing a parameter property
+class LevelScene extends Scene {
+  constructor(private readonly context: SceneContext) {
+    super({ resolveAssetUri: (key) => resolveUri(context, key) });
+  }
+}
+
+// ✅ Good - plain constructor parameter (always captured correctly)
+class LevelScene extends Scene {
+  constructor(context: SceneContext) {
+    super({ resolveAssetUri: (key) => resolveUri(context, key) });
+  }
+}
+
+// ✅ Good - this-reference, if the closure only runs after construction
+super({ onReady: () => this.context.refresh() });
+```
+
+#### `no-bare-optional-parameter-property` [LOW]
+**Error level:** `warn` | Fixed in hsc **1.29.0** (transpiler commit `b10442f`)
+
+BrightScript requires a signature default for every omittable argument. The transpiler emits `= invalid` for bare optional parameters, but hsc < 1.29.0 read the optional flag off the `TSParameterProperty` wrapper instead of the inner parameter, so `constructor(private config?: T)` lost its default and zero-arg calls crashed on device ("Wrong number of function parameters"). Plain bare-optional parameters (`function f(b?: T)`, `method(b?: T)`) always emitted `= invalid` correctly and are not flagged.
+
+**Suggestion:** rewrites `x?: T` to `x: T | undefined = undefined` (same call signature, explicit default).
+
+**Example violations:**
+```typescript
+// ❌ Bad - bare-optional parameter property
+class Resolver {
+  constructor(private config?: ResolverConfig) {}
+}
+
+// ✅ Good - explicit default keeps the BRS signature arity-safe on all toolchains
+class Resolver {
+  constructor(private config: ResolverConfig | undefined = undefined) {}
+}
+
+// ✅ Good - plain bare-optional param was never affected
+function createResolver(config?: ResolverConfig) {}
 ```
 
 ### 🆕 Type-Aware Rules (require TypeScript type checker)

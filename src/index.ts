@@ -95,6 +95,9 @@ import noSgnNodeMutation from './rules/no-sgn-node-mutation';
 import noRecursionInLogicalExpression from './rules/no-recursion-in-logical-expression';
 import noTernaryIifeSlowPath from './rules/no-ternary-iife-slow-path';
 import noNullishCoalescingIifeSlowPath from './rules/no-nullish-coalescing-iife-slow-path';
+import noNullishCoalescingBareLocalCapture from './rules/no-nullish-coalescing-bare-local-capture';
+import noSuperArgClosureCtorParamCapture from './rules/no-super-arg-closure-ctor-param-capture';
+import noBareOptionalParameterProperty from './rules/no-bare-optional-parameter-property';
 import noUnsignedRightShift from './rules/no-unsigned-right-shift';
 import bitwiseOperatorPolyfill from './rules/bitwise-operator-polyfill';
 import logicalCompoundAssignmentLowered from './rules/logical-compound-assignment-lowered';
@@ -240,6 +243,10 @@ const plugin = {
     'no-recursion-in-logical-expression': w('no-recursion-in-logical-expression', noRecursionInLogicalExpression),
     'no-ternary-iife-slow-path': w('no-ternary-iife-slow-path', noTernaryIifeSlowPath),
     'no-nullish-coalescing-iife-slow-path': w('no-nullish-coalescing-iife-slow-path', noNullishCoalescingIifeSlowPath),
+    // Legacy-toolchain compat guards (miscompiled only on hsc below the noted versions)
+    'no-nullish-coalescing-bare-local-capture': w('no-nullish-coalescing-bare-local-capture', noNullishCoalescingBareLocalCapture),
+    'no-super-arg-closure-ctor-param-capture': w('no-super-arg-closure-ctor-param-capture', noSuperArgClosureCtorParamCapture),
+    'no-bare-optional-parameter-property': w('no-bare-optional-parameter-property', noBareOptionalParameterProperty),
     'no-unsigned-right-shift': w('no-unsigned-right-shift', noUnsignedRightShift),
     'bitwise-operator-polyfill': w('bitwise-operator-polyfill', bitwiseOperatorPolyfill),
     'logical-compound-assignment-lowered': w('logical-compound-assignment-lowered', logicalCompoundAssignmentLowered),
@@ -365,6 +372,11 @@ const plugin = {
         '@hosanna-eslint/no-recursion-in-logical-expression': 'warn',
         '@hosanna-eslint/no-ternary-iife-slow-path': 'warn',
         '@hosanna-eslint/no-nullish-coalescing-iife-slow-path': 'warn',
+        // Compat guards for codegen bugs fixed in hsc 1.29.0/1.32.0 — warn, not error,
+        // because the flagged shapes are compiled correctly by current transpilers
+        '@hosanna-eslint/no-nullish-coalescing-bare-local-capture': 'warn',
+        '@hosanna-eslint/no-super-arg-closure-ctor-param-capture': 'warn',
+        '@hosanna-eslint/no-bare-optional-parameter-property': 'warn',
         '@hosanna-eslint/no-unsigned-right-shift': 'warn',
         '@hosanna-eslint/bitwise-operator-polyfill': 'warn',
         '@hosanna-eslint/logical-compound-assignment-lowered': 'warn',

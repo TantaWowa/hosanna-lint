@@ -12,9 +12,11 @@ import { Rule } from 'eslint';
  * captured correctly.
  */
 
-type TSParameterPropertyNode = Rule.Node & {
-  parameter: Rule.Node & { left?: Rule.Node };
-};
+/* TSParameterProperty is a @typescript-eslint AST node, absent from ESLint's core Node union */
+interface TSParameterPropertyLike {
+  type: string;
+  parameter: { type: string; left?: { type: string } };
+}
 
 /** Keys to skip when traversing AST - avoid circular refs (parent) and non-AST data */
 const SKIP_KEYS = new Set(['parent', 'loc', 'range', 'leadingComments', 'trailingComments']);
@@ -48,12 +50,12 @@ function collectClosuresInExpression(expr: Rule.Node): Rule.Node[] {
 }
 
 /** Unwrap a TSParameterProperty to its inner Identifier (through a default value if present). */
-function getParameterPropertyIdentifier(param: TSParameterPropertyNode): Rule.Node | undefined {
+function getParameterPropertyIdentifier(param: TSParameterPropertyLike): Rule.Node | undefined {
   let inner = param.parameter;
   if (inner.type === 'AssignmentPattern' && inner.left) {
     inner = inner.left;
   }
-  return inner.type === 'Identifier' ? inner : undefined;
+  return inner.type === 'Identifier' ? (inner as unknown as Rule.Node) : undefined;
 }
 
 /** Find the enclosing constructor FunctionExpression, if any. */
@@ -97,9 +99,10 @@ const rule: Rule.RuleModule = {
         const ctor = getEnclosingConstructor(node as Rule.Node);
         if (!ctor) return;
 
-        const paramPropertyIds = (ctor as Rule.Node & { params: Rule.Node[] }).params
+        const params = (ctor as unknown as { params: TSParameterPropertyLike[] }).params;
+        const paramPropertyIds = params
           .filter((p) => p.type === 'TSParameterProperty')
-          .map((p) => getParameterPropertyIdentifier(p as TSParameterPropertyNode))
+          .map((p) => getParameterPropertyIdentifier(p))
           .filter((id): id is Rule.Node => id !== undefined);
         if (paramPropertyIds.length === 0) return;
 
