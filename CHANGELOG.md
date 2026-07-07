@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.43.0](https://github.com/TantaWowa/hosanna-lint/compare/v1.41.0...v1.43.0) (2026-07-07)
+
+### Features
+
+* add no-bare-optional-parameter-property rule ([03890b4](https://github.com/TantaWowa/hosanna-lint/commit/03890b4caefde39c62b59c32a089c552ebca3f16))
+* add no-nullish-coalescing-bare-local-capture rule ([4ca737e](https://github.com/TantaWowa/hosanna-lint/commit/4ca737efe073aa63a8eed584a647080f711b1b30))
+* add no-super-arg-closure-ctor-param-capture rule ([c599ef0](https://github.com/TantaWowa/hosanna-lint/commit/c599ef0aa0321f66de0cfb4f4e6f05471ca947ca))
+* add no-ternary-bare-local-capture and extend ctor-param closure rule ([5a8e42b](https://github.com/TantaWowa/hosanna-lint/commit/5a8e42b82261e1d3733284319b924019f4367c61))
+* wire compat-guard rules into recommended config and docs ([cd8e1b2](https://github.com/TantaWowa/hosanna-lint/commit/cd8e1b2b21a6ff738c51dfa35a87c9df7d7591c4))
+
 ## [1.42.0](https://github.com/TantaWowa/hosanna-lint/compare/v1.41.0...v1.42.0) (2026-06-20)
 
 ## [1.41.0](https://github.com/TantaWowa/hosanna-lint/compare/v1.40.0...v1.41.0) (2026-06-16)
