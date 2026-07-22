@@ -1,0 +1,20 @@
+name: Release Patch
+
+on:
+  workflow_dispatch:
+
+permissions:
+  actions: write
+  contents: read
+
+jobs:
+  dispatch:
+    name: Dispatch patch release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Start trusted patch release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          SOURCE_SHA="$(gh api "repos/${GITHUB_REPOSITORY}/commits/main" --jq .sha)"
+          gh workflow run release.yml --repo "${GITHUB_REPOSITORY}" --ref main -f bump=patch -f source_sha="${SOURCE_SHA}"

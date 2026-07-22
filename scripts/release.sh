@@ -11,13 +11,14 @@
 #   --dry-run | --dry Preview without making changes
 #   --skip-tests      Skip lint and test steps
 #   --allow-branch    Allow releasing from a non-main branch (hotfixes)
+#   --ci              Run non-interactively with npm trusted publishing
 #
 # Prerequisites:
 #   - On main branch with clean working directory
 #   - npm logged in (npm login)
 #   - gh CLI authenticated (for GitHub release)
-# npm 2FA: do not use release-it --ci locally (blocks OTP). This script omits --ci so
-#   release-it can prompt for OTP, or set NPM_OTP to pass it non-interactively.
+# npm 2FA: local releases omit release-it --ci so it can prompt for OTP. Trusted
+#   GitHub releases pass --ci and authenticate to npm with OIDC.
 
 set -e
 
@@ -30,6 +31,7 @@ BUMP_TYPE=""
 DRY_RUN=""
 SKIP_TESTS=""
 ALLOW_BRANCH=""
+RELEASE_CI=""
 
 for arg in "$@"; do
   case "$arg" in
@@ -45,11 +47,14 @@ for arg in "$@"; do
     --allow-branch)
       ALLOW_BRANCH="1"
       ;;
+    --ci)
+      RELEASE_CI="1"
+      ;;
   esac
 done
 
 if [ -z "$BUMP_TYPE" ]; then
-  echo "Usage: npm run release -- <major|minor|patch> [--dry-run|--dry] [--skip-tests] [--allow-branch]"
+  echo "Usage: npm run release -- <major|minor|patch> [--dry-run|--dry] [--skip-tests] [--allow-branch] [--ci]"
   exit 1
 fi
 
@@ -61,8 +66,13 @@ if [ "$BRANCH" != "main" ] && [ -z "$ALLOW_BRANCH" ]; then
   exit 1
 fi
 
-# --- Validate npm auth (skip for dry run) ---
-if [ -z "$DRY_RUN" ]; then
+# --- Validate publishing auth (skip for dry run) ---
+if [ -z "$DRY_RUN" ] && [ -n "$RELEASE_CI" ]; then
+  if [ -z "${GITHUB_TOKEN:-}" ] || [ -z "${GITHUB_REPOSITORY:-}" ]; then
+    echo "ERROR: Trusted CI releases require GITHUB_TOKEN and GITHUB_REPOSITORY."
+    exit 1
+  fi
+elif [ -z "$DRY_RUN" ]; then
   npm whoami &>/dev/null || { echo "ERROR: Not logged in to npm. Run: npm login"; exit 1; }
 fi
 
@@ -94,10 +104,14 @@ if [ "$CURRENT_VERSION" != "$BASE_VERSION" ]; then
   "
 fi
 
-# --- Run release-it (no --ci: allows npm OTP prompt when 2FA is enabled) ---
+# --- Run release-it ---
 REL_OTP=()
+REL_CI=()
 if [ -n "${NPM_OTP:-}" ]; then
   REL_OTP=(--npm.otp="$NPM_OTP")
 fi
+if [ -n "$RELEASE_CI" ]; then
+  REL_CI=(--ci)
+fi
 echo "==> Running release-it $BUMP_TYPE $DRY_RUN"
-npx release-it "$BUMP_TYPE" $DRY_RUN "${REL_OTP[@]}"
+npx release-it "$BUMP_TYPE" $DRY_RUN "${REL_CI[@]}" "${REL_OTP[@]}"
