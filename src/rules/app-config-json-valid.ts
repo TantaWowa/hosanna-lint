@@ -428,6 +428,79 @@ function findValuePosition(
   return null;
 }
 
+function validateThemeAssetContracts(
+  json: Record<string, unknown>,
+  report: (messageId: 'invalidThemeFont' | 'invalidShapeDelivery' | 'invalidAssetBundle', error: string) => void
+): void {
+  const theme = json.theme;
+  if (theme && typeof theme === 'object' && !Array.isArray(theme)) {
+    const themeRecord = theme as Record<string, unknown>;
+    const fonts = themeRecord.fonts;
+    if (fonts && typeof fonts === 'object' && !Array.isArray(fonts)) {
+      for (const [fontKey, value] of Object.entries(fonts)) {
+        if (typeof value === 'string') continue;
+        if (!value || typeof value !== 'object' || Array.isArray(value)) {
+          report('invalidThemeFont', `theme.fonts.${fontKey} must be a string or { uri, size, delivery? }`);
+          continue;
+        }
+        const font = value as Record<string, unknown>;
+        if (typeof font.uri !== 'string' || font.uri.trim() === '') {
+          report('invalidThemeFont', `theme.fonts.${fontKey}.uri must be a non-empty string`);
+        }
+        if (typeof font.size !== 'number' || !Number.isFinite(font.size) || font.size <= 0) {
+          report('invalidThemeFont', `theme.fonts.${fontKey}.size must be a positive number`);
+        }
+        if (font.delivery !== undefined && font.delivery !== 'embedded' && font.delivery !== 'bundled') {
+          report('invalidThemeFont', `theme.fonts.${fontKey}.delivery must be embedded or bundled`);
+        }
+        if (font.delivery === 'bundled' && typeof font.uri === 'string'
+          && !font.uri.startsWith('pkg:/') && !font.uri.startsWith('http://')
+          && !font.uri.startsWith('https://') && !font.uri.startsWith('cachefs:/')) {
+          report('invalidThemeFont', `theme.fonts.${fontKey}.uri must use pkg:/, HTTP, HTTPS, or a compiler-emitted cachefs:/ URI when delivery is bundled`);
+        }
+      }
+    }
+    const shapes = themeRecord.shapes;
+    if (shapes && typeof shapes === 'object' && !Array.isArray(shapes)) {
+      for (const [shapeKey, value] of Object.entries(shapes)) {
+        if (!value || typeof value !== 'object' || Array.isArray(value)) continue;
+        const delivery = (value as Record<string, unknown>).delivery;
+        if (delivery !== undefined && delivery !== 'runtime' && delivery !== 'embedded' && delivery !== 'bundled') {
+          report('invalidShapeDelivery', `theme.shapes.${shapeKey}.delivery must be runtime, embedded, or bundled`);
+        }
+      }
+    }
+  }
+
+  const bundles = json.assetBundles;
+  if (bundles === undefined) return;
+  if (!bundles || typeof bundles !== 'object' || Array.isArray(bundles)) {
+    report('invalidAssetBundle', 'assetBundles must be an object');
+    return;
+  }
+  for (const [bundleKey, value] of Object.entries(bundles)) {
+    if (!value || typeof value !== 'object' || Array.isArray(value)) {
+      report('invalidAssetBundle', `assetBundles.${bundleKey} must be an object`);
+      continue;
+    }
+    const bundle = value as Record<string, unknown>;
+    if (typeof bundle.bundleId !== 'string' || bundle.bundleId.trim() === '') {
+      report('invalidAssetBundle', `assetBundles.${bundleKey}.bundleId must be a non-empty string`);
+    }
+    if (!Array.isArray(bundle.assets)) {
+      report('invalidAssetBundle', `assetBundles.${bundleKey}.assets must be an array`);
+      continue;
+    }
+    bundle.assets.forEach((asset, index) => {
+      if (!asset || typeof asset !== 'object' || Array.isArray(asset)
+        || typeof (asset as Record<string, unknown>).key !== 'string'
+        || typeof (asset as Record<string, unknown>).url !== 'string') {
+        report('invalidAssetBundle', `assetBundles.${bundleKey}.assets.${index} must contain string key and url values`);
+      }
+    });
+  }
+}
+
 const rule: Rule.RuleModule = {
   meta: {
     type: 'problem',
@@ -450,6 +523,9 @@ const rule: Rule.RuleModule = {
       extendsWithTilde: '$extends values should not start with ~',
       invalidFontKeyFormat: '{{error}}',
       appConfigResolveError: '{{error}}',
+      invalidThemeFont: '{{error}}',
+      invalidShapeDelivery: '{{error}}',
+      invalidAssetBundle: '{{error}}',
     },
   },
   create: function (context) {
@@ -555,6 +631,10 @@ const rule: Rule.RuleModule = {
             data: { section: 'controls' },
           });
         }
+
+        validateThemeAssetContracts(resolvedJsonObj, (messageId, error) => {
+          context.report({ node, messageId, data: { error } });
+        });
 
         // Traverse JSON to find all paths and references
         const traversal = traverseJson(resolvedJsonObj);

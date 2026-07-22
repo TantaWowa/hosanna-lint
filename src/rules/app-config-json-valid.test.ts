@@ -131,6 +131,69 @@ describe('app-config-json-valid', () => {
     });
   });
 
+  it('accepts object-valued fonts, shape delivery, and inline asset bundles', () => {
+    ruleTester.run('app-config-json-valid', rule, {
+      valid: [
+        {
+          code: JSON.stringify({
+            rows: {},
+            translations: { en: {} },
+            cells: {},
+            theme: {
+              colors: {},
+              fonts: {
+                legacy: 'LargeBold,40',
+                embedded: { uri: 'https://cdn.example.com/body.ttf', size: 22 },
+                bundled: { uri: 'https://cdn.example.com/title.otf', size: 28, delivery: 'bundled' },
+              },
+              shapes: {
+                runtime: { delivery: 'runtime' },
+                embedded: { delivery: 'embedded' },
+                bundled: { delivery: 'bundled' },
+              },
+            },
+            assetBundles: {
+              compiledTheme: {
+                bundleId: 'theme',
+                version: 'sha256:abc',
+                assets: [{ key: 'shapes/card.9.png', url: '/asset-bundles/theme/shapes/card.9.png', fileName: 'shapes/card.9.png', required: true }],
+              },
+            },
+            controls: {},
+          }),
+          filename: path.join(tempDir, 'assets', 'meta', 'app.config.json'),
+        },
+      ],
+      invalid: [],
+    });
+  });
+
+  it('reports invalid object fonts, shape delivery, and bundle descriptors', () => {
+    const base = {
+      rows: {}, translations: { en: {} }, cells: {}, theme: { colors: {}, fonts: {} }, controls: {},
+    };
+    ruleTester.run('app-config-json-valid', rule, {
+      valid: [],
+      invalid: [
+        {
+          code: JSON.stringify({ ...base, theme: { colors: {}, fonts: { bad: { uri: '', size: 0, delivery: 'remote' } } } }),
+          filename: path.join(tempDir, 'assets', 'meta', 'app.config.json'),
+          errors: [{ messageId: 'invalidThemeFont' }, { messageId: 'invalidThemeFont' }, { messageId: 'invalidThemeFont' }],
+        },
+        {
+          code: JSON.stringify({ ...base, theme: { colors: {}, fonts: {}, shapes: { bad: { delivery: 'fast' } } } }),
+          filename: path.join(tempDir, 'assets', 'meta', 'app.config.json'),
+          errors: [{ messageId: 'invalidShapeDelivery' }],
+        },
+        {
+          code: JSON.stringify({ ...base, assetBundles: { bad: { bundleId: '', assets: [{}] } } }),
+          filename: path.join(tempDir, 'assets', 'meta', 'app.config.json'),
+          errors: [{ messageId: 'invalidAssetBundle' }, { messageId: 'invalidAssetBundle' }],
+        },
+      ],
+    });
+  });
+
   it('should detect missing rows section', () => {
     const invalidJson: any = {
       translations: { en: {} },
