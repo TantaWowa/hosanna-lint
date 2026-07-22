@@ -10,6 +10,10 @@ on:
         options:
           - patch
           - minor
+      source_sha:
+        description: Exact main commit approved by the dispatch wrapper
+        required: true
+        type: string
 
 concurrency:
   group: hosanna-lint-stable-release
@@ -17,17 +21,34 @@ concurrency:
 
 permissions:
   contents: write
+  id-token: write
 
 jobs:
   release:
     name: Release ${{ inputs.bump }}
     if: ${{ github.ref == 'refs/heads/main' }}
     runs-on: ubuntu-latest
+    environment: npm-release
     steps:
-      - name: Checkout main
+      - name: Validate dispatch inputs
+        env:
+          APPROVED_SHA: ${{ inputs.source_sha }}
+          BUMP: ${{ inputs.bump }}
+          EVENT_SHA: ${{ github.sha }}
+        run: |
+          if [[ ! "${APPROVED_SHA}" =~ ^[0-9a-f]{40}$ ]] || [ "${APPROVED_SHA}" != "${EVENT_SHA}" ]; then
+            echo "::error::Approved SHA must be the exact main commit attached to this dispatch"
+            exit 1
+          fi
+          case "${BUMP}" in
+            patch|minor) ;;
+            *) echo "::error::Unsupported release increment"; exit 1 ;;
+          esac
+
+      - name: Checkout approved main commit
         uses: actions/checkout@v4
         with:
-          ref: main
+          ref: ${{ inputs.source_sha }}
           fetch-depth: 0
 
       - name: Setup Node.js
@@ -37,18 +58,34 @@ jobs:
           registry-url: https://registry.npmjs.org
           cache: npm
 
+      - name: Install OIDC-capable npm
+        run: npm install --global npm@^11.5.1 --ignore-scripts
+
       - name: Configure release branch
+        env:
+          APPROVED_SHA: ${{ inputs.source_sha }}
         run: |
-          git checkout -B main "${GITHUB_SHA}"
+          git fetch origin main:refs/remotes/origin/main
+          git checkout -B main "${APPROVED_SHA}"
           git branch --set-upstream-to=origin/main main
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          ACTUAL_SHA="$(git rev-parse HEAD)"
+          if [ "${ACTUAL_SHA}" != "${APPROVED_SHA}" ]; then
+            echo "::error::Checkout does not match the approved main commit"
+            exit 1
+          fi
 
       - name: Install dependencies
         run: npm ci
 
       - name: Publish stable package
         env:
+          BUMP: ${{ inputs.bump }}
           GITHUB_TOKEN: ${{ github.token }}
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: npm run release -- "${{ inputs.bump }}"
+        run: |
+          case "${BUMP}" in
+            patch|minor) ;;
+            *) echo "::error::Unsupported release increment"; exit 1 ;;
+          esac
+          npm run release -- "${BUMP}" --ci
