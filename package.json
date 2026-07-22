@@ -10,7 +10,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Tantawowa/hosanna-eslint-plugin.git"
+    "url": "git+https://github.com/TantaWowa/hosanna-lint.git"
   },
   "scripts": {
     "build": "rm -rf dist && tsc --project tsconfig.build.json && node scripts/generateBuildInfo.js",
