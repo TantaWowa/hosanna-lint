@@ -39,3 +39,17 @@ For lint rule changes that affect Hosanna TypeScript accepted by app repos, also
 - `../hosanna-tools` owns `hst`, generation, debugger, and MCP tooling.
 
 When adding a rule that corresponds to a compiler diagnostic, update the shared mapping in `../hosanna-transpiler/packages/hosanna-supported-apis/src/eslint-rule-to-hs-codes.ts` and add/verify the matching compiler diagnostic in `../hosanna-transpiler`. Use `npm link` or an equivalent local link workflow to validate this plugin inside `../hosanna-ui` before publish.
+
+## Agent skills
+
+### Issue tracker
+
+ClickUp is authoritative; use `$work-on-ticket` for execution and `$hope-platform-planning` for Hope Platform backlog work. See `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+Use the shared five-state triage vocabulary. See `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+Use the repository's single-context domain docs. See `docs/agents/domain.md`.
