@@ -27,7 +27,7 @@ jobs:
   release:
     name: Release ${{ inputs.bump }}
     if: ${{ github.ref == 'refs/heads/main' }}
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     environment: npm-release
     steps:
       - name: Validate dispatch inputs
