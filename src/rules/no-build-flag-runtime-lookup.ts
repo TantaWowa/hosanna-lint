@@ -72,7 +72,6 @@ const rule: Rule.RuleModule = {
         context.report({ node, messageId: 'runtimeLookup', data: { name: argument.name } });
       },
       MemberExpression(node) {
-        if (!isGlobalObject(node.object as Rule.Node)) return;
         const property = node.property;
         const name = !node.computed && property.type === 'Identifier'
           ? property.name
@@ -85,6 +84,7 @@ const rule: Rule.RuleModule = {
         // Native hosts publish the injected constants before loading the application.
         // A plain write does not inspect whether the global flag exists.
         if (isPlainWrite(node)) return;
+        if (!isGlobalObject(node.object as Rule.Node)) return;
         context.report({ node, messageId: 'runtimeLookup', data: { name } });
       },
     };
