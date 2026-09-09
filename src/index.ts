@@ -41,6 +41,7 @@ import noUint8ArrayDeclaration from './rules/no-uint8array-declaration';
 import noThisInNonArrowClosure from './rules/no-this-in-non-arrow-closure';
 import noConditionalCompilationElse from './rules/no-conditional-compilation-else';
 import noMixedConditionalCompilation from './rules/no-mixed-conditional-compilation';
+import noBuildFlagRuntimeLookup from './rules/no-build-flag-runtime-lookup';
 import noJsonStringifySpace from './rules/no-json-stringify-space';
 import promiseStaticPolyfilled from './rules/promise-static-polyfilled';
 import symbolBasicSupportRoku from './rules/symbol-basic-support-roku';
@@ -179,6 +180,8 @@ const plugin = {
     'no-this-in-non-arrow-closure': w('no-this-in-non-arrow-closure', noThisInNonArrowClosure),
     'no-conditional-compilation-else': w('no-conditional-compilation-else', noConditionalCompilationElse),
     'no-mixed-conditional-compilation': w('no-mixed-conditional-compilation', noMixedConditionalCompilation),
+    // Build flags are injected on every target, including files excluded from Roku.
+    'no-build-flag-runtime-lookup': noBuildFlagRuntimeLookup,
     'no-json-stringify-space': w('no-json-stringify-space', noJsonStringifySpace),
     'promise-static-polyfilled': w('promise-static-polyfilled', promiseStaticPolyfilled),
     'symbol-basic-support-roku': w('symbol-basic-support-roku', symbolBasicSupportRoku),
@@ -317,6 +320,7 @@ const plugin = {
         '@hosanna-eslint/no-this-in-non-arrow-closure': 'error',
         '@hosanna-eslint/no-conditional-compilation-else': 'error',
         '@hosanna-eslint/no-mixed-conditional-compilation': 'error',
+        '@hosanna-eslint/no-build-flag-runtime-lookup': 'error',
         '@hosanna-eslint/no-json-stringify-space': 'warn',
         '@hosanna-eslint/promise-static-polyfilled': 'warn',
         '@hosanna-eslint/symbol-basic-support-roku': 'warn',

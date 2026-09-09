@@ -33,6 +33,40 @@ This plugin provides specialized linting rules that help maintain code quality a
 - Maintain architectural consistency across Hosanna UI projects
 - Prevent direct imports of generated code that could cause runtime issues
 
+## Compiler-defined flag lookups
+
+`no-build-flag-runtime-lookup` implements the runtime-lookup protection named by
+compiler diagnostic HS-1142. It rejects `typeof __DEV__` and reads such as
+`globalThis.__DEV__`, `global['__PROD__']`, or the same reads through a stable
+alias of either global object. This includes fallback expressions in
+assignments and ternaries. Read injected flags directly; if one is missing,
+configure the owning build or test runtime instead of adding a runtime default.
+
+```typescript
+// Supported: direct constants, including native bootstrap writes.
+Object.assign(globalThis, { __DEV__: __DEV__, __PROD__: !__DEV__ });
+if (__ANDROID__) {
+  startAndroid();
+}
+
+// Rejected: runtime existence checks and defaults bypass the build contract.
+const dev = typeof __DEV__ !== 'undefined' ? __DEV__ : false;
+const prod = globalThis.__PROD__ ?? true;
+```
+
+Direct constants, ordinary object properties, shadowed local globals, and plain
+native bootstrap writes remain valid. Native `__HS_*__` global properties are
+runtime hooks and data, so property reads in that namespace remain valid too.
+The rule does not impose a broader restriction on direct flag expressions.
+
+The recommended configuration enables this rule. For native/platform-scoped
+files, enable it without the legacy Hosanna `ts`/`tsx`/`js`/`jsx` processor:
+those processors still discard files marked `hs:exclude-from-platform roku`.
+The rule itself does not skip such files or declarations, and existing
+Roku-specific rules retain their exclusion behavior. Standard ESLint disable
+comments use `@hosanna-eslint/no-build-flag-runtime-lookup`; this cross-platform
+rule does not use the Roku-specific `hs:disable` wrapper.
+
 ## Installation
 
 ```bash
