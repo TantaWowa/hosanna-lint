@@ -36,7 +36,7 @@ const rule: Rule.RuleModule = {
     schema: [],
     messages: {
       runtimeLookup:
-        'HS-1142: "{{name}}" is a compile-time build directive. Reference it directly; do not use typeof or read it through globalThis/global. Configure the owning build or test runtime when a flag is missing.',
+        'HS-1142: "{{name}}" is a compile-time build directive. Reference it directly; do not use typeof or read it through globalThis/global or their aliases. Configure the owning build or test runtime when a flag is missing.',
     },
   },
   create(context) {
@@ -72,7 +72,7 @@ const rule: Rule.RuleModule = {
         context.report({ node, messageId: 'runtimeLookup', data: { name: argument.name } });
       },
       MemberExpression(node) {
-        const property = node.property;
+        const property = node.computed ? unwrapExpression(node.property as Rule.Node) : node.property;
         const name = !node.computed && property.type === 'Identifier'
           ? property.name
           : node.computed && property.type === 'Literal' && typeof property.value === 'string'

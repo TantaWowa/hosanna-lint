@@ -38,6 +38,8 @@ describe('no-build-flag-runtime-lookup', () => {
     'const host = globalThis; host.__DEV__ = __DEV__; Object.assign(host, { __PROD__: !__DEV__ });',
     'let host = globalThis; host = local; const dev = host.__DEV__;',
     'const key = getKey(); const value = globalThis[key];',
+    'const key = getKey(); const value = globalThis[key as string];',
+    'globalThis[("__DEV__" as string)] = __DEV__;',
     'const { configuration: host } = globalThis; const enabled = host.__DEV__;',
     '(globalThis.__DEV__ as boolean) = __DEV__;',
     'const probes = globalThis.__HS_ANDROID_STARTUP_PROBES__; const tick = global.__HS_ANDROID_FRAME_TICK__;',
@@ -54,6 +56,9 @@ describe('no-build-flag-runtime-lookup', () => {
     'let host = globalThis; const dev = host.__DEV__;',
     'const dev = (globalThis as Globals)?.["__DEV__"];',
     'globalThis.__DEV__ ||= false;',
+    'const dev = globalThis[("__DEV__" as string)];',
+    'const dev = globalThis["__DEV__"!];',
+    'const dev = globalThis[("__DEV__" satisfies string)];',
   ])('rejects runtime global flag reads and stable aliases: %s', code => {
     expect(lint(code)).toEqual([expect.objectContaining({ messageId: 'runtimeLookup' })]);
   });
