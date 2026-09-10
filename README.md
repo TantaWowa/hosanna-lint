@@ -1,5 +1,27 @@
 # @tantawowa/hosanna-eslint-plugin
 
+## Agent skills
+
+The repository instructions use TantaWowa's ClickUp workflow skills, Matt
+Pocock's engineering skills, and pstack's `unslop` skill. Install them once on
+each developer machine:
+
+```sh
+npx -y skills add TantaWowa/hosanna-tools --global \
+  --skill work-on-ticket hope-platform-planning hope-platform-architecture-ownership \
+  --agent '*' --full-depth --yes
+npx -y skills add mattpocock/skills --global --all
+npx -y skills add cursor/plugins --global --skill unslop \
+  --agent '*' --full-depth --yes
+```
+
+The first command requires GitHub access to the private `hosanna-tools`
+repository. The install does not grant ClickUp access, so connect the team's
+ClickUp integration in your agent before using `work-on-ticket`. Start a new
+Codex, Cursor, or Claude Code session after installing.
+Run `npx -y skills update --global --yes` to update the installed skills later.
+
+
 A custom ESLint plugin for Hosanna UI that enforces coding conventions and architectural patterns essential for optimal performance on Roku and other platforms.
 
 ## Purpose
