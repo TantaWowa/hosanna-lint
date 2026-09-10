@@ -1,18 +1,31 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { RuleTester } from 'eslint';
+import { Linter, Rule } from 'eslint';
 import parser from '@typescript-eslint/parser';
 import rule from './app-config-style-key-valid';
 import * as fs from 'fs';
 import * as path from 'path';
 import { tmpdir } from 'os';
 
-const ruleTester = new RuleTester({
-  languageOptions: {
-    ecmaVersion: 2020,
-    sourceType: 'module',
-    parser,
+// Execute verification inside each Vitest test. RuleTester.run() here would
+// register tests after collection and can produce false-green outer tests.
+const ruleTester = {
+  run(_name: string, testedRule: Rule.RuleModule, cases: {
+    valid: { code: string; filename: string; options?: unknown[] }[];
+    invalid: { code: string; filename: string; options?: unknown[]; errors: { messageId: string; data?: unknown }[] }[];
+  }) {
+    const linter = new Linter({ cwd: process.cwd() });
+    const verify = (test: {code: string; filename: string; options?: unknown[]}) => linter.verify(test.code, [{
+      files: ['**/*.ts'],
+      languageOptions: { parser },
+      plugins: { hosanna: { rules: { style: testedRule } } },
+      rules: { 'hosanna/style': ['error', ...test.options ?? []] },
+    }], { filename: path.join(process.cwd(), test.filename) });
+    for (const test of cases.valid) expect(verify(test), test.code).toEqual([]);
+    for (const test of cases.invalid) {
+      expect(verify(test).map(message => message.messageId), test.code).toEqual(test.errors.map(error => error.messageId));
+    }
   },
-});
+};
 
 describe('app-config-style-key-valid', () => {
   let tempDir: string;
@@ -274,7 +287,7 @@ describe('app-config-style-key-valid', () => {
         valid: [],
         invalid: [
           {
-            code: `const obj = { styleKey: "~theme.styles.heading" };`,
+            code: `const obj = { styleKey: "~styles.default" };`,
             filename: 'test.ts',
             options: [],
             errors: [
@@ -288,18 +301,18 @@ describe('app-config-style-key-valid', () => {
       });
     });
 
-    it('should warn for titleFontKey with ~ prefix outside app.config.json', () => {
+    it('should warn for loadingCellStyleKey with ~ prefix outside app.config.json', () => {
       ruleTester.run('app-config-style-key-valid', rule, {
         valid: [],
         invalid: [
           {
-            code: `const obj = { titleFontKey: "~theme.fonts.text-regular-32" };`,
+            code: `const obj = { loadingCellStyleKey: "~styles.default" };`,
             filename: 'test.ts',
             options: [],
             errors: [
               {
                 messageId: 'keyWithTildeWarning',
-                data: { property: 'titleFontKey' },
+                data: { property: 'loadingCellStyleKey' },
               },
             ],
           },

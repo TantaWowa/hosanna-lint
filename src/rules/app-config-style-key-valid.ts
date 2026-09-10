@@ -1,9 +1,11 @@
 import { Rule } from 'eslint';
 import { getAppConfig, jsonPathExists } from '../utils/app-config-loader';
+import { getHosannaTypeServices, isHosannaViewType } from '../utils/hosanna-view-types';
 
 // Style key property names to validate
 const STYLE_KEY_PROPERTIES = new Set([
   'styleKey',
+  'defaultStyleKey',
   'fontKey',
   'fontStyleKey',
   'settingsKey',
@@ -94,6 +96,10 @@ function extractStringLiterals(node: any): string[] {
 
   if (!node) {
     return literals;
+  }
+
+  if (['TSAsExpression', 'TSTypeAssertion', 'TSNonNullExpression', 'TSSatisfiesExpression'].includes(node.type)) {
+    return extractStringLiterals(node.expression);
   }
 
   // Direct string literal
@@ -219,6 +225,7 @@ function validatePath(
       messageId: 'invalidStyleKey',
       data: {
         path: pathToValidate,
+        property: propertyName,
       },
     });
   }
@@ -228,53 +235,55 @@ const rule: Rule.RuleModule = {
   meta: {
     type: 'problem',
     docs: {
-      description: 'Validate styleKey, fontKey, fontStyleKey, settingsKey, cellSettingsKey, and loadingCellStyleKey properties reference valid paths in app.config.json',
+      description: 'Validate style and font paths in object properties, assignments, and class fields, including Hosanna view defaultStyleKey initializers',
       category: 'Best Practices',
       recommended: true,
     },
     fixable: undefined,
     schema: [],
     messages: {
-      invalidStyleKey: 'Style key path "{{path}}" does not exist in app.config.json',
+      invalidStyleKey: '{{property}} path "{{path}}" does not exist in the merged app.config.json. Hosanna cannot resolve this style or setting at runtime. Use an existing config path, or define "{{path}}" in the application config (including an inherited config) before referencing it.',
       invalidFontKeyFormat: '{{error}}',
       keyWithTildeWarning: 'Keys ending in "Key" (except fontKey) should not use ~ references outside of app.config.json. Consider using a direct path instead.',
     },
   },
   create: function (context) {
-    return {
-      // Check object literal properties: { styleKey: "path.to.style" }
-      Property: function (node) {
-        if (
-          node.key &&
-          node.key.type === 'Identifier' &&
-          isStyleKeyProperty(node.key.name) &&
-          node.value
-        ) {
-          const propertyName = node.key.name;
-          const stringLiterals = extractStringLiterals(node.value);
-          for (const literal of stringLiterals) {
-            validatePath(literal, propertyName, context, node.value as Rule.Node, node as Rule.Node);
-          }
-        }
-      },
+    const services = getHosannaTypeServices(context);
 
-      // Check assignment expressions: obj.styleKey = "path.to.style"
-      AssignmentExpression: function (node) {
-        if (
-          node.left &&
-          node.left.type === 'MemberExpression' &&
-          node.left.property &&
-          node.left.property.type === 'Identifier' &&
-          isStyleKeyProperty(node.left.property.name) &&
-          node.right
-        ) {
-          const propertyName = node.left.property.name;
-          const stringLiterals = extractStringLiterals(node.right);
-          for (const literal of stringLiterals) {
-            // For assignments, report on the property access (left side)
-            validatePath(literal, propertyName, context, node.right as Rule.Node, node.left.property as Rule.Node);
-          }
-        }
+    // defaultStyleKey is a view fallback, not a general-purpose config property.
+    function isView(node: Rule.Node | undefined): boolean {
+      return !!node && !!services && isHosannaViewType(services.checker, services.typeAt(node));
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    function propertyName(key: any, computed: boolean): string | undefined {
+      if (!computed && key?.type === 'Identifier') return key.name;
+      if (key?.type === 'Literal' && typeof key.value === 'string') return key.value;
+      return undefined;
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    function check(name: string | undefined, value: any, property: any, viewOwner?: Rule.Node): void {
+      if (!name || !isStyleKeyProperty(name) || !value) return;
+      if (name === 'defaultStyleKey' && !isView(viewOwner)) return;
+      for (const literal of extractStringLiterals(value)) {
+        validatePath(literal, name, context, value, property);
+      }
+    }
+
+    return {
+      Property(node) {
+        check(propertyName(node.key, !!node.computed), node.value, node, node.parent);
+      },
+      AssignmentExpression(node) {
+        if (node.left.type !== 'MemberExpression') return;
+        check(propertyName(node.left.property, !!node.left.computed), node.right, node.left.property, node.left.object as Rule.Node);
+      },
+      // ESLint's ESTree types do not include TypeScript class fields.
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      PropertyDefinition(node: any) {
+        if (node.static && propertyName(node.key, !!node.computed) === 'defaultStyleKey') return;
+        check(propertyName(node.key, !!node.computed), node.value, node, node.parent?.parent);
       },
     };
   },

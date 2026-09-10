@@ -11,6 +11,51 @@ This plugin provides specialized linting rules that help maintain code quality a
 - Maintain architectural consistency across Hosanna UI projects
 - Prevent direct imports of generated code that could cause runtime issues
 
+## Build directives
+
+`no-runtime-conditional-compilation` requires every executable `__FLAG__`
+reference to stay in flag-only `if` tests, where the compiler can prune branches.
+Direct negation, parentheses, boolean literals, and `&&` / `||` combinations of flags are allowed.
+Put runtime conditions inside those blocks, and use separate positive and
+negative flag checks instead of `else`.
+
+```typescript
+if (__ROKU__) {
+  if (ready()) {
+    renderRoku();
+  }
+}
+if (!__ROKU__) {
+  renderNative();
+}
+```
+
+Do not return directives from runtime detection helpers, assign them to aliases
+or properties, pass them as arguments, or use them with `typeof`, in ternaries,
+or in mixed runtime conditions. Assignments, updates, runtime declarations,
+parameters, and loop bindings using directive names are also rejected. The
+compiler can substitute directive values in expressions, but that does not
+preserve branch pruning at the caller. This rule enforces the
+architecture policy; it does not add a compiler diagnostic. It ignores
+ambient declarations, type positions, ordinary property names, and source snippets
+in strings. Runtime lookups and writes such as `globalThis.__ROKU__` and
+`globalThis['__DEV__'] = true` are also rejected, including constant aliases of
+the global object. Statically named directive definitions through
+`Object.assign(globalThis, { __ROKU__: false })` and
+`Object.defineProperty(globalThis, '__ROKU__', ...)` are rejected as well.
+Configure directive values under `buildFlags` in
+`hsconfig.json`; the diagnostic explains how to replace runtime uses with
+direct `if` blocks. Native host bootstrap definitions belong in explicitly
+excluded contexts in the owning ESLint configuration. The rule has no implicit
+bootstrap allowance. `__HS_*__` host runtime properties are ordinary runtime
+data and remain outside this directive rule.
+
+## Application checks
+
+See [Hosanna application checks](docs/hosanna-application-checks.md) for all seven
+new or expanded checks, passing and failing code examples, corrective guidance,
+and the typed lint configuration and framework source boundaries.
+
 ## Installation
 
 ```bash
@@ -60,7 +105,7 @@ export default [
 
 ### Type-Aware Rules
 
-Some rules (e.g. `no-unsafe-number-parsing`) use TypeScript type information when available for more precise detection. To enable type-awareness, configure your ESLint setup with `parserOptions.project` or `parserOptions.projectService` so the TypeScript parser can provide type information. Without this, the rules fall back to AST-only analysis.
+Some rules (e.g. `no-unsafe-number-parsing`) use TypeScript type information when available for more precise detection. To enable type-awareness, configure your ESLint setup with `parserOptions.project` or `parserOptions.projectService` so the TypeScript parser can provide type information. Without this, some rules fall back to AST-only analysis; checks that need Hosanna type identity skip instead of guessing. The application-check guide identifies those requirements.
 
 ### IDE / Editor Integration
 
@@ -296,7 +341,7 @@ class MyClass {
 #### `no-async-function-pointer-invalid-reference` [LOW]
 **Error level:** `error`
 
-Ensures `AsyncFunctionPointer` type only accepts exported function declarations. Disallows class methods, anonymous functions, arrow functions, and inline functions.
+Requires exported module-level named functions when creating `AsyncFunctionPointer` values. Rejects methods, inline functions, arrows, binds, and ordinary local callback aliases; permits forwarding an existing typed pointer. With TypeScript services it follows type aliases, contextual object fields, imported/member call arguments, and typed returns. See the [application examples](docs/hosanna-application-checks.md#async-pointers-no-async-function-pointer-invalid-reference).
 
 **Example violations:**
 ```typescript
@@ -459,7 +504,7 @@ Validates `app.config.json` files (located at `assets/meta/app.config.json`) to 
 #### `app-config-style-key-valid` [LOW]
 **Error level:** `error`
 
-Validates that style key properties (`styleKey`, `fontKey`, `fontStyleKey`, `settingsKey`, `cellSettingsKey`, `loadingCellStyleKey`) reference valid paths in `app.config.json`. Works with object literals, assignment expressions, and complex expressions (ternary, null coalescing, logical OR).
+Validates that style key properties (`styleKey`, `fontKey`, `fontStyleKey`, `settingsKey`, `cellSettingsKey`, `loadingCellStyleKey`) reference valid paths in `app.config.json`. Works with object literals, assignment expressions, class-field initializers, and complex expressions (ternary, null coalescing, logical OR). Also validates `defaultStyleKey` on resolved Hosanna view instances. Config inheritance through `$extendFile` is merged before lookup.
 
 **Validations performed:**
 - Validates `styleKey`, `fontKey`, `fontStyleKey`, `settingsKey`, `cellSettingsKey`, and `loadingCellStyleKey` properties in object literals

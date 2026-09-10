@@ -3,7 +3,12 @@ import { RuleTester } from 'eslint';
 import parser from '@typescript-eslint/parser';
 import rule from './no-async-function-pointer-invalid-reference';
 
-const ruleTester = new RuleTester({
+class VitestRuleTester extends RuleTester {
+  static describe = describe;
+  static it = it;
+}
+
+const ruleTester = new VitestRuleTester({
   languageOptions: {
     ecmaVersion: 2020,
     sourceType: 'module',
@@ -12,7 +17,7 @@ const ruleTester = new RuleTester({
 });
 
 describe('no-async-function-pointer-invalid-reference', () => {
-  it('should pass valid exported function declarations', () => {
+  describe('should pass valid exported function declarations', () => {
     ruleTester.run('no-async-function-pointer-invalid-reference', rule, {
       valid: [
         // Exported function declaration
@@ -55,7 +60,7 @@ describe('no-async-function-pointer-invalid-reference', () => {
     });
   });
 
-  it('should report errors for arrow functions', () => {
+  describe('should report errors for arrow functions', () => {
     ruleTester.run('no-async-function-pointer-invalid-reference', rule, {
       valid: [],
       invalid: [
@@ -105,7 +110,7 @@ describe('no-async-function-pointer-invalid-reference', () => {
     });
   });
 
-  it('should report errors for function expressions', () => {
+  describe('should report errors for function expressions', () => {
     ruleTester.run('no-async-function-pointer-invalid-reference', rule, {
       valid: [],
       invalid: [
@@ -155,7 +160,7 @@ describe('no-async-function-pointer-invalid-reference', () => {
     });
   });
 
-  it('should report errors for class methods', () => {
+  describe('should report errors for class methods', () => {
     ruleTester.run('no-async-function-pointer-invalid-reference', rule, {
       valid: [],
       invalid: [
@@ -210,7 +215,7 @@ describe('no-async-function-pointer-invalid-reference', () => {
     });
   });
 
-  it('should report errors for non-exported function declarations', () => {
+  describe('should report errors for non-exported function declarations', () => {
     ruleTester.run('no-async-function-pointer-invalid-reference', rule, {
       valid: [],
       invalid: [
@@ -253,7 +258,7 @@ describe('no-async-function-pointer-invalid-reference', () => {
     });
   });
 
-  it('should report errors for variables initialized with functions', () => {
+  describe('should report errors for variables initialized with functions', () => {
     ruleTester.run('no-async-function-pointer-invalid-reference', rule, {
       valid: [],
       invalid: [
@@ -295,7 +300,7 @@ describe('no-async-function-pointer-invalid-reference', () => {
     });
   });
 
-  it('should report errors for function parameter default values', () => {
+  describe('should report errors for function parameter default values', () => {
     ruleTester.run('no-async-function-pointer-invalid-reference', rule, {
       valid: [],
       invalid: [
@@ -333,7 +338,7 @@ describe('no-async-function-pointer-invalid-reference', () => {
     });
   });
 
-  it('should validate class properties with AsyncFunctionPointer type', () => {
+  describe('should validate class properties with AsyncFunctionPointer type', () => {
     ruleTester.run('no-async-function-pointer-invalid-reference', rule, {
       valid: [
         `
@@ -391,7 +396,7 @@ describe('no-async-function-pointer-invalid-reference', () => {
     });
   });
 
-  it('should report errors when using bind with AsyncFunctionPointer targets', () => {
+  describe('should report errors when using bind with AsyncFunctionPointer targets', () => {
     ruleTester.run('no-async-function-pointer-invalid-reference', rule, {
       valid: [],
       invalid: [
@@ -477,7 +482,7 @@ describe('no-async-function-pointer-invalid-reference', () => {
     });
   });
 
-  it('should allow exported functions referenced inside class methods', () => {
+  describe('should allow exported functions referenced inside class methods', () => {
     ruleTester.run('no-async-function-pointer-invalid-reference', rule, {
       valid: [
         // Exported function referenced inside a class method
@@ -523,7 +528,7 @@ describe('no-async-function-pointer-invalid-reference', () => {
     });
   });
 
-  it('should handle complex scenarios', () => {
+  describe('should handle complex scenarios', () => {
     ruleTester.run('no-async-function-pointer-invalid-reference', rule, {
       valid: [
         // Multiple exported functions

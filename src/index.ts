@@ -31,6 +31,10 @@ import noUnaryOnIllegalType from './rules/no-unary-on-illegal-type';
 import noUnionExpressionInNonStatement from './rules/no-union-expression-in-non-statement';
 import noCallOnAnonymousFunction from './rules/no-call-on-anonymous-function';
 import noImportExtensions from './rules/no-import-extensions';
+import notificationHandlerValid from './rules/notification-handler-valid';
+import noFreshCallbackInUnsubscribe from './rules/no-fresh-callback-in-unsubscribe';
+import noSupplementaryDeclarativeViewLifecycle from './rules/no-supplementary-declarative-view-lifecycle';
+import viewRegistrationValid from './rules/view-registration-valid';
 import noAsyncFunctionPointerInvalidReference from './rules/no-async-function-pointer-invalid-reference';
 import appConfigJsonValid from './rules/app-config-json-valid';
 import appConfigStyleKeyValid from './rules/app-config-style-key-valid';
@@ -41,6 +45,7 @@ import noUint8ArrayDeclaration from './rules/no-uint8array-declaration';
 import noThisInNonArrowClosure from './rules/no-this-in-non-arrow-closure';
 import noConditionalCompilationElse from './rules/no-conditional-compilation-else';
 import noMixedConditionalCompilation from './rules/no-mixed-conditional-compilation';
+import noRuntimeConditionalCompilation from './rules/no-runtime-conditional-compilation';
 import noJsonStringifySpace from './rules/no-json-stringify-space';
 import promiseStaticPolyfilled from './rules/promise-static-polyfilled';
 import symbolBasicSupportRoku from './rules/symbol-basic-support-roku';
@@ -170,6 +175,10 @@ const plugin = {
     'no-call-on-anonymous-function': w('no-call-on-anonymous-function', noCallOnAnonymousFunction),
     'no-import-extensions': w('no-import-extensions', noImportExtensions),
     'no-async-function-pointer-invalid-reference': w('no-async-function-pointer-invalid-reference', noAsyncFunctionPointerInvalidReference),
+    'notification-handler-valid': notificationHandlerValid,
+    'no-fresh-callback-in-unsubscribe': noFreshCallbackInUnsubscribe,
+    'no-supplementary-declarative-view-lifecycle': noSupplementaryDeclarativeViewLifecycle,
+    'view-registration-valid': viewRegistrationValid,
     'app-config-json-valid': appConfigJsonValid,
     'app-config-style-key-valid': appConfigStyleKeyValid,
     'app-config-get-valid': appConfigGetValid,
@@ -179,6 +188,7 @@ const plugin = {
     'no-this-in-non-arrow-closure': w('no-this-in-non-arrow-closure', noThisInNonArrowClosure),
     'no-conditional-compilation-else': w('no-conditional-compilation-else', noConditionalCompilationElse),
     'no-mixed-conditional-compilation': w('no-mixed-conditional-compilation', noMixedConditionalCompilation),
+    'no-runtime-conditional-compilation': w('no-runtime-conditional-compilation', noRuntimeConditionalCompilation),
     'no-json-stringify-space': w('no-json-stringify-space', noJsonStringifySpace),
     'promise-static-polyfilled': w('promise-static-polyfilled', promiseStaticPolyfilled),
     'symbol-basic-support-roku': w('symbol-basic-support-roku', symbolBasicSupportRoku),
@@ -308,6 +318,10 @@ const plugin = {
         '@hosanna-eslint/no-call-on-anonymous-function': 'error',
         '@hosanna-eslint/no-import-extensions': 'warn',
         '@hosanna-eslint/no-async-function-pointer-invalid-reference': 'error',
+        '@hosanna-eslint/notification-handler-valid': 'error',
+        '@hosanna-eslint/no-fresh-callback-in-unsubscribe': 'error',
+        '@hosanna-eslint/no-supplementary-declarative-view-lifecycle': 'error',
+        '@hosanna-eslint/view-registration-valid': 'error',
         '@hosanna-eslint/app-config-json-valid': 'error',
         '@hosanna-eslint/app-config-style-key-valid': 'error',
         '@hosanna-eslint/app-config-get-valid': 'error',
@@ -317,6 +331,7 @@ const plugin = {
         '@hosanna-eslint/no-this-in-non-arrow-closure': 'error',
         '@hosanna-eslint/no-conditional-compilation-else': 'error',
         '@hosanna-eslint/no-mixed-conditional-compilation': 'error',
+        '@hosanna-eslint/no-runtime-conditional-compilation': 'error',
         '@hosanna-eslint/no-json-stringify-space': 'warn',
         '@hosanna-eslint/promise-static-polyfilled': 'warn',
         '@hosanna-eslint/symbol-basic-support-roku': 'warn',

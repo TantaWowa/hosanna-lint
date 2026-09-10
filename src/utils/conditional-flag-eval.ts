@@ -92,7 +92,9 @@ function _eval(node: AnyExpr, config: FlagEvalConfig): ConditionalEvalResult {
     }
     return {
       canEvaluate: false,
-      isMixed: mixed || (!left.canEvaluate && !right.canEvaluate),
+      // ESLint may not receive buildFlags: unresolved flags are still a pure compile-time
+      // expression. Only runtime operands make the condition mixed.
+      isMixed: mixed,
       isFlagExpression: Boolean(left.isFlagExpression || right.isFlagExpression),
     };
   }
