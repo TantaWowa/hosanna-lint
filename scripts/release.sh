@@ -15,7 +15,7 @@
 #
 # Prerequisites:
 #   - On main branch with clean working directory
-#   - npm logged in (npm login)
+#   - npm logged in (npm login), or trusted publishing in CI
 #   - gh CLI authenticated (for GitHub release)
 # npm 2FA: local releases omit release-it --ci so it can prompt for OTP. Trusted
 #   GitHub releases pass --ci and authenticate to npm with OIDC.
@@ -111,7 +111,10 @@ if [ -n "${NPM_OTP:-}" ]; then
   REL_OTP=(--npm.otp="$NPM_OTP")
 fi
 if [ -n "$RELEASE_CI" ]; then
-  REL_CI=(--ci)
+  # Trusted publishing authenticates at npm publish, so npm whoami cannot
+  # validate OIDC. Skip release-it's npm preflight only in trusted CI.
+  REL_CI=(--ci --npm.skipChecks)
+  export CI=true
 fi
 echo "==> Running release-it $BUMP_TYPE $DRY_RUN"
 npx release-it "$BUMP_TYPE" $DRY_RUN "${REL_CI[@]}" "${REL_OTP[@]}"

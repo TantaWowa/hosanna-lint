@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { RuleTester } from 'eslint';
 import parser from '@typescript-eslint/parser';
+import pluginModule from '../index';
 import rule from './no-runtime-conditional-compilation';
 import { wrapRuleWithHsDisable } from '../utils/hs-disable';
 
@@ -153,9 +154,8 @@ describe('no-runtime-conditional-compilation', () => {
     });
   });
 
-  it('exports and enables the rule in the recommended configuration', async () => {
-    const imported = await import('../index');
-    const plugin = imported.default as { rules: Record<string, unknown>; configs: { recommended: { rules: Record<string, string> } } };
+  it('exports and enables the rule in the recommended configuration', () => {
+    const plugin = pluginModule as { rules: Record<string, unknown>; configs: { recommended: { rules: Record<string, string> } } };
     expect(plugin.rules['no-runtime-conditional-compilation']).toBeDefined();
     expect(plugin.configs.recommended.rules['@hosanna-eslint/no-runtime-conditional-compilation']).toBe('error');
   });

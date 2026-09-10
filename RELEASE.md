@@ -22,7 +22,7 @@ Use `--` after `release` so npm passes bump and flags to the script. If you writ
 
 When you run a release command, the following steps execute automatically in order:
 
-1. **Validate** — confirms you're on `main`, logged in to npm
+1. **Validate** — confirms you're on `main` and have local npm authentication or trusted CI credentials
 2. **Pull** — `git pull origin main`
 3. **Strip suffix** — removes `-next` from the current version
 4. **Bump version** — increments patch/minor/major in `package.json`
@@ -51,6 +51,19 @@ You must be logged in to npm with publish access to `@tantawowa/hosanna-eslint-p
 If your npm account uses **2FA** for publishes, the release script does **not** pass `--ci` to release-it so you can be prompted for a one-time password at publish time. To pass the code without a prompt (e.g. automation): `NPM_OTP=123456 npm run release -- patch` (code expires quickly).
 
 Run `npm pkg fix` if npm warns about `repository` during publish; the repo uses the canonical `git+https://…` form.
+
+### Trusted publishing in GitHub Actions
+
+The `release-patch.yml` and `release-minor.yml` workflows dispatch `release.yml`,
+which runs `npm run release -- patch --ci` or `minor --ci` with `GITHUB_TOKEN`
+and `GITHUB_REPOSITORY`. The workflow grants `id-token: write`; npm's trusted
+publisher configuration authorizes the package publication through OIDC.
+
+In this mode the script sets `CI=true` and passes `--ci --npm.skipChecks` to
+release-it. OIDC authentication happens at `npm publish`, so release-it's
+`npm whoami` preflight cannot verify it. This skips only release-it's npm
+preflight checks. The build, lint, full test suite, and npm's publish-time
+authorization still run. Local releases keep their npm authentication checks.
 
 ### Environment Variables
 
