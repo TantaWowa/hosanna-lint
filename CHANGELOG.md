@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.45.0](https://github.com/TantaWowa/hosanna-lint/compare/v1.44.0...v1.45.0) (2026-09-10)
+
+### Features
+
+* enforce Hosanna compiler directives and application contracts ([8d9a49f](https://github.com/TantaWowa/hosanna-lint/commit/8d9a49fb209796b0dcade61be723499189106690))
+
+### Bug Fixes
+
+* validate trusted releases without npm login preflight ([248b072](https://github.com/TantaWowa/hosanna-lint/commit/248b0728490888443a03229836c8f8fc7aec981f))
+
 ## [1.44.0](https://github.com/TantaWowa/hosanna-lint/compare/v1.43.0...v1.44.0) (2026-07-22)
 
 ## [1.43.0](https://github.com/TantaWowa/hosanna-lint/compare/v1.41.0...v1.43.0) (2026-07-07)
