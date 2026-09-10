@@ -80,8 +80,9 @@ describe('app-config-style-key-valid class fields and view defaults', () => {
     expect(messages).toHaveLength(1);
     expect(messages[0].messageId).toBe('invalidStyleKey');
     expect(messages[0].message).toContain('controls.Card.typo');
-    expect(messages[0].message).toContain('merged app.config.json');
-    expect(messages[0].message).toContain('Use an existing config path, or define');
+    expect(messages[0].message).toContain('inspected AppConfig inputs after inheritance');
+    expect(messages[0].message).toContain('assets/meta/app.config.json');
+    expect(messages[0].message).toContain('Use an existing config path or define');
   });
 
   it('does not guess view identity without type information', () => {

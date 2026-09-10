@@ -136,7 +136,7 @@ const rule: Rule.RuleModule = {
     schema: [],
     messages: {
       runtimeUse:
-        'Compiler directive {{name}} may only appear in a standalone, flag-only if test. This runtime use prevents compile-time branch pruning. Put the platform-specific work inside if ({{name}}) { ... } or if (!{{name}}) { ... }; nest runtime conditions inside those blocks and use separate flag checks instead of else chains.',
+        'Compiler directive {{name}} may only appear in a standalone, flag-only if test. This runtime use prevents compile-time branch pruning. Put the platform-specific work inside if ({{name}}) { ... } or if (!{{name}}) { ... }; nest runtime conditions inside those blocks and use separate flag checks instead of else chains. Hosanna reserves the __NAME__ identifier namespace for compiler flags; give non-conditional injected values a different name without those delimiters.',
       definitionOrMutation:
         'Do not define or assign compiler directive {{name}} in application code. Set {{flag}} in hsconfig.json buildFlags, then use if ({{name}}) { ... } at the code to include. A runtime variable, parameter, assignment, or update cannot replace a compiler directive.',
     },
