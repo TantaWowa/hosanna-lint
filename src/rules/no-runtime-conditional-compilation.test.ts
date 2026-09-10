@@ -53,9 +53,11 @@ describe('no-runtime-conditional-compilation', () => {
         'const local = {}; const { __DEV__: dev } = local; use(dev);',
         'const host = globalThis; host.__HS_NATIVE_SERVICE_EVENT__ = handler; use(host.__HS_NATIVE_SERVICE_EVENT__);',
         'if (runtimeCondition) { render(); }',
+        'declare const APP_RUNTIME_PROFILE: string; configure(APP_RUNTIME_PROFILE);',
       ],
       invalid: [
         { code: 'const kind = typeof __ROKU__;', errors: [runtimeUse] },
+        { code: 'declare const __APP_RUNTIME_PROFILE__: string; configure(__APP_RUNTIME_PROFILE__);', errors: [runtimeUse] },
         { code: 'if (typeof __ROKU__ !== "undefined") { render(); }', errors: [runtimeUse] },
         { code: 'const kind = typeof globalThis.__ROKU__;', errors: [runtimeUse] },
         { code: 'target = __ROKU__;', errors: [runtimeUse] },

@@ -26,6 +26,13 @@ export function isHosannaType(checker: ts.TypeChecker, type: ts.Type, names: str
   seen.add(type);
   if (names.some(name => isHosannaSymbol(checker, type.getSymbol(), name))) return true;
   if (type.isUnionOrIntersection() && type.types.some(part => isHosannaType(checker, part, names, seen))) return true;
+  // Instantiated generic classes can be TypeReference objects without the
+  // Class/Interface bits used by isClassOrInterface(). Follow their declaration
+  // target so generated ButtonViewStruct<State> retains its ViewStruct ancestry.
+  if ((type.flags & ts.TypeFlags.Object) && ((type as ts.ObjectType).objectFlags & ts.ObjectFlags.Reference)) {
+    const target = (type as ts.TypeReference).target;
+    if (target !== type && isHosannaType(checker, target, names, seen)) return true;
+  }
   if (type.isClassOrInterface()) {
     return checker.getBaseTypes(type).some(base => isHosannaType(checker, base, names, seen));
   }

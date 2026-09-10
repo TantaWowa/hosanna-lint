@@ -35,6 +35,11 @@ import notificationHandlerValid from './rules/notification-handler-valid';
 import noFreshCallbackInUnsubscribe from './rules/no-fresh-callback-in-unsubscribe';
 import noSupplementaryDeclarativeViewLifecycle from './rules/no-supplementary-declarative-view-lifecycle';
 import viewRegistrationValid from './rules/view-registration-valid';
+import requireLifecycleSuper from './rules/require-lifecycle-super';
+import noSideEffectsInGetViews from './rules/no-side-effects-in-get-views';
+import subscriptionCleanup from './rules/subscription-cleanup';
+import focusTargetValid from './rules/focus-target-valid';
+import batchDataSourceUpdates from './rules/batch-data-source-updates';
 import noAsyncFunctionPointerInvalidReference from './rules/no-async-function-pointer-invalid-reference';
 import appConfigJsonValid from './rules/app-config-json-valid';
 import appConfigStyleKeyValid from './rules/app-config-style-key-valid';
@@ -179,6 +184,11 @@ const plugin = {
     'no-fresh-callback-in-unsubscribe': noFreshCallbackInUnsubscribe,
     'no-supplementary-declarative-view-lifecycle': noSupplementaryDeclarativeViewLifecycle,
     'view-registration-valid': viewRegistrationValid,
+    'require-lifecycle-super': requireLifecycleSuper,
+    'no-side-effects-in-get-views': noSideEffectsInGetViews,
+    'subscription-cleanup': subscriptionCleanup,
+    'focus-target-valid': focusTargetValid,
+    'batch-data-source-updates': batchDataSourceUpdates,
     'app-config-json-valid': appConfigJsonValid,
     'app-config-style-key-valid': appConfigStyleKeyValid,
     'app-config-get-valid': appConfigGetValid,
@@ -322,6 +332,11 @@ const plugin = {
         '@hosanna-eslint/no-fresh-callback-in-unsubscribe': 'error',
         '@hosanna-eslint/no-supplementary-declarative-view-lifecycle': 'error',
         '@hosanna-eslint/view-registration-valid': 'error',
+        '@hosanna-eslint/require-lifecycle-super': 'error',
+        '@hosanna-eslint/no-side-effects-in-get-views': 'error',
+        '@hosanna-eslint/subscription-cleanup': 'warn',
+        '@hosanna-eslint/focus-target-valid': 'error',
+        '@hosanna-eslint/batch-data-source-updates': 'warn',
         '@hosanna-eslint/app-config-json-valid': 'error',
         '@hosanna-eslint/app-config-style-key-valid': 'error',
         '@hosanna-eslint/app-config-get-valid': 'error',

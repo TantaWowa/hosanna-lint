@@ -1,5 +1,6 @@
 import { Rule } from 'eslint';
-import { getAppConfig, jsonPathExists } from '../utils/app-config-loader';
+import { jsonPathExists } from '../utils/app-config-loader';
+import { getStyleAppConfigs, StyleAppConfigs } from '../utils/style-app-configs';
 import { getHosannaTypeServices, isHosannaViewType } from '../utils/hosanna-view-types';
 
 // Style key property names to validate
@@ -178,6 +179,7 @@ function validatePath(
   propertyName: string,
   context: Rule.RuleContext,
   valueNode: Rule.Node,
+  getConfigs: () => StyleAppConfigs,
   propertyNode?: Rule.Node
 ): void {
   // Warn if key ends with 'Key' (except fontKey) and value starts with ~
@@ -210,22 +212,23 @@ function validatePath(
     return;
   }
 
-  const config = getAppConfig(context);
-  if (!config) {
-    // If app.config.json doesn't exist, skip validation
+  const selection = getConfigs();
+  if (selection.unresolved || !selection.configs.length) {
+    // An unresolved declared alternative prevents proving a path is absent.
     return;
   }
 
   // If path starts with ~, remove it for validation
   const pathToValidate = pathStr.startsWith('~') ? pathStr.substring(1) : pathStr;
 
-  if (!jsonPathExists(config, pathToValidate)) {
+  if (!selection.configs.some(config => jsonPathExists(config, pathToValidate))) {
     context.report({
       node: valueNode,
       messageId: 'invalidStyleKey',
       data: {
         path: pathToValidate,
         property: propertyName,
+        inputs: selection.inputs.map(input => `"${input}"`).join(', '),
       },
     });
   }
@@ -240,15 +243,24 @@ const rule: Rule.RuleModule = {
       recommended: true,
     },
     fixable: undefined,
-    schema: [],
+    schema: [{
+      type: 'object',
+      properties: {
+        appConfigInputs: { type: 'array', items: { type: 'string', minLength: 1 }, minItems: 1, uniqueItems: true },
+      },
+      additionalProperties: false,
+    }],
     messages: {
-      invalidStyleKey: '{{property}} path "{{path}}" does not exist in the merged app.config.json. Hosanna cannot resolve this style or setting at runtime. Use an existing config path, or define "{{path}}" in the application config (including an inherited config) before referencing it.',
+      invalidStyleKey: '{{property}} path "{{path}}" is absent from all inspected AppConfig inputs after inheritance: {{inputs}}. Use an existing config path or define "{{path}}" in its owning config. For shared source with a different app/platform owner, set this rule\'s appConfigInputs in an ESLint files block; this check does not infer runtime reachability across brands.',
       invalidFontKeyFormat: '{{error}}',
       keyWithTildeWarning: 'Keys ending in "Key" (except fontKey) should not use ~ references outside of app.config.json. Consider using a direct path instead.',
     },
   },
   create: function (context) {
     const services = getHosannaTypeServices(context);
+    const options = context.options[0] as { appConfigInputs?: string[] } | undefined;
+    let selectedConfigs: StyleAppConfigs | undefined;
+    const getConfigs = () => selectedConfigs ??= getStyleAppConfigs(context.getCwd(), options?.appConfigInputs);
 
     // defaultStyleKey is a view fallback, not a general-purpose config property.
     function isView(node: Rule.Node | undefined): boolean {
@@ -267,7 +279,7 @@ const rule: Rule.RuleModule = {
       if (!name || !isStyleKeyProperty(name) || !value) return;
       if (name === 'defaultStyleKey' && !isView(viewOwner)) return;
       for (const literal of extractStringLiterals(value)) {
-        validatePath(literal, name, context, value, property);
+        validatePath(literal, name, context, value, getConfigs, property);
       }
     }
 

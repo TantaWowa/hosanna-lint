@@ -74,7 +74,7 @@ data and remain outside this directive rule.
 
 ## Application checks
 
-See [Hosanna application checks](docs/hosanna-application-checks.md) for all seven
+See [Hosanna application checks](docs/hosanna-application-checks.md) for the
 new or expanded checks, passing and failing code examples, corrective guidance,
 and the typed lint configuration and framework source boundaries.
 
