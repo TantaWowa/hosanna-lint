@@ -11,6 +11,7 @@ const checks = [
   ['subscription-cleanup', 'warn'],
   ['focus-target-valid', 'error'],
   ['batch-data-source-updates', 'warn'],
+  ['prefer-sort-by', 'warn'],
 ] as const;
 
 describe('application lifecycle, focus and batching preset', () => {
