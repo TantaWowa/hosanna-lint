@@ -118,6 +118,7 @@ import noUnsupportedUpdateNonNumber from './rules/no-unsupported-update-non-numb
 import noAmbiguousArrayMethodCall from './rules/no-ambiguous-array-method-call';
 import noTypeofRokuGlobalFunctions from './rules/no-typeof-roku-global-functions';
 import noTopLevelRuntimeInNoModule from './rules/no-top-level-runtime-in-no-module';
+import preferSortBy from './rules/prefer-sort-by';
 
 // Tier 3: Cross-file / deep analysis rules (HIGH performance impact)
 import noCaseInsensitiveClassCollision from './rules/no-case-insensitive-class-collision';
@@ -279,6 +280,7 @@ const plugin = {
     ),
     'no-unsupported-update-non-number': w('no-unsupported-update-non-number', noUnsupportedUpdateNonNumber),
     'no-ambiguous-array-method-call': w('no-ambiguous-array-method-call', noAmbiguousArrayMethodCall),
+    'prefer-sort-by': w('prefer-sort-by', preferSortBy),
 
     // Tier 3: Cross-file / deep analysis rules (HIGH performance impact)
     'no-case-insensitive-class-collision': w('no-case-insensitive-class-collision', noCaseInsensitiveClassCollision),
@@ -417,6 +419,7 @@ const plugin = {
         '@hosanna-eslint/no-member-assignment-on-callable-reference': 'error',
         '@hosanna-eslint/no-unsupported-update-non-number': 'error',
         '@hosanna-eslint/no-ambiguous-array-method-call': 'error',
+        '@hosanna-eslint/prefer-sort-by': 'warn',
 
         // Tier 3: Cross-file / deep analysis rules (HIGH performance impact)
         '@hosanna-eslint/no-case-insensitive-class-collision': 'error',

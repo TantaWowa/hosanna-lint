@@ -24,6 +24,7 @@ describe('no-unsupported-array-methods', () => {
         'const arr = [1, 2, 3]; arr.slice(0, 2);',
         'const arr = [1, 2, 3]; arr.join(",");',
         'const arr = [1, 2, 3]; arr.sort();',
+        `[{ rank: 2 }, { rank: 1 }].SortBy('rank', 'r');`,
         'const arr = [1, 2, 3]; arr.reverse();',
         'const arr = [1, 2, 3]; arr.concat([4, 5]);',
         'const arr = [1, 2, 3]; arr.indexOf(2);',
