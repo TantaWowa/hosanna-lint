@@ -1,5 +1,7 @@
 # Changelog
 
+## [1.47.0](https://github.com/TantaWowa/hosanna-lint/compare/v1.46.0...v1.47.0) (2026-09-24)
+
 ## [1.46.0](https://github.com/TantaWowa/hosanna-lint/compare/v1.45.0...v1.46.0) (2026-09-10)
 
 ## [1.45.0](https://github.com/TantaWowa/hosanna-lint/compare/v1.44.0...v1.45.0) (2026-09-10)
