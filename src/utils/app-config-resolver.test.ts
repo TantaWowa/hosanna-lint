@@ -25,7 +25,7 @@ describe('app-config-resolver', () => {
   }
 
   it('resolves short selectors to app.config variants', () => {
-    expect(resolveAppConfigInput(tempDir, 'phone')).toBe(path.join(metaDir, 'app.config.phone.json'));
+    expect(resolveAppConfigInput(tempDir, 'simulator')).toBe(path.join(metaDir, 'app.config.simulator.json'));
   });
 
   it('deep merges parent and child config', () => {
@@ -34,22 +34,22 @@ describe('app-config-resolver', () => {
       theme: { colors: { white: '#fff', black: '#000' }, fonts: { body: 'Medium,20' } },
       cells: ['base'],
     });
-    const child = writeConfig('app.config.phone.json', {
+    const child = writeConfig('app.config.simulator.json', {
       $extendFile: './app.config.json',
-      rows: { phone: { b: true } },
+      rows: { simulator: { b: true } },
       theme: { colors: { white: '#eee' } },
-      cells: ['phone'],
+      cells: ['simulator'],
     });
 
     expect(resolveAppConfigFromFile(child).config).toEqual({
-      rows: { base: { a: true }, phone: { b: true } },
+      rows: { base: { a: true }, simulator: { b: true } },
       theme: { colors: { white: '#eee', black: '#000' }, fonts: { body: 'Medium,20' } },
-      cells: ['phone'],
+      cells: ['simulator'],
     });
   });
 
   it('uses the parsed child config instead of re-reading the child file', () => {
-    const child = path.join(metaDir, 'app.config.phone.json');
+    const child = path.join(metaDir, 'app.config.simulator.json');
     writeConfig('app.config.json', {
       rows: { base: true },
       theme: { colors: { white: '#fff' } },
@@ -57,12 +57,12 @@ describe('app-config-resolver', () => {
 
     const result = resolveAppConfigFromParsedFile(child, {
       $extendFile: './app.config.json',
-      rows: { phone: true },
+      rows: { simulator: true },
       theme: { colors: 'disabled' },
     });
 
     expect(result.config).toEqual({
-      rows: { base: true, phone: true },
+      rows: { base: true, simulator: true },
       theme: { colors: 'disabled' },
     });
   });

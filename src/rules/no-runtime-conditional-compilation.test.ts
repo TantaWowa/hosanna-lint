@@ -41,7 +41,7 @@ describe('no-runtime-conditional-compilation', () => {
         'const { __ROKU__: roku } = flags; use(roku);',
         'interface Flags { __ROKU__: boolean } type Platform = typeof __ROKU__; type Other = __SomeType__;',
         'const fixture = "return __ROKU__;"; // return __DEV__; ',
-        'const nativeGlobal = globalThis.__HS_ANDROID_LAUNCH_ARGS__; use(nativeGlobal);',
+        'const nativeGlobal = globalThis.__HS_ROKU_LAUNCH_ARGS__; use(nativeGlobal);',
         'Object.assign(config, { __ROKU__: false, __DEV__: true });',
         'Object.assign(globalThis, { __HS_NATIVE_SERVICE_EVENT__: handler });',
         'function install(Object) { Object.assign(globalThis, { __ROKU__: false }); }',

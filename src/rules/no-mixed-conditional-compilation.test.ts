@@ -29,7 +29,7 @@ describe('no-mixed-conditional-compilation', () => {
       valid: [
         'if (true) { a = 1; }',
         'if (someVar) { a = 1; }',
-        'if (__APPLE__ || __ANDROID__) { a = 1; }',
+        'if (__PROD__ || __DEBUG__) { a = 1; }',
         'if (__UNKNOWN_A__ && !__UNKNOWN_B__) { a = 1; }',
         'if (!(__UNKNOWN_A__ || __UNKNOWN_B__) && true) { a = 1; }',
         // With buildFlags mirroring DEV: true, __DEV__ alone is statically true — not mixed

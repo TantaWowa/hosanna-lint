@@ -32,15 +32,15 @@ Accepted:
 if (__ROKU__) {
   if (ready()) { renderRoku(); }
 }
-if (!__ROKU__) { renderNative(); }
-if (__APPLE__ || __ANDROID__) { configureNative(); }
+if (!__ROKU__) { renderSimulator(); }
+if (__WEB__ && __DEV__) { configureSimulatorDiagnostics(); }
 declare const __ROKU__: boolean; // Ambient type declaration.
 ```
 
 Only direct flag-only `if` tests preserve compiler branch pruning. Use separate
 positive and negative tests; compiler branches cannot have `else` or `else if`.
 Configure flags in `hsconfig.json` rather than defining or mutating them in
-runtime code. Native bootstrap and compiler fixtures need explicit file scopes
+runtime code. Platform bootstrap and compiler fixtures need explicit file scopes
 in their owning lint configuration. The compiler reserves `__NAME__` identifiers
 for flags, including custom names. Give non-conditional injected values an
 ordinary name such as `APP_RUNTIME_PROFILE`, even when another bundler accepts

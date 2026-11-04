@@ -5,7 +5,6 @@ ClickUp is the authoritative request and backlog system for this repository.
 ## Route work
 
 - Use `$work-on-ticket` when asked to implement or complete a ClickUp task. It owns the task, branch, pull request, validation, CI, and review-status workflow.
-- Use `$hope-platform-planning` when shaping Hope Platform backlog work. Apply `$hope-platform-architecture-ownership` so each implementation ticket belongs to exactly one repository.
 - Let repository-local instructions choose the available ClickUp client. Preserve any local preference such as the `cup` CLI.
 - Treat GitHub issues as authoritative only when the request explicitly originates there. Pull requests are delivery evidence, not the default request surface.
 
