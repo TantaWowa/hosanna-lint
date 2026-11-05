@@ -8,7 +8,7 @@ each developer machine:
 
 ```sh
 npx -y skills add TantaWowa/hosanna-tools --global \
-  --skill work-on-ticket hope-platform-planning hope-platform-architecture-ownership \
+  --skill work-on-ticket \
   --agent '*' --full-depth --yes
 npx -y skills add mattpocock/skills --global --all
 npx -y skills add cursor/plugins --global --skill unslop \
@@ -1529,8 +1529,4 @@ When adding new rules to this plugin:
 
 ## Platform Considerations
 
-Hosanna UI targets multiple platforms (web, Roku, Apple TV, Android) with different performance characteristics and constraints. This plugin helps enforce patterns that work optimally across all supported platforms, particularly focusing on:
-
-- **Roku Performance:** Preventing patterns that cause memory leaks or slow rendering
-- **Transpile Safety:** Guarding against code that might not transpile correctly to BrightScript
-- **Cross-Platform Compatibility:** Ensuring code works consistently across all target platforms
+Hosanna applications run on Roku and in the web simulator. The rules catch code that cannot transpile to BrightScript and patterns that cause memory leaks or slow rendering on Roku.

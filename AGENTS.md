@@ -44,7 +44,7 @@ When adding a rule that corresponds to a compiler diagnostic, update the shared 
 
 ### Issue tracker
 
-ClickUp is authoritative; use `$work-on-ticket` for execution and `$hope-platform-planning` for Hope Platform backlog work. See `docs/agents/issue-tracker.md`.
+ClickUp is authoritative; use `$work-on-ticket` for execution. See `docs/agents/issue-tracker.md`.
 
 ### Triage labels
 

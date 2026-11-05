@@ -90,13 +90,13 @@ describe('app-config-style-key-valid config selection', () => {
   });
 
   it('follows a named compiler input and platform expression inheritance', () => {
-    write('assets/meta/app.config.phone.json', { $extendFile: './app.config.json', controls: { Phone: { default: {} } } });
-    write('app-config/brand/phone.json', { $extendFile: '../../assets/meta/app.config.phone.json' });
+    write('assets/meta/app.config.simulator.json', { $extendFile: './app.config.json', controls: { Simulator: { default: {} } } });
+    write('app-config/brand/simulator.json', { $extendFile: '../../assets/meta/app.config.simulator.json' });
     write('.hosanna-tools/run.json', {
       schemaVersion: 1,
-      apps: { brand: { appConfigCompiler: { enabled: true }, platforms: { ios: { appConfigCompiler: { input: 'app-config/brand/phone.json' } } } } },
+      apps: { brand: { appConfigCompiler: { enabled: true }, platforms: { ios: { appConfigCompiler: { input: 'app-config/brand/simulator.json' } } } } },
     });
-    expect(lint(code('controls.Phone.default'))).toEqual([]);
+    expect(lint(code('controls.Simulator.default'))).toEqual([]);
     expect(lint(code('controls.Base.default'))).toEqual([]);
   });
 

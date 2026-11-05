@@ -78,7 +78,7 @@ describe('app-config-json-valid', () => {
 
   it('should validate a partial variant against its resolved parent config', () => {
     const basePath = path.join(tempDir, 'assets', 'meta', 'app.config.json');
-    const variantPath = path.join(tempDir, 'assets', 'meta', 'app.config.phone.json');
+    const variantPath = path.join(tempDir, 'assets', 'meta', 'app.config.simulator.json');
     fs.mkdirSync(path.dirname(basePath), { recursive: true });
     fs.writeFileSync(basePath, JSON.stringify({
       rows: {},
@@ -91,7 +91,7 @@ describe('app-config-json-valid', () => {
     ruleTester.run('app-config-json-valid', rule, {
       valid: [
         {
-          code: JSON.stringify({ $extendFile: './app.config.json', appSettings: { configVariant: 'phone' } }),
+          code: JSON.stringify({ $extendFile: './app.config.json', appSettings: { configVariant: 'simulator' } }),
           filename: variantPath,
         },
       ],
@@ -100,7 +100,7 @@ describe('app-config-json-valid', () => {
   });
 
   it('should report invalid $extendFile usage', () => {
-    const variantPath = path.join(tempDir, 'assets', 'meta', 'app.config.phone.json');
+    const variantPath = path.join(tempDir, 'assets', 'meta', 'app.config.simulator.json');
     ruleTester.run('app-config-json-valid', rule, {
       valid: [],
       invalid: [

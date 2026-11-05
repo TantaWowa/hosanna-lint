@@ -28,9 +28,9 @@ describe('no-conditional-compilation-else', () => {
     ruleTester.run('no-conditional-compilation-else', rule, {
       valid: [
         'if (__ROKU__) { doSomething(); }',
-        'if (__APPLE__) { doSomething(); }',
+        'if (__PROD__) { doSomething(); }',
         'if (__WEB__) { doSomething(); }',
-        'if (__ANDROID__) { doSomething(); }',
+        'if (__DEBUG__) { doSomething(); }',
         'if (__DEV__) { doSomething(); }',
         `
           if (__ROKU__) {
@@ -41,7 +41,7 @@ describe('no-conditional-compilation-else', () => {
           if (__ROKU__) {
             doSomething();
           }
-          if (__APPLE__) {
+          if (__PROD__) {
             doSomethingElse();
           }
         `,
@@ -70,7 +70,7 @@ describe('no-conditional-compilation-else', () => {
         },
         {
           code: `
-            if (__APPLE__) {
+            if (__PROD__) {
               doSomething();
             } else {
               doSomethingElse();
@@ -108,7 +108,7 @@ describe('no-conditional-compilation-else', () => {
           code: `
             if (__ROKU__) {
               doSomething();
-            } else if (__APPLE__) {
+            } else if (__PROD__) {
               doSomethingElse();
             }
           `,
@@ -144,7 +144,7 @@ describe('no-conditional-compilation-else', () => {
           code: `
             if (__ROKU__) {
               doSomething();
-            } else if (__APPLE__) {
+            } else if (__PROD__) {
               doSomethingElse();
             } else {
               final();
@@ -160,7 +160,7 @@ describe('no-conditional-compilation-else', () => {
           code: `
             if (__ROKU__) {
               doSomething();
-            } else if (__APPLE__) {
+            } else if (__PROD__) {
               doSomethingElse();
             } else if (__WEB__) {
               anotherThing();
@@ -226,7 +226,7 @@ describe('no-conditional-compilation-else', () => {
         },
         {
           code: `
-            if (__ROKU__ || __APPLE__) {
+            if (__ROKU__ || __PROD__) {
               doSomething();
             } else {
               doSomethingElse();
@@ -290,8 +290,8 @@ describe('no-conditional-compilation-else', () => {
     ruleTester.run('no-conditional-compilation-else', rule, {
       valid: [
         'if (__ROKU__) { doSomething(); }',
-        'if (__APPLE_TV__) { doSomething(); }',
-        'if (__ANDROID_TV__) { doSomething(); }',
+        'if (__CUSTOM_FLAG__) { doSomething(); }',
+        'if (__OTHER_FLAG__) { doSomething(); }',
         'if (__DEV_MODE__) { doSomething(); }',
       ],
       invalid: [
@@ -311,7 +311,7 @@ describe('no-conditional-compilation-else', () => {
         },
         {
           code: `
-            if (__APPLE_TV__) {
+            if (__CUSTOM_FLAG__) {
               doSomething();
             } else {
               doSomethingElse();
