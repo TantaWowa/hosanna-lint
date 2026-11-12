@@ -1,3 +1,13 @@
+# Moved to the Hosanna UI monorepo
+
+This project is now maintained in [`TantaWowa/hosanna-ui/packages/eslint-plugin`](https://github.com/TantaWowa/hosanna-ui/tree/main/packages/eslint-plugin).
+
+This repository is archived and retained for its history. Please open [issues](https://github.com/TantaWowa/hosanna-ui/issues) and [pull requests](https://github.com/TantaWowa/hosanna-ui/pulls) in the monorepo. Follow the monorepo's [development and release instructions](https://github.com/TantaWowa/hosanna-ui/blob/main/docs/monorepo.md) for current work.
+
+The previous README is preserved below for reference.
+
+---
+
 # @tantawowa/hosanna-eslint-plugin
 
 ## Agent skills
